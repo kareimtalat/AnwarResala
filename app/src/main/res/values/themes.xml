@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.AnwarResala"
+        parent="android:Theme.Material.Light.NoActionBar" >
+    <!-- Splash screen background -->
+    <item name="windowSplashScreenBackground">@color/white</item>
+    <!-- Splash screen icon -->
+    <item name="windowSplashScreenAnimatedIcon">@drawable/anwar_resala_logo</item>
+    <!-- Icon animation duration -->
+    <item name="windowSplashScreenAnimationDuration">1000</item>
+    <!-- Post-splash screen theme -->
+    <item name="postSplashScreenTheme">@style/Theme.AnwarResala</item>
+    </style>
+</resources>

@@ -1,0 +1,101 @@
+<resources>
+    // Base application strings
+    <string name="app_name">أنوار رسالة</string>
+    <string name="Beneficiary">مستفيد</string>
+    <string name="volunteer">متطوع</string>
+    <string name="the_current_courses_of_the_month">كورسات شهر </string>
+    <string name="search_in_all_courses">البحث في جميع الكورسات</string>
+    <string name="search_for_course">البحث عن كورس معين</string>
+    <string name="all_the_courses">جميع الكورسات</string>
+    <string name="online_courses">الأون لاين</string>
+    <string name="offline_courses">الأوف لاين</string>
+    <string name="all_our_current_courses">جميع الكورسات الحالية</string>
+    <string name="loading">...جاري التحميل</string>
+
+    // Registration strings
+    <string name="volunteer_register">تسجيل المتطوع</string>
+    <string name="nameLabel">أدخل الاسم</string>
+    <string name="choose_your_responsibility">إختر مسؤوليتك</string>
+    <string name="committee_member">عضو في لجنة</string>
+    <string name="head">مسؤول لجنة</string>
+    <string name="leader">مسؤول فرع</string>
+    <string name="activity_officer">مسؤول النشاط</string>
+    <string name="choose_your_branch">إختر فرعك</string>
+    // Branch names
+    <string name="central">المركزي</string>
+    <string name="tenth_of_ramadan">العاشر من رمضان</string>
+    <string name="helwan">حلوان</string>
+    <string name="maadi">المعادي</string>
+    <string name="faisal">فيصل</string>
+    <string name="nasr_city">مدينة نصر</string>
+    <string name="other">أخرى</string>
+
+    <string name="already_have_account">هل لديك حساب بالفعل. إذاً</string>
+    <string name="login">سجل الدخول</string>
+    <string name="forget_password">نسيت كلمة المرور</string>
+    <string name="overwrite_password">إعادة تعيين كلمة المرور</string>
+    <string name="confirm_email">تأكيد البريد الإلكتروني</string>
+    <string name="register">التسجيل</string>
+    <string name="dont_have_account">ليس لديك حساب بعد. قم ب</string>
+    <string name="branch">الفرع</string>
+    <string name="choose_your_committee">إختر لجنتك</string>
+    <string name="committee">اللجنة</string>
+    <string name="br">P.R.</string>
+    <string name="social">Social</string>
+    <string name="organizing">التنظيم</string>
+    <string name="hr">H.R.</string>
+    <string name="email_label">أدخل البريد الإلكتروني</string>
+    <string name="password_label">أدخل كلمة المرور</string>
+    <string name="renter_password_label">أعد إدخال كلمة المرور</string>
+    <string name="branch_courses">الكورسات حسب الفرع</string>
+
+    // Fore course card and course details activity
+    <string name="the_title">العنوان</string>
+    <string name="online">أونلاين</string>
+    <string name="offline">أوفلاين</string>
+    <string name="hybrid">أونلاين و أوفلاين</string>
+
+    // Instructor names
+    <string name="dr_layla_saad">د. ليلى سعد</string>
+    <string name="ms_reham_hamdey">أ. ريهام حمدي</string>
+    <string name="ms_ragaa_mohamed">أ. رجاء محمد</string>
+    <string name="mr_hossam_elsayed">أ. حسام السيد</string>
+
+    // Instructor bios
+    <string name="dr_layla_saad_bio">د. ليلى سعد، أستاذة جامعية في علم النفس، حاصلة على دكتوراه في علم النفس الاجتماعي. لديها خبرة في تقديم الاستشارات النفسية والتدريب على مهارات الحياة.</string>
+    <string name="ms_reham_hamdey_bio">أ. ريهام حمدي، مدربة معتمدة في مجال التنمية البشرية، حاصلة على بكالوريوس في علم النفس. تقدم ورش عمل ودورات تدريبية في مجالات التواصل الفعال وإدارة الوقت.</string>
+    <string name="ms_ragaa_mohamed_bio">أ. رجاء محمد، مدربة معتمدة في مجال التنمية البشرية، حاصلة على بكالوريوس في إدارة الأعمال. تقدم ورش عمل ودورات تدريبية في مجالات القيادة والتواصل الفعال.</string>
+    <string name="mr_hossam_elsayed_bio">أ. حسام السيد، مدرب معتمد في مجال التنمية البشرية، حاصل على بكالوريوس في إدارة الأعمال. عمل في مجال الموارد البشرية في شركة دولية لمدة 5 سنوات. لديه خبرة في تقديم ورش العمل والدورات التدريبية في مجالات القيادة والتواصل الفعال.</string>
+
+
+    // Category names
+    <string name="human_development">تنمية بشرية</string>
+    <string name="religious">ديني</string>
+
+    // Course titles
+    <string name="before_marriage_we_should">قبل ما نتجوز لازم</string>
+    <string name="how_to_raise_your_son">كيف تربي إبنك في النهج الاسلامي</string>
+    <string name="soft_skills">Soft skills</string>
+    <string name="interview_skills">Interview skills</string>
+
+    // Course details
+    <string name="before_marriage_de">هذا الكورس سيعلمك الكيثير عن العلاقات الزوجية والاسرية وكيفية إدارتها. مناسب للمقبلين على الزواج أو المتزوجين بالفعل.</string>
+    <string name="how_to_raise_your_son_de">هذا الكورس سيعلمك كيفية تربية ابنك في النهج الاسلامي. مناسب للآباء والأمهات.</string>
+    <string name="soft_skills_de">هذا الكورس سيعلمك المهارات الشخصية اللازمة للنجاح في الحياة العملية. مناسب لجميع الأعمار.</string>
+    <string name="interview_skills_de">هذا الكورس سيعلمك كيفية التحضير للمقابلات الشخصية وكيفية التعامل معها. مناسب للباحثين عن عمل أو الذين يفكرون في تغيير وظائفهم.</string>
+
+    // Organizer names
+    <string name="fatema_rabee3">أ. فاطمة ربيع</string>
+    <string name="tasnim">أ. تسنيم</string>
+    <string name="ziko">أ. محمد زكريا</string>
+    <string name="kareim_talat">أ. كريم طلعت</string>
+
+    // For The Activity of CoursesByBranches
+    <string name="all_the_branches">الكورسات حسب الفروع</string>
+    <string name="the_courses_of_branch">كورسات فرع</string>
+    <string name="no_courses_found">لم يتم إضافة كورسات هنا بعد</string>
+
+
+
+
+</resources>

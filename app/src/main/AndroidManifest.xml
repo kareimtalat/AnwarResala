@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/anwar_resala_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AnwarResala"
+        tools:targetApi="31"
+        tools:ignore="MissingClass">
+
+        <activity
+            android:name="com.kareimt.anwarresala.ui.theme.screens.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AnwarResala">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <!-- Beneficiary Activities -->
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.BeneficiaryActivity"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.AllTheCourses"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.OnlineCourses"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.OfflineCourses"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.CourseDetailsActivity"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.BranchCoursesActivity"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.BCSpecificActivity"
+            android:exported = "true"/>
+
+        <!-- Volunteer Activities -->
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.RegistrationActivity"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.LoginActivity"
+            android:exported = "true"/>
+        <activity
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.ForgetPasswordActivity"
+            android:exported = "true"/>
+
+
+    </application>
+
+</manifest>

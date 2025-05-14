@@ -1,0 +1,94 @@
+package com.kareimt.anwarresala.ui.theme.screens
+
+import android.content.Context
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
+import com.kareimt.anwarresala.R
+import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
+import com.kareimt.anwarresala.ui.theme.components.InputField
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModelFactory
+import kotlinx.coroutines.launch
+
+class ForgetPasswordActivity: ComponentActivity(){
+    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            // Perform any heavy initialization or data loading here
+
+            // Once data is ready, set the content
+            setContent {
+                AnwarResalaTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        ForgetPasswordContent(
+                            viewModel = viewModel,
+                            context = this@ForgetPasswordActivity
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ForgetPasswordContent(viewModel: VolunteerViewModel,context: Context) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            //Activity label
+            Text(
+                text = stringResource(R.string.forget_password),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+            )
+
+            //EmailField...
+            InputField(value = viewModel.email,
+                onValueChange = viewModel::onEmailChanged,
+                label = stringResource(R.string.email_label),
+                keyboardType = "Email",
+                rtl = false
+            )
+
+            // Confirm Button
+            Button(onClick = {
+                //TODO: what will happen when press confirm_email. Will do to things:
+//                1. Send message to the email to reset password
+            }) {Text(context.getString(R.string.confirm_email)) }
+
+
+
+        }
+
+    }
+}
