@@ -4,6 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     // For the percelize
     id("org.jetbrains.kotlin.plugin.parcelize")
+
+
+    // For the Room kapt
+    id("kotlin-kapt")
 }
 
 android {
