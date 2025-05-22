@@ -105,5 +105,14 @@ dependencies {
 
     // For the splash screen
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    // Room version
+    val roomVersion = ("2.6.1")
+    // Room import
+    implementation ("androidx.room:room-runtime:$roomVersion")
+    // For annotation processing (Kotlin)
+    kapt ("androidx.room:room-compiler:$roomVersion")
+    // Room KTX import
+    implementation("androidx.room:room-ktx:$roomVersion")
     
     }
