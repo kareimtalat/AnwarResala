@@ -27,3 +27,24 @@ fun CourseEntity.toCourse(): Course = Course(
     )}else null,
     progress = progress
 )
+
+fun Course.toEntity(): CourseEntity = CourseEntity(
+    id = id,
+    branch = branch,
+    imageResId = imageResId,
+    category = category,
+    title = title,
+    type = type.name,
+    instructorName = instructor.name,
+    instructorBio = instructor.bio,
+    instructorImageResId = instructor.imageResId,
+    startDate = startDate,
+    wGLink = wGLink,
+    courseDetails = courseDetails,
+    totalLectures = totalLectures,
+    noOfLiteraturesFinished = noOfLiteraturesFinished,
+    nextLecture = nextLecture,
+    organizerName = organizer?.name,
+    organizerWhatsapp = organizer?.whatsapp,
+    progress = progress
+)

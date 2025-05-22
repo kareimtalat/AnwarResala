@@ -2,12 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // For the percelize
+    // For the parcelize .. for making instances for the the course cards and course details activity
     id("org.jetbrains.kotlin.plugin.parcelize")
 
-
-    // For the Room kapt
-    id("kotlin-kapt")
+    // For the Room KSP
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -104,19 +103,17 @@ dependencies {
     implementation (libs.androidx.material.icons.extended)
 
     // For solving the dropdownBox expanding problem
-    implementation("androidx.compose.material3:material3:1.3.2")
-    implementation("androidx.compose.foundation:foundation:1.8.1")
+    implementation(libs.material3)
+    implementation(libs.androidx.foundation)
 
     // For the splash screen
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.core.splashscreen)
 
-    // Room version
-    val roomVersion = ("2.6.1")
     // Room import
-    implementation ("androidx.room:room-runtime:$roomVersion")
+    implementation (libs.androidx.room.runtime)
     // For annotation processing (Kotlin)
-    kapt ("androidx.room:room-compiler:$roomVersion")
+    ksp (libs.androidx.room.compiler)
     // Room KTX import
-    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation(libs.androidx.room.ktx)
     
     }

@@ -5,4 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     //for the percelize
     id("org.jetbrains.kotlin.plugin.parcelize") version "2.0.21" apply false
+
+    // For the Room KSP
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27" apply false
 }
