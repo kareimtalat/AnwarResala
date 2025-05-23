@@ -27,11 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.CourseType
@@ -119,9 +121,22 @@ fun CourseCard(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // الصورة
+            // The course image
+            val painter=when{
+                course.imagePath.startsWith("drawable/") == true -> {
+                    val resourceName = course.imagePath.removePrefix("drawable/")
+                    val resourceId = LocalContext.current.resources.getIdentifier(
+                        resourceName,
+                        "drawable",
+                        LocalContext.current.packageName
+                    )
+                    painterResource(resourceId)
+                }
+                else -> painterResource(R.drawable.anwar_resala_logo)
+            }
+
             Image(
-                painter = painterResource(course.imageResId),
+                painter = painter,
                 contentDescription = null,
                 modifier = Modifier
                     .height(120.dp)

@@ -134,7 +134,6 @@ fun BranchCoursesContent(context: Context,viewModel: VolunteerViewModel) {
         ){
             items(branches) { branch ->
                 Button(onClick = {
-                    // TODO: Handle branch button click
                     val intent = Intent(context, BCSpecificActivity::class.java).apply {
                         putExtra("branch", branch)
                     }

@@ -8,13 +8,13 @@ import com.kareimt.anwarresala.R
 data class CourseEntity(
     @PrimaryKey val id: Int,
     val branch: String,
-    val imageResId: Int? = R.drawable.anwar_resala_logo,
+    val imagePath: String? = "drawable/anwar_resala_logo",
     val category: String,
     val title: String,
     val type: String, // enum سيتم تعريفه // Use String or Int for enums in Room
     val instructorName: String,
     val instructorBio: String,
-    val instructorImageResId: Int?,
+    val instructorImagePath: String? = "drawable/anwar_resala_logo",
     val startDate: String,
     val wGLink: String? = null, // Optional
     val courseDetails: String? = null, // Optional

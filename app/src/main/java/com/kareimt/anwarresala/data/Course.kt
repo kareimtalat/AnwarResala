@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 data class Course(
     val id: Int,
     val branch: String,
-    val imageResId: Int= R.drawable.anwar_resala_logo,
+    val imagePath: String = "drawable/anwar_resala_logo",
     val category: String,
     val title: String,
     val type: CourseType, // enum سيتم تعريفه
@@ -28,7 +28,7 @@ data class Course(
     data class Instructor(
         val name: String,
         val bio: String,
-        val imageResId: Int= R.drawable.anwar_resala_logo,
+        val imagePath: String= "drawable/anwar_resala_logo",
     ): Parcelable
     @Parcelize
     data class Organizer(

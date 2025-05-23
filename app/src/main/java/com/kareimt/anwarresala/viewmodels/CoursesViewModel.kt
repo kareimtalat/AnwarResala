@@ -5,7 +5,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
-import com.kareimt.anwarresala.data.CourseType
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.kareimt.anwarresala.data.local.CourseEntity

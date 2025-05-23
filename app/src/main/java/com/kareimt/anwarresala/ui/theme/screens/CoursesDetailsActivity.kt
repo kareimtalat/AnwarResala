@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -88,7 +87,7 @@ fun CourseDetailsScreen(course: Course?) {
         item {
             // صورة الكورس
             Image(
-                painter = painterResource(course.imageResId),
+                painter = painterResource(course.imagePath),
                 contentDescription = null,
                 modifier = Modifier
                     //.height(250.dp)
@@ -161,7 +160,7 @@ private fun InstructorSection(instructor: Course.Instructor) {
             }
             Spacer(Modifier.width(13.dp))
             Image(
-                painter = painterResource(instructor.imageResId),
+                painter = painterResource(instructor.imagePath),
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)

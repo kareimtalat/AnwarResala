@@ -155,12 +155,3 @@ fun BeneficiaryActivityContent(context: Context){
         }
     }
 }
-
-//    @Preview
-//    @Composable
-//    fun TheBeneficiaryActivityContentPreview() {
-//        AnwarResalaTheme {
-//            val context = LocalContext.current
-//            SecondActivityContent(context)
-//        }
-//    }

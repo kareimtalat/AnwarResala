@@ -84,6 +84,8 @@ fun ForgetPasswordContent(viewModel: VolunteerViewModel,context: Context) {
             Button(onClick = {
                 //TODO: what will happen when press confirm_email. Will do to things:
 //                1. Send message to the email to reset password
+//                2. Show a message to the user that the email has been sent
+//                3. Navigate to the new screen
             }) {Text(context.getString(R.string.confirm_email)) }
 
 
