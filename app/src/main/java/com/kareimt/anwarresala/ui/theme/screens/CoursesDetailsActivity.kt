@@ -43,6 +43,9 @@ import com.kareimt.anwarresala.ui.theme.components.DetailRow
 import com.kareimt.anwarresala.ui.theme.components.DetailRowForNextLit
 import com.kareimt.anwarresala.ui.theme.components.ProgressIndicator
 import kotlinx.coroutines.launch
+import coil.compose.AsyncImage
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.layout.ContentScale
 
 
 class CourseDetailsActivity : ComponentActivity() {
@@ -81,20 +84,31 @@ fun CourseDetailsScreen(course: Course?) {
 
     LazyColumn(modifier = Modifier
         .padding(16.dp)
-        //.background(MaterialTheme.colorScheme.background)
-        .padding(16.dp)
     ) {
         item {
             // صورة الكورس
-            Image(
-                painter = painterResource(course.imagePath),
-                contentDescription = null,
-                modifier = Modifier
-                    //.height(250.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp)),
-                // contentScale = ContentScale.Fit /*I commented it because it needn't for further*/
-            )
+            if (course.imagePath.startsWith("drawable/")) {
+                val resourceId = LocalContext.current.resources.getIdentifier(
+                    course.imagePath.removePrefix("drawable/"),
+                    "drawable",
+                    LocalContext.current.packageName
+                )
+                Image(
+                    painter = painterResource(resourceId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                )
+            } else {
+                AsyncImage(
+                    model = course.imagePath,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
 
@@ -159,13 +173,27 @@ private fun InstructorSection(instructor: Course.Instructor) {
                 )
             }
             Spacer(Modifier.width(13.dp))
-            Image(
-                painter = painterResource(instructor.imagePath),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-            )
+
+            // Instructor image
+            if (instructor.imagePath.startsWith("drawable/")) {
+                Image(
+                    painter = painterResource(R.drawable.anwar_resala_logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                AsyncImage(
+                    model = instructor.imagePath,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
     }
 }

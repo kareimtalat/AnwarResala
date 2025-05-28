@@ -1,5 +1,6 @@
 package com.kareimt.anwarresala.data.local
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -7,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.kareimt.anwarresala.data.Course
 
+@Dao
 interface CourseDao {
     @Query("SELECT * FROM courses")
     suspend fun getAllCourses(): List<CourseEntity>

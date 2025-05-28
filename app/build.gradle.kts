@@ -115,5 +115,8 @@ dependencies {
     ksp (libs.androidx.room.compiler)
     // Room KTX import
     implementation(libs.androidx.room.ktx)
-    
+
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
+    implementation("io.coil-kt:coil-compose:2.5.0")
     }

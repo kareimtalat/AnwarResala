@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kareimt.anwarresala.R
+import com.kareimt.anwarresala.data.toCourse
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.components.CourseCard
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
@@ -151,7 +152,8 @@ fun CoursesScreen5(viewModel: CoursesViewModel, context: Context,branch: String?
         )
     } else {
         LazyColumn {
-            items(courses) { course ->
+            items(courses) { courseEntity ->
+                val course = courseEntity.toCourse()
                 CourseCard(
                     course = course,
                     onItemClick = {
