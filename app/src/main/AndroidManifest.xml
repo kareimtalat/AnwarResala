@@ -11,13 +11,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AnwarResala"
-        tools:targetApi="31"
+        tools:targetApi="35"
         tools:ignore="MissingClass">
 
         <activity
             android:name="com.kareimt.anwarresala.ui.theme.screens.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AnwarResala">
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,13 +31,13 @@
             android:name = "com.kareimt.anwarresala.ui.theme.screens.BeneficiaryActivity"
             android:exported = "true"/>
         <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.AllTheCourses"
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.AllTheCourses"
             android:exported = "true"/>
         <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.OnlineCourses"
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.OnlineCourses"
             android:exported = "true"/>
         <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.OfflineCourses"
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.OfflineCourses"
             android:exported = "true"/>
         <activity
             android:name = "com.kareimt.anwarresala.ui.theme.screens.CourseDetailsActivity"
@@ -46,18 +46,18 @@
             android:name = "com.kareimt.anwarresala.ui.theme.screens.BranchCoursesActivity"
             android:exported = "true"/>
         <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.BCSpecificActivity"
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.BCSpecificActivity"
             android:exported = "true"/>
 
         <!-- Volunteer Activities -->
         <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.RegistrationActivity"
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.login_screens.RegistrationActivity"
             android:exported = "true"/>
         <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.LoginActivity"
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.login_screens.LoginActivity"
             android:exported = "true"/>
         <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.ForgetPasswordActivity"
+            android:name = "com.kareimt.anwarresala.ui.theme.screens.login_screens.ForgetPasswordActivity"
             android:exported = "true"/>
 
 

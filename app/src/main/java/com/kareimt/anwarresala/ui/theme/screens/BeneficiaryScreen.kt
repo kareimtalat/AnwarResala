@@ -36,6 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.AllTheCourses
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.OfflineCourses
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.OnlineCourses
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar

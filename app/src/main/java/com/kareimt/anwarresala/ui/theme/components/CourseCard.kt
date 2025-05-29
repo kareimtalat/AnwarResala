@@ -15,13 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,86 +40,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import androidx.navigation.compose.rememberNavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.CourseType
-
-@Composable
-fun DetailRow(icon: ImageVector? = null, text: String, text2: String? = null) {
-    Row(
-        verticalAlignment = Alignment.Top,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 7.dp),
-        horizontalArrangement = Arrangement.End,
-    ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.padding(start = 8.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        // The detail text
-        if (text2 != null) {
-            Text(
-                text = text2,
-                modifier = Modifier
-                    .weight(2.5f)
-                    //.wrapContentWidth()
-                    .padding(end = 15.dp),
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // The label
-        Text(
-            text = text,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-fun DetailRowForNextLit(icon: ImageVector, text: String) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 7.dp),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 3.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-            // The detail text
-            Text(
-                text = text,
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-}
+import com.kareimt.anwarresala.data.toEntity
+import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
 // ****** The card of the course
 @Composable
 fun CourseCard(
     course: Course,
-    onItemClick: (Course) -> Unit
+    onItemClick: (Course) -> Unit,
+    onEditClick: (Int) -> Unit,
+    viewModel: CoursesViewModel
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -199,7 +142,7 @@ fun CourseCard(
                 Text(
                     text = typeText,
                     modifier = Modifier.padding(start = 4.dp),
-                            style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
 
@@ -222,12 +165,118 @@ fun CourseCard(
 
             // إظهار العناصر الاختيارية فقط إذا كانت موجودة
             if (course.progress<1f) {
-                course.nextLecture?.let {
-                    DetailRowForNextLit(icon = Icons.Default.Schedule, text = "المحاضرة القادمة: $it")
+                if (course.nextLecture!="") {
+                    DetailRowForNextLit(icon = Icons.Default.Schedule, text = "المحاضرة القادمة: ${course.nextLecture}")
+                }
+            }
+
+            // Action buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterHorizontally),
+            ) {
+                // Edit Button
+                IconButton(onClick = {onEditClick(course.id)}) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                // Delete Button
+                IconButton(onClick = {showDeleteDialog=true}) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
     }
+
+    // fun for show the Delete Confirmation Dialog
+    if (showDeleteDialog) {
+        ConfirmationDialog(
+            title = stringResource(R.string.delete_course),
+            message = "${stringResource(R.string.are_you_sure_you_want_to_delete_this_course)+" "+course.title}?",
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                viewModel.deleteCourse(course.toEntity())
+                showDeleteDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun DetailRow(icon: ImageVector? = null, text: String, text2: String? = null) {
+    Row(
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 7.dp),
+        horizontalArrangement = Arrangement.End,
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.padding(start = 8.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        // The detail text
+        if (text2 != null) {
+            Text(
+                text = text2,
+                modifier = Modifier
+                    .weight(2.5f)
+                    //.wrapContentWidth()
+                    .padding(end = 15.dp),
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        // The label
+        Text(
+            text = text,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+fun DetailRowForNextLit(icon: ImageVector, text: String) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 7.dp),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 3.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            // The detail text
+            Text(
+                text = text,
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
 }
 
 @Composable

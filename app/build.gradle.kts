@@ -116,7 +116,13 @@ dependencies {
     // Room KTX import
     implementation(libs.androidx.room.ktx)
 
-    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    // For permissions handling
+    implementation(libs.accompanist.permissions)
 
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    // For Coil image loading from device storage or network
+    implementation(libs.coil.compose)
+
+
+    // For Navigation between screens
+    implementation(libs.androidx.navigation.compose)
     }

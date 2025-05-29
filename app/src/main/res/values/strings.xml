@@ -7,6 +7,7 @@
     <string name="search_in_all_courses">البحث في جميع الكورسات</string>
     <string name="search_for_course">البحث عن كورس معين</string>
     <string name="all_the_courses">جميع الكورسات</string>
+    <string name="courses_of">كورسات فرع</string>
     <string name="online_courses">الأون لاين</string>
     <string name="offline_courses">الأوف لاين</string>
     <string name="all_our_current_courses">جميع الكورسات الحالية</string>
@@ -95,7 +96,9 @@
     <string name="the_courses_of_branch">كورسات فرع</string>
     <string name="no_courses_found">لم يتم إضافة كورسات هنا بعد</string>
 
-
+    // Database strings
+    <string name="delete_course">حذف الكورس</string>
+    <string name="are_you_sure_you_want_to_delete_this_course">هل أنت متأكد من رغبتك في حذف كورس</string>
 
 
 </resources>

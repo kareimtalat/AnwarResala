@@ -1,5 +1,6 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -20,53 +21,50 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kareimt.anwarresala.R
-import com.kareimt.anwarresala.data.toCourse
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
-import com.kareimt.anwarresala.ui.theme.components.CourseCard
-import com.kareimt.anwarresala.viewmodels.CoursesViewModel
-import com.kareimt.anwarresala.viewmodels.CoursesViewModelFactory
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.OutlinedTextField
+import androidx.lifecycle.lifecycleScope
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.BCSpecificActivity
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModelFactory
 import kotlinx.coroutines.launch
+import kotlin.getValue
 
-class BCSpecificActivity:ComponentActivity(){
-    val viewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(context = this) }
+// TODO: Handel this class from the beginning
+class BranchCoursesActivity:ComponentActivity(){
+    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             // Perform any heavy initialization or data loading here
 
             // Once data is ready, set the content
-            val branch = intent.getStringExtra("branch")
             setContent {
                 AnwarResalaTheme {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        BCSpecificContent(
-                            context = this@BCSpecificActivity,
-                            viewModel = viewModel,
-                            branch = branch
+                        BranchCoursesContent(
+                            context = this@BranchCoursesActivity,
+                            viewModel = viewModel
                         )
                     }
                 }
@@ -76,16 +74,15 @@ class BCSpecificActivity:ComponentActivity(){
 }
 
 @Composable
-    fun BCSpecificContent(context: Context,viewModel: CoursesViewModel, branch: String?) {
+fun BranchCoursesContent(context: Context,viewModel: VolunteerViewModel) {
     var searchText by remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "${context.getString(R.string.the_courses_of_branch)} $branch",
+            text = context.getString(R.string.all_the_branches),
             textAlign = TextAlign.End
         )
 
@@ -130,40 +127,30 @@ class BCSpecificActivity:ComponentActivity(){
         Spacer(modifier = Modifier.height(16.dp))
 
         // Courses list
-        CoursesScreen5(
-            viewModel = viewModel(),
-            context= context,
-            branch=branch
-        )
-    }
-}
-
-@Composable
-fun CoursesScreen5(viewModel: CoursesViewModel, context: Context,branch: String?) {
-    val coursesInGeneral by viewModel.courses.collectAsState()
-    // TODO: Filter the courses based on every branch had chosen
-    val courses = coursesInGeneral.filter { it.branch.toString() == branch }
-
-    if (courses.isEmpty()) {
-        Text(
-            text = context.getString(R.string.no_courses_found),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(16.dp)
-        )
-    } else {
-        LazyColumn {
-            items(courses) { courseEntity ->
-                val course = courseEntity.toCourse()
-                CourseCard(
-                    course = course,
-                    onItemClick = {
-                        val intent = Intent(context, CourseDetailsActivity::class.java).apply {
-                            putExtra("course", course)
-                        }
-                        context.startActivity(intent)
+        val branches= viewModel.getBranchOptions().filter { it != context.getString(R.string.central) }
+        LazyColumn (
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            items(branches) { branch ->
+                Button(onClick = {
+                    val intent = Intent(context, BCSpecificActivity::class.java).apply {
+                        putExtra("branch", branch)
                     }
-                )
+                    context.startActivity(intent)
+                }) {
+                    Text(
+                        text = branch,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
+
+
+
+
     }
 }
+
+

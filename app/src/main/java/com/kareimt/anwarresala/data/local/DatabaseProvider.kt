@@ -20,15 +20,19 @@ object DatabaseProvider {
                 AppDatabase::class.java,
                 "app_database"
             )
-                .addCallback(object : RoomDatabase.Callback(){
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        // Use a coroutine to insert hardcoded courses
-                        CoroutineScope(Dispatchers.IO).launch{
-                            //getDatabase(context).courseDao().insertCourses(getHardcodedCourses(context))
-                        }
-                    }
-                })
+                //                .addCallback(object : RoomDatabase.Callback(){
+                //                    override fun onCreate(db: SupportSQLiteDatabase) {
+                //                        super.onCreate(db)
+                //                        // Use a coroutine to insert hardcoded courses
+                //                        CoroutineScope(Dispatchers.IO).launch{
+                //                            //getDatabase(context).courseDao().insertCourses(getHardcodedCourses(context))
+                //                        }
+                //                    }
+                //                })
+
+                // Use the next line if changed the database schema and there is
+                // problems i can't handel .. this will delete all data in the database
+                .fallbackToDestructiveMigration(false)
                 .build()
                 INSTANCE = instance
                 instance

@@ -1,4 +1,4 @@
-package com.kareimt.anwarresala.ui.theme.screens
+package com.kareimt.anwarresala.ui.theme.screens.login_screens
 
 import android.content.Context
 import android.os.Bundle

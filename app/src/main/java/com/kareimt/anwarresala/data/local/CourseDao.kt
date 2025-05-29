@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.kareimt.anwarresala.data.Course
 
 @Dao
 interface CourseDao {
@@ -16,10 +15,10 @@ interface CourseDao {
     @Query("SELECT * FROM courses WHERE id = :id")
     suspend fun getCourseById(id: Int): CourseEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertCourse(course: CourseEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCourses(courses: List<CourseEntity>)
 
     @Update
@@ -27,4 +26,13 @@ interface CourseDao {
 
     @Delete
     suspend fun deleteCourse(course: CourseEntity)
+
+    @Query("SELECT * FROM courses WHERE " +
+            "title LIKE :searchQuery " +
+            "OR category LIKE :searchQuery " +
+            "OR courseDetails LIKE :searchQuery " +
+            "OR instructorName LIKE :searchQuery " +
+            "OR instructorBio LIKE :searchQuery " +
+            "OR id LIKE :searchQuery")
+    suspend fun searchCourses(searchQuery: String): List<CourseEntity>
 }

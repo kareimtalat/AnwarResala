@@ -6,7 +6,7 @@ import com.kareimt.anwarresala.R
 
 @Entity(tableName = "courses")
 data class CourseEntity(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int=0,
     val branch: String,
     val imagePath: String? = "drawable/anwar_resala_logo",
     val category: String,
