@@ -1,7 +1,9 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -175,25 +177,18 @@ private fun InstructorSection(instructor: Course.Instructor) {
             Spacer(Modifier.width(13.dp))
 
             // Instructor image
-            if (instructor.imagePath.startsWith("drawable/")) {
-                Image(
-                    painter = painterResource(R.drawable.anwar_resala_logo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                AsyncImage(
-                    model = instructor.imagePath,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            AsyncImage(
+                model = if (instructor.imagePath.startsWith("drawable/")){
+                    R.drawable.anwar_resala_logo
+                }else{
+                instructor.imagePath
+            },
+                contentDescription = null,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }
@@ -228,19 +223,24 @@ private fun DetailsSection(course: Course) {
 
 // The WhatsApp link to the course group
 @Composable
-private fun WGSection(
-    wGLink: String
-) {
+private fun WGSection(wGLink: String) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data = wGLink.toUri()
+                val intent = Intent(Intent.ACTION_VIEW, wGLink.toUri())
+                try {
+                    context.startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    // Handel error - you can show a toast
+                    Toast.makeText(
+                        context,
+                        "Unable to open Whatsapp group link",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                context.startActivity(intent)
             },
         horizontalArrangement = Arrangement.Center
     ) {
