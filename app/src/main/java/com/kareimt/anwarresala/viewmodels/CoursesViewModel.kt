@@ -1,11 +1,7 @@
 package com.kareimt.anwarresala.viewmodels
 
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
-import com.kareimt.anwarresala.R
-import com.kareimt.anwarresala.data.Course
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.kareimt.anwarresala.data.local.BranchEntity
@@ -26,15 +22,6 @@ class CoursesViewModel(context:Context) : ViewModel() {
     // Update search query
     fun updateSearchQuery(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
-    }
-
-    // Show/hide add dialog
-    fun showAddCourseDialog() {
-        _uiState.update { it.copy(showAddDialog = true) }
-    }
-
-    fun hideAddCourseDialog() {
-        _uiState.update { it.copy(showAddDialog = false) }
     }
 
     // Handle loading state

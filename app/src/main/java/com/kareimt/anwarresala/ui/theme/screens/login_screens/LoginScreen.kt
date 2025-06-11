@@ -1,63 +1,56 @@
 package com.kareimt.anwarresala.ui.theme.screens.login_screens
 
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
-import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.components.InputField
 import com.kareimt.anwarresala.ui.theme.components.PasswordFieldWithToggle
 import com.kareimt.anwarresala.ui.theme.components.ThePrompt
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
-import com.kareimt.anwarresala.viewmodels.VolunteerViewModelFactory
-import kotlinx.coroutines.launch
 
-class LoginActivity: ComponentActivity(){
-    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            // Perform any heavy initialization or data loading here
-
-            // Once data is ready, set the content
-            setContent {
-                AnwarResalaTheme {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        LoginContent(
-                            viewModel = viewModel,
-                            context = this@LoginActivity
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+//class LoginActivity: ComponentActivity(){
+//    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        lifecycleScope.launch {
+//            // Perform any heavy initialization or data loading here
+//
+//            // Once data is ready, set the content
+//            setContent {
+//                AnwarResalaTheme {
+//                    Surface(
+//                        modifier = Modifier.fillMaxSize(),
+//                        color = MaterialTheme.colorScheme.background
+//                    ) {
+//                        LoginContent(
+//                            viewModel = viewModel,
+//                            context = this@LoginActivity
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginContent(viewModel: VolunteerViewModel,context: Context) {
+fun LoginContent(
+    viewModel: VolunteerViewModel,context: Context,
+    navController: NavController? = null
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -99,8 +92,7 @@ fun LoginContent(viewModel: VolunteerViewModel,context: Context) {
             // Forget password Prompt
             ThePrompt(context = context,
                 onClickFun =  {
-                    val intent = Intent(context, ForgetPasswordActivity::class.java)
-                    context.startActivity(intent)
+                    navController?.navigate("forget_password_screen")
                      },
                 preText = "",
                 clickableText = context.getString(R.string.overwrite_password))
@@ -108,8 +100,7 @@ fun LoginContent(viewModel: VolunteerViewModel,context: Context) {
             // Register Prompt
             ThePrompt(context = context,
                 onClickFun =  {
-                    val intent = Intent(context, RegistrationActivity::class.java)
-                    context.startActivity(intent)
+                    navController?.navigate("register_screen")
                     },
                 preText = context.getString(R.string.dont_have_account),
                 clickableText = context.getString(R.string.register))

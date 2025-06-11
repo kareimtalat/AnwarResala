@@ -1,12 +1,7 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
 import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +25,6 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,69 +34,67 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
-import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
+import com.kareimt.anwarresala.data.toEntity
 import com.kareimt.anwarresala.ui.theme.components.DetailRow
 import com.kareimt.anwarresala.ui.theme.components.DetailRowForNextLit
 import com.kareimt.anwarresala.ui.theme.components.ProgressIndicator
-import coil.compose.AsyncImage
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.layout.ContentScale
-import com.kareimt.anwarresala.data.toEntity
-import com.kareimt.anwarresala.ui.theme.components.AddEditCourseDialog
-import com.kareimt.anwarresala.ui.theme.components.ConfirmationDialog
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
-import com.kareimt.anwarresala.viewmodels.CoursesViewModelFactory
-import kotlin.getValue
 
 
-class CourseDetailsActivity : ComponentActivity() {
-    private val viewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(context = this) }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val course =
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra<Course>("course", Course::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getParcelableExtra<Course>("course")
-            }
-
-        setContent {
-            AnwarResalaTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    course?.let {
-                        CourseDetailsScreen(
-                            course = it,
-                            viewModel = viewModel,
-                            { navController.navigate(Routes.addEditCourse(courseId)) },
-                            { navController.navigateUp() }
-                        ) { navController.navigateUp() }
-                    } ?: run {
-                        Text(
-                            text = "Course details not available",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .wrapContentSize(Alignment.Center)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+//class CourseDetailsActivity : ComponentActivity() {
+//    private val viewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(context = this) }
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//
+//        val course =
+//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+//                intent.getParcelableExtra<Course>("course", Course::class.java)
+//            } else {
+//                @Suppress("DEPRECATION")
+//                intent.getParcelableExtra<Course>("course")
+//            }
+//
+//        setContent {
+//            AnwarResalaTheme {
+//                Surface(
+//                    modifier = Modifier.fillMaxSize(),
+//                    color = MaterialTheme.colorScheme.background
+//                ) {
+//                    course?.let {
+//                        CourseDetailsScreen(
+//                            course = it,
+//                            viewModel = viewModel,
+//                            { navController.navigate(Routes.addEditCourse(courseId)) },
+//                            { navController.navigateUp() },
+//                            { navController.navigateUp() },
+//                            navController
+//                        )
+//                    } ?: run {
+//                        Text(
+//                            text = "Course details not available",
+//                            modifier = Modifier
+//                                .fillMaxSize()
+//                                .wrapContentSize(Alignment.Center)
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 // The last Composable here, which will already appear
 @Composable
@@ -112,7 +103,8 @@ fun CourseDetailsScreen(
     viewModel: CoursesViewModel,
     onNavigateToEdit: () -> Unit,
     onBack: () -> Boolean,
-    onDeleteCourse: () -> Boolean
+    onDeleteCourse: () -> Boolean,
+    navController: NavController
 ) {
     if (course == null) return
 
@@ -155,10 +147,11 @@ fun CourseDetailsScreen(
                 horizontalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterHorizontally),
             ) {
                 var showDeleteDialog by remember { mutableStateOf(false) }
-                var showEditDialog by remember { mutableStateOf(false) }
 
                 // Edit Button
-                IconButton(onClick = {showEditDialog=true}) {
+                IconButton(onClick = {
+                    navController.navigate("add_edit_course_screen/${course.id}")
+                }) {
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "Edit",
@@ -171,19 +164,6 @@ fun CourseDetailsScreen(
                         Icons.Default.Delete,
                         contentDescription = "Delete",
                         tint = MaterialTheme.colorScheme.error
-                    )
-                }
-
-                // fun for show the Edit Dialog
-                if (showEditDialog) {
-                    AddEditCourseDialog(
-                        course = course,
-                        viewModel = viewModel,
-                        onDismiss = { showEditDialog = false },
-                        onConfirm = { updatedCourse ->
-                            viewModel.updateCourse(updatedCourse.toEntity())
-                            showEditDialog = false
-                        }
                     )
                 }
 
@@ -212,7 +192,7 @@ fun CourseDetailsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // التفاصيل
-                DetailsSection(course)
+                DetailsSection(course, navController)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // التقدم
@@ -221,7 +201,7 @@ fun CourseDetailsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 // التواصل
                 course.organizer?.let { organizer ->
-                    OrganizerSection(organizer)
+                    OrganizerSection(organizer, navController)
                 }
             }
         }
@@ -284,7 +264,7 @@ private fun InstructorSection(instructor: Course.Instructor) {
 
 // The details of the course
 @Composable
-private fun DetailsSection(course: Course) {
+private fun DetailsSection(course: Course, navController: NavController) {
     Column (
         Modifier
             .fillMaxSize()
@@ -310,20 +290,23 @@ private fun DetailsSection(course: Course) {
         DetailRow(text = "عدد المحاضرات المنتهية", text2 = course.noOfLiteraturesFinished.toString())
 
         if (course.wGLink!="") {
-            WGSection(course.wGLink.toString())
+            WGSection(course.wGLink.toString(), navController)
         }
     }
 }
 
 // The WhatsApp link to the course group
 @Composable
-private fun WGSection(wGLink: String) {
+private fun WGSection(wGLink: String, navController: NavController) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
+                // TODO: Convert the next intent to be used on navController
+                navController.navigate("web_view_screen/${wGLink}")
+
                 val intent = Intent(Intent.ACTION_VIEW, wGLink.toUri())
                 try {
                     context.startActivity(intent)
@@ -368,7 +351,7 @@ private fun ProgressSection(progress: Float, nextLecture: String?=null) {
 
 // The details of the organization member
 @Composable
-private fun OrganizerSection(organizer: Course.Organizer) {
+private fun OrganizerSection(organizer: Course.Organizer, navController: NavController) {
     Column (
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -415,6 +398,9 @@ private fun OrganizerSection(organizer: Course.Organizer) {
                 //.padding(top = 3.dp)
                 .fillMaxWidth()
                 .clickable {
+                    // TODO: Convert the next intent to be used on navController
+                    navController.navigate("web_view_screen/${organizer.whatsapp}")
+
                     val intent = Intent(Intent.ACTION_VIEW).apply {
                         data = "https://wa.me/${organizer.whatsapp}".toUri()
                     }

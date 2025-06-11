@@ -7,5 +7,4 @@ data class UiState(
     val error: String? = null,
     val searchQuery: String = "",
     val courses: List<CourseEntity> = emptyList(),
-    val showAddDialog: Boolean = false
 )

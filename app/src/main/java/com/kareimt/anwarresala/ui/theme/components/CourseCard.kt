@@ -40,11 +40,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.data.toEntity
+import com.kareimt.anwarresala.ui.theme.screens.ConfirmationDialog
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
 // ****** The card of the course
@@ -52,7 +52,7 @@ import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 fun CourseCard(
     course: Course,
     onItemClick: (Course) -> Unit,
-    onEditClick: (Int) -> Unit,
+    onEditClick: () -> Unit,
     viewModel: CoursesViewModel
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -177,7 +177,7 @@ fun CourseCard(
                 horizontalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterHorizontally),
             ) {
                 // Edit Button
-                IconButton(onClick = {onEditClick(course.id)}) {
+                IconButton(onClick = {onEditClick()}) {
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "Edit",
@@ -200,7 +200,7 @@ fun CourseCard(
     if (showDeleteDialog) {
         ConfirmationDialog(
             title = stringResource(R.string.delete_course),
-            message = "${stringResource(R.string.are_you_sure_you_want_to_delete_this_course)+" "+course.title}?",
+            message = "${stringResource(R.string.are_you_sure_you_want_to_delete_this_course) + " " + course.title}?",
             onDismiss = { showDeleteDialog = false },
             onConfirm = {
                 viewModel.deleteCourse(course.toEntity())

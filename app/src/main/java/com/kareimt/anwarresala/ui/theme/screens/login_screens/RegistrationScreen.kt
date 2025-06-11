@@ -1,7 +1,6 @@
 package com.kareimt.anwarresala.ui.theme.screens.login_screens
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.components.InputField
@@ -61,7 +61,8 @@ class RegistrationActivity: ComponentActivity(){
 fun RegistrationScreen(
     viewModel: VolunteerViewModel,
     context: Context,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    navController: androidx.navigation.NavController
     ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -80,8 +81,8 @@ fun RegistrationScreen(
             // Login Prompt
             ThePrompt(context = context,
                 onClickFun =  {
-                    val intent = Intent(context, LoginActivity::class.java)
-                    context.startActivity(intent) },
+                    navController.navigate("login_screen")
+                              },
                 preText = context.getString(R.string.already_have_account),
                 clickableText = context.getString(R.string.login))
 

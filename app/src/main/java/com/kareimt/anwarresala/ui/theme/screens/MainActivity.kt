@@ -1,5 +1,6 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
+// For the navigation
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -35,22 +36,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.NavController
-// For the navigation
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.toCourse
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
-import com.kareimt.anwarresala.ui.theme.components.AddEditCourseScreen
-import com.kareimt.anwarresala.ui.theme.screens.login_screens.RegistrationScreen
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 import com.kareimt.anwarresala.viewmodels.CoursesViewModelFactory
-import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 import kotlinx.coroutines.time.delay
 import java.time.Duration
 
@@ -78,9 +73,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background) {
-                    AnwarResalaNavigation(viewModel,
-                        volunteerViewModel = VolunteerViewModel(this)
-                    )
+                    AnwarResalaNavigation(viewModel)
                 }
             }
         }
@@ -88,12 +81,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(
-    context: Context,
-    navController: NavController,
-    onBeneficiaryClick: () -> Unit,
-    onVolunteerClick: () -> Unit
-) {
+fun MainScreen(context: Context, navController: androidx.navigation.NavController) {
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(
@@ -109,7 +97,7 @@ fun MainScreen(
                 .align(Alignment.TopEnd)
                 .padding(top = 27.dp, end = 25.dp)
                 .width(90.dp)
-                // موازنة الإرتفاع مع العرض
+               // موازنة الإرتفاع مع العرض
                 .aspectRatio(1f)
                 //.clip(CircleShape)
         )
@@ -132,60 +120,45 @@ fun MainScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = onBeneficiaryClick) {
-                Text(text = context.getString(R.string.Beneficiary))
+            Button(onClick = {
+                navController.navigate("courses_screen") // Navigate to courses_screen
+
+//                val intent = Intent(context, BeneficiaryActivity::class.java)
+//                context.startActivity(intent)
             }
+            ) { Text(text = context.getString(R.string.Beneficiary)) }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = onVolunteerClick) {
-                Text(text = context.getString(R.string.volunteer))
+            Button(onClick = {
+                navController.navigate("volunteer_registration_screen") // Navigate to volunteer_registration_screen
+
+//                val intent = Intent(context, RegistrationActivity::class.java)
+//                context.startActivity(intent)
             }
+            ) { Text(text = context.getString(R.string.volunteer)) }
         }
     }
 }
 
 // Navigation Routes
 @Composable
-fun AnwarResalaNavigation(coursesViewModel: CoursesViewModel=null, volunteerViewModel: VolunteerViewModel= null) {
+fun AnwarResalaNavigation(viewModel: CoursesViewModel) {
     // To manage the navigation state
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    NavHost(navController = navController, startDestination = Routes.Main) {
-        // TODO: Define every screen here
+    NavHost(navController = navController, startDestination = "main_screen") {
+        // TODO: Define the screens here
+
+        //
+        composable("")
 
         // Main Screen
-        composable(Routes.Main) {
+        composable("main_screen") {
             MainScreen(
                 context = context,
-                navController,
-                onBeneficiaryClick = { navController.navigate(Routes.Beneficiary) },
-                onVolunteerClick = { navController.navigate(Routes.Registration) }
-            )
-        }
-
-        // Beneficiary Screen
-        composable(Routes.Beneficiary) {
-            HomeScreen(
-                viewModel = coursesViewModel,
-                onCourseClick = { course ->
-                    navController.navigate(Routes.courseDetails(course.id))
-                },
-                onAddCourseClick = {
-                    navController.navigate(Routes.addEditCourse())
-                },
-                onEditCourseClick = { courseId ->
-                    navController.navigate(Routes.addEditCourse(courseId))
-                },
-            )
-        }
-
-        // Registration Screen
-        composable(Routes.Registration) {
-            RegistrationScreen(
-                onBackClick = { navController.navigateUp() },
-                viewModel = volunteerViewModel,
-                context = context,
+                navController
             )
         }
 
@@ -197,16 +170,17 @@ fun AnwarResalaNavigation(coursesViewModel: CoursesViewModel=null, volunteerView
             // Receive the value
             val courseId = backStackEntry.arguments?.getInt("courseId")
             LaunchedEffect(courseId) {
-                courseId?.let { coursesViewModel.getCourseById(it) }
+                courseId?.let { viewModel.getCourseById(it) }
             }
-            val course by coursesViewModel.selectedCourse.collectAsState()
+            val course by viewModel.selectedCourse.collectAsState()
             course?.let { courseEntity ->
                 CourseDetailsScreen(
                     course = courseEntity.toCourse(),
+                    viewModel = viewModel,
                     onNavigateToEdit = { navController.navigate(Routes.addEditCourse(courseId)) },
                     onBack = { navController.navigateUp() },
                     onDeleteCourse = { navController.navigateUp() },
-                    viewModel = coursesViewModel
+                    navController = navController
                 )
             }
         }
@@ -224,41 +198,8 @@ fun AnwarResalaNavigation(coursesViewModel: CoursesViewModel=null, volunteerView
             AddEditCourseScreen(
                 courseId = courseId,
                 onBackClick = { navController.navigateUp() },
-                viewModel = coursesViewModel
+                viewModel = viewModel
             )
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

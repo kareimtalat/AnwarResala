@@ -88,6 +88,8 @@ class VolunteerViewModel : ViewModel() {
             stringResource(R.string.activity_officer),
         )
     }
+
+    // TODO: Connect it to the BranchEntity of Room
     @Composable
     fun getBranchOptions(): List<String> {
         return listOf(

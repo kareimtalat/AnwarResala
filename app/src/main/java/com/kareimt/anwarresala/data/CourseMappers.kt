@@ -24,7 +24,7 @@ fun CourseEntity.toCourse(): Course = Course(
     {Course.Organizer(
         name = organizerName,
         whatsapp = organizerWhatsapp
-    )}else null,
+    )} else null,
     progress = progress
 )
 
