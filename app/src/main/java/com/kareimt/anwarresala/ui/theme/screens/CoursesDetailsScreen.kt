@@ -1,9 +1,6 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
 import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,51 +32,56 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.lifecycle.lifecycleScope
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
-import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.components.DetailRow
 import com.kareimt.anwarresala.ui.theme.components.DetailRowForNextLit
 import com.kareimt.anwarresala.ui.theme.components.ProgressIndicator
-import kotlinx.coroutines.launch
 import coil.compose.AsyncImage
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.layout.ContentScale
+import androidx.navigation.NavHostController
+import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
 
-class CourseDetailsActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            // Perform any heavy initialization or data loading here
-
-
-            val course =
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                    intent.getParcelableExtra<Course>("course", Course::class.java)
-                } else {
-                    @Suppress("DEPRECATION")
-                    intent.getParcelableExtra<Course>("course")
-                }
-            if (course == null) {
-                println("Course is null")
-                finish()
-                return@launch
-            }
-
-            // Once data is ready, set the content
-            setContent {
-                AnwarResalaTheme {
-                    CourseDetailsScreen(course = course)
-                }
-            }
-        }
-    }
-}
+//class CourseDetailsActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        lifecycleScope.launch {
+//            // Perform any heavy initialization or data loading here
+//
+//
+//            val course =
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+//                    intent.getParcelableExtra<Course>("course", Course::class.java)
+//                } else {
+//                    @Suppress("DEPRECATION")
+//                    intent.getParcelableExtra<Course>("course")
+//                }
+//            if (course == null) {
+//                println("Course is null")
+//                finish()
+//                return@launch
+//            }
+//
+//            // Once data is ready, set the content
+//            setContent {
+//                AnwarResalaTheme {
+//                    CourseDetailsScreen(course = course)
+//                }
+//            }
+//        }
+//    }
+//}
 
 @Composable
-fun CourseDetailsScreen(course: Course?) {
+fun CourseDetailsScreen(
+    course: Course?,
+    viewModel: CoursesViewModel,
+    onNavigateToEdit: () -> Unit,
+    onBack: () -> Boolean,
+    onDeleteCourse: () -> Boolean,
+    navController: NavHostController
+) {
     if (course == null) return
 
     LazyColumn(modifier = Modifier
