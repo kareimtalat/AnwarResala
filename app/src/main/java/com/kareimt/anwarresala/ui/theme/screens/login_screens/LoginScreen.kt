@@ -33,7 +33,7 @@ import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 //                        modifier = Modifier.fillMaxSize(),
 //                        color = MaterialTheme.colorScheme.background
 //                    ) {
-//                        LoginContent(
+//                        LoginScreen(
 //                            viewModel = viewModel,
 //                            context = this@LoginActivity
 //                        )
@@ -47,9 +47,10 @@ import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginContent(
-    viewModel: VolunteerViewModel,context: Context,
-    navController: NavController? = null
+fun LoginScreen(
+    viewModel: VolunteerViewModel, context: Context,
+    navController: NavController? = null,
+    onBackClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),

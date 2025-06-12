@@ -10,16 +10,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.ui.theme.components.CourseCard
 import com.kareimt.anwarresala.ui.theme.components.SearchRow
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
@@ -32,18 +27,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.CourseEntity
+import com.kareimt.anwarresala.ui.theme.screens.AddCourseFloatingButton
 import com.kareimt.anwarresala.viewmodels.UiState
 
 @Composable
 fun CoursesScreen(
     courseViewModel: CoursesViewModel,
-    onCourseClick: (Course) -> Unit, // TODO: use it
     onAddCourseClick: () -> Unit,
-    onEditCourseClick: (Int) -> Unit, // TODO: use it
     context: Context,
     screenType: ScreenType,
     navController: NavController,
-    branch: String = ""
+    branch: String = "",
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     ) {
     val uiState by courseViewModel.uiState.collectAsState()
 
@@ -67,8 +63,8 @@ fun CoursesScreen(
                 CoursesScreen2(
                     context = context,
                     courseViewModel = courseViewModel,
-                    searchQuery = uiState.searchQuery,
-                    { courseViewModel.updateSearchQuery(it) },
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = { onSearchQueryChange(it) },
                     screenType,
                     navController = navController,
                     branch = branch
@@ -77,14 +73,14 @@ fun CoursesScreen(
             }
         }
 
-        FloatingActionButton(
-            onClick = onAddCourseClick,
+
+
+        AddCourseFloatingButton(
             modifier = Modifier
                 .padding(16.dp)
-                .align(Alignment.BottomEnd)
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "Add Course")
-        }
+                .align(Alignment.BottomEnd),
+            onClick = onAddCourseClick
+        )
     }
 }
 

@@ -25,42 +25,6 @@
             </intent-filter>
         </activity>
 
-
-        <!-- Beneficiary Activities -->
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.BeneficiaryActivity"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.AllTheCourses"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.OnlineCourses"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.OfflineCourses"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.CourseDetailsActivity"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.BranchCoursesActivity"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.courses_screens.BCSpecificActivity"
-            android:exported = "true"/>
-
-        <!-- Volunteer Activities -->
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.login_screens.RegistrationActivity"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.login_screens.LoginActivity"
-            android:exported = "true"/>
-        <activity
-            android:name = "com.kareimt.anwarresala.ui.theme.screens.login_screens.ForgetPasswordActivity"
-            android:exported = "true"/>
-
-
     </application>
 
 </manifest>

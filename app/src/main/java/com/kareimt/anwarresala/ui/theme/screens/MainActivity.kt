@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,13 +45,22 @@ import androidx.navigation.navArgument
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.toCourse
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
+import com.kareimt.anwarresala.ui.theme.screens.Routes.addEditCourse
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.CoursesScreen
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
+import com.kareimt.anwarresala.ui.theme.screens.login_screens.ForgetPasswordScreen
+import com.kareimt.anwarresala.ui.theme.screens.login_screens.LoginScreen
+import com.kareimt.anwarresala.ui.theme.screens.login_screens.RegistrationScreen
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 import com.kareimt.anwarresala.viewmodels.CoursesViewModelFactory
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModelFactory
 import kotlinx.coroutines.time.delay
 import java.time.Duration
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(this) }
+    private val coursesViewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(this) }
+    private val volunteerViewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +83,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background) {
-                    AnwarResalaNavigation(viewModel)
+                    AnwarResalaNavigation(coursesViewModel, volunteerViewModel)
                 }
             }
         }
@@ -81,7 +91,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(context: Context, navController: androidx.navigation.NavController) {
+fun MainScreen(context: Context, navController: NavController) {
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(
@@ -97,7 +107,7 @@ fun MainScreen(context: Context, navController: androidx.navigation.NavControlle
                 .align(Alignment.TopEnd)
                 .padding(top = 27.dp, end = 25.dp)
                 .width(90.dp)
-               // موازنة الإرتفاع مع العرض
+                // موازنة الإرتفاع مع العرض
                 .aspectRatio(1f)
                 //.clip(CircleShape)
         )
@@ -143,22 +153,82 @@ fun MainScreen(context: Context, navController: androidx.navigation.NavControlle
 
 // Navigation Routes
 @Composable
-fun AnwarResalaNavigation(viewModel: CoursesViewModel) {
+fun AnwarResalaNavigation(
+    coursesViewModel: CoursesViewModel,
+    volunteerViewModel: VolunteerViewModel,
+    ) {
     // To manage the navigation state
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    NavHost(navController = navController, startDestination = "main_screen") {
-        // TODO: Define the screens here
-
-        //
-        composable("")
-
+    NavHost(navController = navController, startDestination = Routes.Main) {
         // Main Screen
-        composable("main_screen") {
+        composable(Routes.Main) {
             MainScreen(
                 context = context,
                 navController
+            )
+        }
+
+        // CoursesScreen
+        composable(Routes.CoursesScreen) {
+            CoursesScreen(
+                courseViewModel = coursesViewModel,
+                onAddCourseClick = { navController.navigate(addEditCourse(-1)) },
+                context = context,
+                screenType = ScreenType.AllTheCourses,
+                navController = navController,
+                searchQuery = "",
+            ) { coursesViewModel.updateSearchQuery(it) }
+        }
+
+        // ForgetPasswordScreen
+        composable(Routes.ForgetPassword) {
+            ForgetPasswordScreen(
+                context = context,
+                onBackClick = { navController.navigateUp() },
+                viewModel = volunteerViewModel
+            )
+        }
+
+        // RegistrationScreen
+        composable(Routes.Registration) {
+            RegistrationScreen(
+                viewModel = volunteerViewModel,
+                context = context,
+                onBackClick = { navController.navigateUp() },
+                navController = navController
+            )
+        }
+
+        // LoginScreen
+        composable(Routes.LoginScreen) {
+            LoginScreen(
+                viewModel = volunteerViewModel,
+                context = context,
+                onBackClick = { navController.navigateUp() },
+                navController = navController
+            )
+        }
+
+        // BeneficiaryScreen
+        composable(Routes.Beneficiary) {
+            BeneficiaryScreen(
+                context = context,
+                navController = navController,
+                courseViewModel = coursesViewModel
+            )
+        }
+
+        // ChooseBranchScreen
+        composable(Routes.ChooseBranch) {
+            ChooseBranchScreen(
+                context = context,
+                navController = navController,
+                volunteerViewModel = volunteerViewModel,
+                searchQuery = "",
+                onSearchQueryChange = { coursesViewModel.updateSearchQuery(it) },
+                courseViewModel = coursesViewModel
             )
         }
 
@@ -168,15 +238,15 @@ fun AnwarResalaNavigation(viewModel: CoursesViewModel) {
             arguments = listOf(navArgument ("courseId") { type = NavType.IntType })
         ) { backStackEntry ->
             // Receive the value
-            val courseId = backStackEntry.arguments?.getInt("courseId")
+            val courseId = backStackEntry.arguments?.getInt("courseId") ?: -1
             LaunchedEffect(courseId) {
-                courseId?.let { viewModel.getCourseById(it) }
+                courseId.let { coursesViewModel.getCourseById(it) }
             }
-            val course by viewModel.selectedCourse.collectAsState()
+            val course by coursesViewModel.selectedCourse.collectAsState()
             course?.let { courseEntity ->
                 CourseDetailsScreen(
                     course = courseEntity.toCourse(),
-                    viewModel = viewModel,
+                    viewModel = coursesViewModel,
                     onNavigateToEdit = { navController.navigate(Routes.addEditCourse(courseId)) },
                     onBack = { navController.navigateUp() },
                     onDeleteCourse = { navController.navigateUp() },
@@ -190,15 +260,14 @@ fun AnwarResalaNavigation(viewModel: CoursesViewModel) {
             route = Routes.AddEditCourse,
             arguments = listOf(navArgument("courseId") {
                 type = NavType.IntType
-                nullable = true
-                defaultValue = null
+                defaultValue = -1
             })
         ) { backStackEntry ->
-            val courseId = backStackEntry.arguments?.getInt("courseId")
+            val courseId = backStackEntry.arguments?.getInt("courseId") ?: -1
             AddEditCourseScreen(
                 courseId = courseId,
                 onBackClick = { navController.navigateUp() },
-                viewModel = viewModel
+                viewModel = coursesViewModel
             )
         }
     }

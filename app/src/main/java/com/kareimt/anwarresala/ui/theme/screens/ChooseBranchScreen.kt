@@ -48,10 +48,10 @@ import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 @Composable
 fun ChooseBranchScreen(
     context: Context,
-    viewModel: VolunteerViewModel,
+    volunteerViewModel: VolunteerViewModel,
     navController: androidx.navigation.NavController,
     searchQuery: String = "",
-    onSearchQueryChange: (String) -> Unit = {},
+    onSearchQueryChange: (String) -> Unit,
     courseViewModel: com.kareimt.anwarresala.viewmodels.CoursesViewModel
 ) {
     Column(
@@ -74,7 +74,7 @@ fun ChooseBranchScreen(
 
         // Branches list
         // TODO: Connect the branch list with the Room entity
-        val branches= viewModel.getBranchOptions().filter { it != context.getString(R.string.central) }
+        val branches= volunteerViewModel.getBranchOptions().filter { it != context.getString(R.string.central) }
         LazyColumn (
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally

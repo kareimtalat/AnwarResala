@@ -31,30 +31,30 @@ import com.kareimt.anwarresala.viewmodels.VolunteerViewModelFactory
 import kotlinx.coroutines.launch
 
 
-class RegistrationActivity: ComponentActivity(){
-    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            // Perform any heavy initialization or data loading here
-
-        // Once data is ready, set the content
-        setContent{
-            AnwarResalaTheme{
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ){
-//                    RegistrationScreen(
-//                        viewModel=viewModel,
-//                        context = this@RegistrationActivity
-//                    )
-                }
-            }
-        }
-        }
-    }
-}
+//class RegistrationActivity: ComponentActivity(){
+//    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        lifecycleScope.launch {
+//            // Perform any heavy initialization or data loading here
+//
+//        // Once data is ready, set the content
+//        setContent{
+//            AnwarResalaTheme{
+//                Surface(
+//                    modifier = Modifier.fillMaxSize(),
+//                    color = MaterialTheme.colorScheme.background
+//                ){
+////                    RegistrationScreen(
+////                        viewModel=viewModel,
+////                        context = this@RegistrationActivity
+////                    )
+//                }
+//            }
+//        }
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

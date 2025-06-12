@@ -51,6 +51,7 @@ import com.kareimt.anwarresala.ui.theme.components.DetailRow
 import com.kareimt.anwarresala.ui.theme.components.DetailRowForNextLit
 import com.kareimt.anwarresala.ui.theme.components.ProgressIndicator
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
+import android.content.Intent
 
 
 //class CourseDetailsActivity : ComponentActivity() {
@@ -304,14 +305,10 @@ private fun WGSection(wGLink: String, navController: NavController) {
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                // TODO: Convert the next intent to be used on navController
-                navController.navigate("web_view_screen/${wGLink}")
-
                 val intent = Intent(Intent.ACTION_VIEW, wGLink.toUri())
                 try {
                     context.startActivity(intent)
                 } catch (e: ActivityNotFoundException) {
-                    // Handel error - you can show a toast
                     Toast.makeText(
                         context,
                         "Unable to open Whatsapp group link",

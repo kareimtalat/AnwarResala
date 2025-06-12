@@ -4,10 +4,8 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -49,14 +46,14 @@ import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun AddEditCourseScreen(
-    courseId: Int?,
+    courseId: Int,
     onBackClick: () -> Unit,
     viewModel: CoursesViewModel,
 ) {
     var course: Course? = null
     LaunchedEffect(courseId) {
-        courseId?.let {
-            viewModel.getCourseById(it)
+        if (courseId != -1) {
+            viewModel.getCourseById(courseId)
         }
     }
     val selectedCourse by viewModel.selectedCourse.collectAsState()
@@ -65,7 +62,7 @@ fun AddEditCourseScreen(
     var category by remember { mutableStateOf(course?.category ?: "") }
     var title by remember { mutableStateOf(course?.title ?: "") }
     var branch by remember { mutableStateOf(course?.branch ?: "") }
-    // TODO: use the branches state after handling it's functionality circle completely
+    // TODO: use the branches state -Room Entity- after handling it's functionality circle completely
     //val branches: State<List<BranchEntity>> =
     //    viewModel.branches.collectAsState(initial = emptyList())
     var type by remember { mutableStateOf(course?.type ?: CourseType.ONLINE) }
@@ -98,7 +95,7 @@ fun AddEditCourseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (courseId == null) "Add Course" else "Edit Course") },
+                title = { Text(if (courseId == -1) "Add Course" else "Edit Course") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -114,13 +111,6 @@ fun AddEditCourseScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // Dialog Title
-            Text(
-                text = if (course == null) "Add New Course" else "Edit Course",
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
             // ID
             if (course != null) {
                 Text(
@@ -312,7 +302,7 @@ fun AddEditCourseScreen(
                     },
                     modifier = Modifier.padding(vertical = 8.dp)
                 ) {
-                    Text(if (courseId == null) "Add" else "Save")
+                    Text(if (courseId != -1) "Add" else "Save")
                 }
                 // one } for the Row
             }
@@ -323,11 +313,11 @@ fun AddEditCourseScreen(
 // The floating (+) button to add a new course
 @Composable
 fun AddCourseFloatingButton(
-    viewModel: CoursesViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     FloatingActionButton(
-        onClick = {viewModel.showAddCourseDialog()},
+        onClick = {onClick},
         modifier = modifier
             .padding(16.dp)
     ) {
