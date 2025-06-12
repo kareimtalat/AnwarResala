@@ -1,7 +1,9 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
-import android.content.ActivityNotFoundException
-import android.widget.Toast
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,95 +20,66 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.navigation.NavController
-import coil.compose.AsyncImage
+import androidx.lifecycle.lifecycleScope
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
-import com.kareimt.anwarresala.data.toEntity
+import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.components.DetailRow
 import com.kareimt.anwarresala.ui.theme.components.DetailRowForNextLit
 import com.kareimt.anwarresala.ui.theme.components.ProgressIndicator
-import com.kareimt.anwarresala.viewmodels.CoursesViewModel
-import android.content.Intent
+import kotlinx.coroutines.launch
+import coil.compose.AsyncImage
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.layout.ContentScale
 
 
-//class CourseDetailsActivity : ComponentActivity() {
-//    private val viewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(context = this) }
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//
-//        val course =
-//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-//                intent.getParcelableExtra<Course>("course", Course::class.java)
-//            } else {
-//                @Suppress("DEPRECATION")
-//                intent.getParcelableExtra<Course>("course")
-//            }
-//
-//        setContent {
-//            AnwarResalaTheme {
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    course?.let {
-//                        CourseDetailsScreen(
-//                            course = it,
-//                            viewModel = viewModel,
-//                            { navController.navigate(Routes.addEditCourse(courseId)) },
-//                            { navController.navigateUp() },
-//                            { navController.navigateUp() },
-//                            navController
-//                        )
-//                    } ?: run {
-//                        Text(
-//                            text = "Course details not available",
-//                            modifier = Modifier
-//                                .fillMaxSize()
-//                                .wrapContentSize(Alignment.Center)
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
+class CourseDetailsActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            // Perform any heavy initialization or data loading here
 
-// The last Composable here, which will already appear
+
+            val course =
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra<Course>("course", Course::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra<Course>("course")
+                }
+            if (course == null) {
+                println("Course is null")
+                finish()
+                return@launch
+            }
+
+            // Once data is ready, set the content
+            setContent {
+                AnwarResalaTheme {
+                    CourseDetailsScreen(course = course)
+                }
+            }
+        }
+    }
+}
+
 @Composable
-fun CourseDetailsScreen(
-    course: Course?,
-    viewModel: CoursesViewModel,
-    onNavigateToEdit: () -> Unit,
-    onBack: () -> Boolean,
-    onDeleteCourse: () -> Boolean,
-    navController: NavController
-) {
+fun CourseDetailsScreen(course: Course?) {
     if (course == null) return
 
     LazyColumn(modifier = Modifier
@@ -114,7 +87,6 @@ fun CourseDetailsScreen(
     ) {
         item {
             // صورة الكورس
-            // Anwar logo as a placeholder
             if (course.imagePath.startsWith("drawable/")) {
                 val resourceId = LocalContext.current.resources.getIdentifier(
                     course.imagePath.removePrefix("drawable/"),
@@ -128,7 +100,6 @@ fun CourseDetailsScreen(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                 )
-                // The image which the user chosen
             } else {
                 AsyncImage(
                     model = course.imagePath,
@@ -138,52 +109,9 @@ fun CourseDetailsScreen(
                         .clip(RoundedCornerShape(8.dp))
                 )
             }
+
             Spacer(Modifier.height(16.dp))
 
-            // The Edit & Delete buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterHorizontally),
-            ) {
-                var showDeleteDialog by remember { mutableStateOf(false) }
-
-                // Edit Button
-                IconButton(onClick = {
-                    navController.navigate("add_edit_course_screen/${course.id}")
-                }) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                // Delete Button
-                IconButton(onClick = {showDeleteDialog=true}) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
-
-                // fun for show the Delete Confirmation Dialog
-                if (showDeleteDialog) {
-                    ConfirmationDialog(
-                        title = stringResource(R.string.delete_course),
-                        message = "${stringResource(R.string.are_you_sure_you_want_to_delete_this_course)+" "+course.title}?",
-                        onDismiss = { showDeleteDialog = false },
-                        onConfirm = {
-                            viewModel.deleteCourse(course.toEntity())
-                            showDeleteDialog = false
-                        }
-                    )
-                }
-            }
-            Spacer(Modifier.height(16.dp))
-
-            // Course details in general
             Column (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.End,
@@ -193,7 +121,7 @@ fun CourseDetailsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // التفاصيل
-                DetailsSection(course, navController)
+                DetailsSection(course)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // التقدم
@@ -202,7 +130,7 @@ fun CourseDetailsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 // التواصل
                 course.organizer?.let { organizer ->
-                    OrganizerSection(organizer, navController)
+                    OrganizerSection(organizer)
                 }
             }
         }
@@ -247,25 +175,32 @@ private fun InstructorSection(instructor: Course.Instructor) {
             Spacer(Modifier.width(13.dp))
 
             // Instructor image
-            AsyncImage(
-                model = if (instructor.imagePath.startsWith("drawable/")){
-                    R.drawable.anwar_resala_logo
-                }else{
-                instructor.imagePath
-            },
-                contentDescription = null,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+            if (instructor.imagePath.startsWith("drawable/")) {
+                Image(
+                    painter = painterResource(R.drawable.anwar_resala_logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                AsyncImage(
+                    model = instructor.imagePath,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
     }
 }
 
 // The details of the course
 @Composable
-private fun DetailsSection(course: Course, navController: NavController) {
+private fun DetailsSection(course: Course) {
     Column (
         Modifier
             .fillMaxSize()
@@ -282,39 +217,30 @@ private fun DetailsSection(course: Course, navController: NavController) {
         DetailRow(text = "التصنيف", text2 = course.category)
         DetailRow(text = "نوع الكورس", text2 = course.type.toString())
         // Some long description
-        if (course.courseDetails!="") {
-            DetailRow(text = "وصف الكورس", text2 = course.courseDetails)
-        }
+        course.courseDetails?.let { DetailRow(text = "وصف الكورس", text2 = it) }
         DetailRow(text = "الفرع", text2 =course.branch)
         DetailRow(text = "تاريخ البداية", text2 = course.startDate)
         DetailRow(text = "عدد محاضرات الكورس", text2 = course.totalLectures.toString())
         DetailRow(text = "عدد المحاضرات المنتهية", text2 = course.noOfLiteraturesFinished.toString())
-
-        if (course.wGLink!="") {
-            WGSection(course.wGLink.toString(), navController)
-        }
+        course.wGLink?.let { WGSection(it) }
     }
 }
 
 // The WhatsApp link to the course group
 @Composable
-private fun WGSection(wGLink: String, navController: NavController) {
+private fun WGSection(
+    wGLink: String
+) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                val intent = Intent(Intent.ACTION_VIEW, wGLink.toUri())
-                try {
-                    context.startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(
-                        context,
-                        "Unable to open Whatsapp group link",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = wGLink.toUri()
                 }
+                context.startActivity(intent)
             },
         horizontalArrangement = Arrangement.Center
     ) {
@@ -336,10 +262,10 @@ private fun ProgressSection(progress: Float, nextLecture: String?=null) {
     Column {
         ProgressIndicator(progress = progress)
         if (progress<1f) {
-            if (nextLecture!="") {
+            nextLecture?.let {
                 DetailRowForNextLit(
                     icon = Icons.Default.Schedule,
-                    text = "المحاضرة القادمة: $nextLecture"
+                    text = "المحاضرة القادمة: $it"
                 )
             }
         }
@@ -348,7 +274,7 @@ private fun ProgressSection(progress: Float, nextLecture: String?=null) {
 
 // The details of the organization member
 @Composable
-private fun OrganizerSection(organizer: Course.Organizer, navController: NavController) {
+private fun OrganizerSection(organizer: Course.Organizer) {
     Column (
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -395,9 +321,6 @@ private fun OrganizerSection(organizer: Course.Organizer, navController: NavCont
                 //.padding(top = 3.dp)
                 .fillMaxWidth()
                 .clickable {
-                    // TODO: Convert the next intent to be used on navController
-                    navController.navigate("web_view_screen/${organizer.whatsapp}")
-
                     val intent = Intent(Intent.ACTION_VIEW).apply {
                         data = "https://wa.me/${organizer.whatsapp}".toUri()
                     }
