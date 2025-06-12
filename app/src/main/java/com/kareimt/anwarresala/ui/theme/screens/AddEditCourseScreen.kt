@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -40,6 +42,7 @@ import com.kareimt.anwarresala.data.Course.Organizer
 import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.data.toCourse
 import com.kareimt.anwarresala.data.toEntity
+import com.kareimt.anwarresala.ui.theme.components.InputField
 import com.kareimt.anwarresala.ui.theme.components.ReusableDropdown
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
@@ -68,8 +71,8 @@ fun AddEditCourseScreen(
     var type by remember { mutableStateOf(course?.type ?: CourseType.ONLINE) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var imagePath by remember { mutableStateOf(course?.imagePath ?: "drawable/anwar_resala_logo") }
-    var instructorName by remember { mutableStateOf(course?.instructor?.name ?: "") }  // Fix this
-    var instructorBio by remember { mutableStateOf(course?.instructor?.bio ?: "") }  // Fix this
+    var instructorName by remember { mutableStateOf(course?.instructor?.name ?: "") }
+    var instructorBio by remember { mutableStateOf(course?.instructor?.bio ?: "") }
     var instructorImg by remember {
         mutableStateOf(
             course?.instructor?.imagePath?.toString() ?: "drawable/anwar_resala_logo"
@@ -109,7 +112,9 @@ fun AddEditCourseScreen(
                 .padding(padding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // ID
             if (course != null) {
@@ -117,41 +122,38 @@ fun AddEditCourseScreen(
                     text = "Course ID: ${course.id}",
                 )
             }
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Title
-            OutlinedTextField(
-                value = title,
+            InputField(
+                value = course?.title ?: title,
                 onValueChange = { title = it },
-                label = { Text("Title") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Title",
             )
 
             // Branch
-            OutlinedTextField(
-                value = branch,
+            InputField(
+                value = course?.branch ?: branch,
                 onValueChange = { branch = it },
-                label = { Text("Branch") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Branch",
             )
 
             // Course Image
-            OutlinedTextField(
-                value = imagePath,
+            InputField(
+                value = course?.imagePath ?: imagePath,
                 onValueChange = { imagePath = it },
-                label = { Text("Course Image Path") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Course Image Path",
             )
 
             // Category
-            OutlinedTextField(
-                value = category,
+            InputField(
+                value = course?.category ?: category,
                 onValueChange = { category = it },
-                label = { Text("Category") },
-                modifier = Modifier.fillMaxWidth()
-            )
+                label = "Category",
+                )
 
             // Course Type
-            val courseTypes = CourseType.values().map { it.name }
+            val courseTypes = CourseType.entries.map { it.name }
             ReusableDropdown(
                 label = "Course Type",
                 options = courseTypes,
@@ -162,97 +164,86 @@ fun AddEditCourseScreen(
             )
 
             // Instructor Name
-            OutlinedTextField(
-                value = instructorName,
+            InputField(
+                value = course?.instructor?.name ?: instructorName,
                 onValueChange = { instructorName = it },
-                label = { Text("Instructor Name") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Instructor Name"
             )
 
             // Instructor Biography
-            OutlinedTextField(
-                value = instructorBio,
+            InputField(
+                value = course?.instructor?.bio ?: instructorBio,
                 onValueChange = { instructorBio = it },
-                label = { Text("Instructor Biography") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Instructor Biography"
             )
 
             // Instructor Image Path
-            OutlinedTextField(
-                value = instructorImg,
+            InputField(
+                value = course?.instructor?.imagePath ?: instructorImg,
                 onValueChange = { instructorImg = it },
-                label = { Text("Instructor Image Path") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Instructor Image Path"
             )
 
             // Course Start Date
-            OutlinedTextField(
-                value = startDate,
+            InputField(
+                value = course?.startDate ?: startDate,
                 onValueChange = { startDate = it },
-                label = { Text("Course Start Date") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Course Start Date"
             )
 
             // Course whatsapp Group Link
-            OutlinedTextField(
-                value = wGLink,
+            InputField(
+                value = course?.wGLink ?: wGLink,
                 onValueChange = { wGLink = it },
-                label = { Text("Course whatsapp Group Link") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Course whatsapp Group Link"
             )
 
             // Course Details
-            OutlinedTextField(
-                value = courseDetails,
+            InputField(
+                value = course?.courseDetails ?: courseDetails,
                 onValueChange = { courseDetails = it },
-                label = { Text("Course Details") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Course Details"
             )
 
             // Number of literatures
-            OutlinedTextField(
-                value = totalLectures,
+            InputField(
+                value = (course?.totalLectures ?: totalLectures).toString(),
                 onValueChange = { totalLectures = it },  // Now it's String to String
-                label = { Text("Total Lectures") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Total Lectures"
             )
 
             // Number of literatures finished
-            OutlinedTextField(
-                value = noOfLiteraturesFinished,
+            InputField(
+                value = (course?.noOfLiteraturesFinished ?: noOfLiteraturesFinished).toString(),
                 onValueChange = { noOfLiteraturesFinished = it },  // Now it's String to String
-                label = { Text("Number of literatures finished") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Number of literatures finished"
             )
 
             // Next Lecture appointment
-            OutlinedTextField(
-                value = nextLecture,
-                onValueChange = { nextLecture = it },  // Now it's String to String
-                label = { Text("Next Lecture appointment") },
-                modifier = Modifier.fillMaxWidth()
+            InputField(
+                value = course?.nextLecture ?: nextLecture,
+                onValueChange = { nextLecture = it },
+                label = "Next Lecture appointment",
             )
 
             // Organizer Name
-            OutlinedTextField(
-                value = organizerName,
+            InputField(
+                value = course?.organizer?.name ?: organizerName,
                 onValueChange = { organizerName = it },  // Now it's String to String
-                label = { Text("Organizer Name") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Organizer Name"
             )
 
             // Organizer Whatsapp
-            OutlinedTextField(
-                value = organizerWhats,
+            InputField(
+                value = course?.organizer?.whatsapp ?: organizerWhats,
                 onValueChange = { organizerWhats = it },  // Now it's String to String
-                label = { Text("Organizer Whatsapp") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Organizer Whatsapp"
             )
 
             // When creating the Course object, convert types appropriately
             Row(
                 modifier = Modifier.fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(vertical = 20.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 // Cancel Button
@@ -264,7 +255,7 @@ fun AddEditCourseScreen(
                 Button(
                     onClick = {
                         val newCourse = Course(
-                            id = courseId ?: 0,
+                            id = courseId,
                             title = title,
                             branch = branch,
                             category = category,
@@ -300,7 +291,6 @@ fun AddEditCourseScreen(
                         }
                         onBackClick()
                     },
-                    modifier = Modifier.padding(vertical = 8.dp)
                 ) {
                     Text(if (courseId != -1) "Add" else "Save")
                 }
@@ -317,7 +307,7 @@ fun AddCourseFloatingButton(
     onClick: () -> Unit
 ) {
     FloatingActionButton(
-        onClick = {onClick},
+        onClick = onClick,
         modifier = modifier
             .padding(16.dp)
     ) {

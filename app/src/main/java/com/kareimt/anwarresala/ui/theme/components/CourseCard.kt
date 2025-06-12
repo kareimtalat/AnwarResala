@@ -174,7 +174,7 @@ fun CourseCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(37.dp, Alignment.CenterHorizontally),
             ) {
                 // Edit Button
                 IconButton(onClick = {onEditClick()}) {

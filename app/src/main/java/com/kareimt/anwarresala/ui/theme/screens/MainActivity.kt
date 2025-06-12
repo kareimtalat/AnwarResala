@@ -247,7 +247,7 @@ fun AnwarResalaNavigation(
                 CourseDetailsScreen(
                     course = courseEntity.toCourse(),
                     viewModel = coursesViewModel,
-                    onNavigateToEdit = { navController.navigate(Routes.addEditCourse(courseId)) },
+                    onNavigateToEdit = { navController.navigate(addEditCourse(courseId)) },
                     onBack = { navController.navigateUp() },
                     onDeleteCourse = { navController.navigateUp() },
                     navController = navController
@@ -263,7 +263,7 @@ fun AnwarResalaNavigation(
                 defaultValue = -1
             })
         ) { backStackEntry ->
-            val courseId = backStackEntry.arguments?.getInt("courseId") ?: -1
+            var courseId = backStackEntry.arguments?.getInt("courseId") ?: -1
             AddEditCourseScreen(
                 courseId = courseId,
                 onBackClick = { navController.navigateUp() },
