@@ -131,20 +131,14 @@ fun MainScreen(context: Context, navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Button(onClick = {
-                navController.navigate("courses_screen") // Navigate to courses_screen
-
-//                val intent = Intent(context, BeneficiaryActivity::class.java)
-//                context.startActivity(intent)
+                navController.navigate(Routes.Beneficiary)
             }
             ) { Text(text = context.getString(R.string.Beneficiary)) }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                navController.navigate("volunteer_registration_screen") // Navigate to volunteer_registration_screen
-
-//                val intent = Intent(context, RegistrationActivity::class.java)
-//                context.startActivity(intent)
+                navController.navigate(Routes.LoginScreen)
             }
             ) { Text(text = context.getString(R.string.volunteer)) }
         }

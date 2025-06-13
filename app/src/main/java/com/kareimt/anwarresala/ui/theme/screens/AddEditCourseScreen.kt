@@ -61,6 +61,7 @@ fun AddEditCourseScreen(
     }
     val selectedCourse by viewModel.selectedCourse.collectAsState()
     course = selectedCourse?.toCourse()
+    if (courseId == -1) { course = null }
 
     var category by remember { mutableStateOf(course?.category ?: "") }
     var title by remember { mutableStateOf(course?.title ?: "") }

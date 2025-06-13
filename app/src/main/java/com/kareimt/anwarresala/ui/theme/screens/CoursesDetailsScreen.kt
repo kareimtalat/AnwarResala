@@ -17,12 +17,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,7 +46,9 @@ import com.kareimt.anwarresala.ui.theme.components.DetailRowForNextLit
 import com.kareimt.anwarresala.ui.theme.components.ProgressIndicator
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import com.kareimt.anwarresala.data.toEntity
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
 
@@ -118,6 +127,44 @@ fun CourseDetailsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.End,
             ) {
+                // Action buttons
+                var showDeleteDialog by remember { mutableStateOf(false) }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(37.dp, Alignment.CenterHorizontally),
+                ) {
+                    // Edit Button
+                    IconButton(onClick = { onNavigateToEdit() }) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    // Delete Button
+                    IconButton(onClick = {showDeleteDialog=true}) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                // fun for show the Delete Confirmation Dialog
+                if (showDeleteDialog) {
+                    ConfirmationDialog(
+                        title = stringResource(R.string.delete_course),
+                        message = "${stringResource(R.string.are_you_sure_you_want_to_delete_this_course) + " " + course.title}?",
+                        onDismiss = { showDeleteDialog = false },
+                        onConfirm = {
+                            viewModel.deleteCourse(course.toEntity())
+                            showDeleteDialog = false
+                        }
+                    )
+                }
+
+
                 // معلومات المحاضر
                 InstructorSection(course.instructor)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -138,6 +185,8 @@ fun CourseDetailsScreen(
         }
     }
 }
+
+
 
 
 @Composable

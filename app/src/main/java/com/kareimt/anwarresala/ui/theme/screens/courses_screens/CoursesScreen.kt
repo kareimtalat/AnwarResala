@@ -28,6 +28,7 @@ import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.CourseEntity
 import com.kareimt.anwarresala.ui.theme.screens.AddCourseFloatingButton
+import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.viewmodels.UiState
 
 @Composable
@@ -174,7 +175,7 @@ fun CoursesScreen3(
                 coursesInGeneral.filter { it.branch.toString() == branch }
             }
         }
-    }) as List<CourseEntity>
+    })
 
     if (courses.isEmpty()) {
         Text(
@@ -189,10 +190,10 @@ fun CoursesScreen3(
                 CourseCard(
                     course = course,
                     onItemClick = {
-                        navController.navigate("courseDetails/${course.id}")
+                        navController.navigate(Routes.courseDetails(course.id))
                     },
                     viewModel = courseViewModel,
-                    onEditClick = { navController.navigate("addEditCourse/${course.id}") }
+                    onEditClick = { navController.navigate(Routes.addEditCourse(course.id)) },
                 )
             }
         }

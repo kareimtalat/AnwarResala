@@ -10,7 +10,5 @@
         <item name="android:windowSplashScreenIconBackgroundColor">@color/white</item>
         <!-- Icon animation duration -->
         <item name="windowSplashScreenAnimationDuration">1000</item>
-        <!-- Post-splash screen theme -->
-        <item name="postSplashScreenTheme">@style/Theme.AnwarResala</item>
     </style>
 </resources>

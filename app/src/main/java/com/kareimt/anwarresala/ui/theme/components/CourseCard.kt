@@ -177,7 +177,7 @@ fun CourseCard(
                 horizontalArrangement = Arrangement.spacedBy(37.dp, Alignment.CenterHorizontally),
             ) {
                 // Edit Button
-                IconButton(onClick = {onEditClick()}) {
+                IconButton(onClick = { onEditClick() }) {
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "Edit",
