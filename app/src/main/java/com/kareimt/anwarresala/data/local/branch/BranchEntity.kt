@@ -1,4 +1,4 @@
-package com.kareimt.anwarresala.data.local
+package com.kareimt.anwarresala.data.local.branch
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 // TODO: Complete the BranchEntity Room files
 @Entity(tableName = "branches")
 data class BranchEntity (
-        @PrimaryKey val id: Int,
-        val branch: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val branch: String,
     )

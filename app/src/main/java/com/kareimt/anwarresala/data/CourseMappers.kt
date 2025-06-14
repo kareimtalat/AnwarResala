@@ -1,6 +1,6 @@
 package com.kareimt.anwarresala.data
 
-import com.kareimt.anwarresala.data.local.CourseEntity
+import com.kareimt.anwarresala.data.local.course.CourseEntity
 
 fun CourseEntity.toCourse(): Course = Course(
     id = id,
@@ -18,7 +18,7 @@ fun CourseEntity.toCourse(): Course = Course(
     wGLink = wGLink,
     courseDetails = courseDetails,
     totalLectures = totalLectures,
-    noOfLiteraturesFinished = noOfLiteraturesFinished,
+    noOfLiteraturesFinished = noOfLiteraturesFinished?: 0,
     nextLecture = nextLecture,
     organizer = if (organizerName != null && organizerWhatsapp != null)
     {Course.Organizer(

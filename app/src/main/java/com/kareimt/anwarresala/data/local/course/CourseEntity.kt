@@ -1,8 +1,7 @@
-package com.kareimt.anwarresala.data.local
+package com.kareimt.anwarresala.data.local.course
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.kareimt.anwarresala.R
 
 @Entity(tableName = "courses")
 data class CourseEntity(
@@ -19,9 +18,9 @@ data class CourseEntity(
     val wGLink: String? = null, // Optional
     val courseDetails: String? = null, // Optional
     val totalLectures: Int,
-    val noOfLiteraturesFinished: Int,
+    val noOfLiteraturesFinished: Int ?= 0,
     val nextLecture: String? = null, // Optional
     val organizerName: String? = null, // Optional
     val organizerWhatsapp: String? = null, // Optional
-    val progress: Float =(noOfLiteraturesFinished.toFloat()/totalLectures) // from 0 to 1
+    val progress: Float =((noOfLiteraturesFinished?.toFloat()?:0f)/totalLectures) // from 0 to 1
 )

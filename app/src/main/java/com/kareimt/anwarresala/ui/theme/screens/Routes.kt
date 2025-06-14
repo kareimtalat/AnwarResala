@@ -1,8 +1,11 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
+import com.kareimt.anwarresala.data.CourseType
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
+
 object Routes{
     const val Main = "main"
-    const val CoursesScreen = "courses_screen"
+    const val CoursesScreen = "courses_screen/{screenType}/{branch}"
     const val Beneficiary = "beneficiary"
     const val Registration = "registration"
     const val CourseDetails = "course_details/{courseId}"
@@ -14,4 +17,5 @@ object Routes{
     // Helper functions for routes with parameters
     fun courseDetails(courseId: Int) = "course_details/$courseId"
     fun addEditCourse(courseId: Int) = "add_edit_course/$courseId"
+    fun coursesScreen(screenType: ScreenType, branch: String="") = "courses_screen/$screenType/$branch"
 }

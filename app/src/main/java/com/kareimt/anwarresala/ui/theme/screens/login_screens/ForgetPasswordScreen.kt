@@ -67,11 +67,12 @@ fun ForgetPasswordScreen(
             )
 
             //EmailField...
-            InputField(value = viewModel.email,
+            InputField(
+                value = viewModel.email,
                 onValueChange = viewModel::onEmailChanged,
                 label = stringResource(R.string.email_label),
-                keyboardType = "Email",
-                rtl = false
+                rtl = false,
+                keyboardType = "Email"
             )
 
             // Confirm Button

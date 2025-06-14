@@ -1,6 +1,6 @@
 package com.kareimt.anwarresala.viewmodels
 
-import com.kareimt.anwarresala.data.local.CourseEntity
+import com.kareimt.anwarresala.data.local.course.CourseEntity
 
 data class UiState(
     val isLoading: Boolean = false,

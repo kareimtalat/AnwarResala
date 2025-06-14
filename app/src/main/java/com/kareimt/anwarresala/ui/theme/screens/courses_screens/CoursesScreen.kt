@@ -1,6 +1,7 @@
 package com.kareimt.anwarresala.ui.theme.screens.courses_screens
 
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
-import com.kareimt.anwarresala.data.local.CourseEntity
+import com.kareimt.anwarresala.data.local.course.CourseEntity
 import com.kareimt.anwarresala.ui.theme.screens.AddCourseFloatingButton
 import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.viewmodels.UiState
@@ -78,7 +79,7 @@ fun CoursesScreen(
 
         AddCourseFloatingButton(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(16.dp, 16.dp, 16.dp, 50.dp)
                 .align(Alignment.BottomEnd),
             onClick = onAddCourseClick
         )
@@ -102,7 +103,10 @@ fun CoursesScreen2(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.Center
     ) {
         // Screen label
         Text(
@@ -121,8 +125,10 @@ fun CoursesScreen2(
                 }
             },
             style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.End,
-            modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(bottom = 16.dp, top = 16.dp)
+                .fillMaxWidth()
         )
 
         // Search bar
@@ -154,6 +160,8 @@ fun CoursesScreen3(
     screenType: ScreenType,
     branch: String
 ) {
+    val branches by courseViewModel.branches.collectAsState()
+
     // Which courses will appear
     var courses = emptyList<CourseEntity>()
     courses = (if (searchQuery!="") {

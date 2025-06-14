@@ -1,4 +1,4 @@
-package com.kareimt.anwarresala.data.local
+package com.kareimt.anwarresala.data.local.course
 
 import androidx.room.Dao
 import androidx.room.Delete

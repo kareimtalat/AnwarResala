@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.ui.theme.components.SearchRow
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 
 //class BranchCoursesActivity:ComponentActivity(){
@@ -81,7 +82,7 @@ fun ChooseBranchScreen(
         ){
             items(branches) { branch ->
                 Button(onClick = {
-                    navController.navigate("branch_courses_screen/${branch}")
+                    navController.navigate(Routes.coursesScreen(ScreenType.BCSpecific, branch))
                 }) {
                     Text(
                         text = branch,

@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.kareimt.anwarresala.data.local.BranchEntity
-import com.kareimt.anwarresala.data.local.CourseEntity
+import com.kareimt.anwarresala.data.local.branch.BranchEntity
+import com.kareimt.anwarresala.data.local.course.CourseEntity
 import com.kareimt.anwarresala.data.local.DatabaseProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,13 +63,45 @@ class CoursesViewModel(context:Context) : ViewModel() {
     private val _branches = MutableStateFlow<List<BranchEntity>>(emptyList())
     val branches: StateFlow<List<BranchEntity>> = _branches.asStateFlow()
 
+    private fun loadBranches() {
+        viewModelScope.launch(Dispatchers.IO){
+            _branches.value = branchDao.getAllBranches()
+        }
+    }
+
+    fun addBranch(branch: BranchEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            branchDao.insertBranch(branch)
+            _branches.value = branchDao.getAllBranches()
+        }
+    }
+
+    // For update exact branch
+    fun updateBranch(branch: BranchEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            branchDao.updateBranch(branch)
+            loadBranches()
+        }
+    }
+
+    // For Delete exact branch
+    fun deleteBranch(branch: BranchEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            branchDao.deleteBranch(branch)
+            loadBranches()
+        }
+    }
+
     private val _courses = MutableStateFlow<List<CourseEntity>>(emptyList())
     val courses: StateFlow<List<CourseEntity>> = _courses
 
     private val courseDao = DatabaseProvider.getDatabase(context).courseDao()
 
+    private val branchDao = DatabaseProvider.getBranchDatabase(context).branchDao()
+
     init {
         loadCourses()
+        loadBranches()
     }
 
     private fun loadCourses() {
@@ -112,8 +144,6 @@ class CoursesViewModel(context:Context) : ViewModel() {
             _selectedCourse.value = course
         }
     }
-
-
 }
 
 class CoursesViewModelFactory(private val context: Context) : ViewModelProvider.Factory {

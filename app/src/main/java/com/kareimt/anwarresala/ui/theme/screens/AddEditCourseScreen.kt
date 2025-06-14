@@ -1,6 +1,7 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,12 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.Course.Instructor
 import com.kareimt.anwarresala.data.Course.Organizer
 import com.kareimt.anwarresala.data.CourseType
+import com.kareimt.anwarresala.data.local.branch.BranchEntity
 import com.kareimt.anwarresala.data.toCourse
 import com.kareimt.anwarresala.data.toEntity
 import com.kareimt.anwarresala.ui.theme.components.InputField
@@ -69,7 +71,7 @@ fun AddEditCourseScreen(
     // TODO: use the branches state -Room Entity- after handling it's functionality circle completely
     //val branches: State<List<BranchEntity>> =
     //    viewModel.branches.collectAsState(initial = emptyList())
-    var type by remember { mutableStateOf(course?.type ?: CourseType.ONLINE) }
+    var type by remember { mutableStateOf(course?.type ?: "") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var imagePath by remember { mutableStateOf(course?.imagePath ?: "drawable/anwar_resala_logo") }
     var instructorName by remember { mutableStateOf(course?.instructor?.name ?: "") }
@@ -114,7 +116,7 @@ fun AddEditCourseScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
+//            verticalArrangement = Arrangement.spacedBy(9.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // ID
@@ -123,21 +125,107 @@ fun AddEditCourseScreen(
                     text = "Course ID: ${course.id}",
                 )
             }
-            Spacer(modifier = Modifier.padding(10.dp))
 
+            val branches by viewModel.branches.collectAsState()
+
+            // Error states for validation
+            var titleError by remember { mutableStateOf(false) }
+            var branchError by remember { mutableStateOf(false) }
+            var categoryError by remember { mutableStateOf(false) }
+            var typeError by remember { mutableStateOf(false) }
+            var instructorNameError by remember { mutableStateOf(false) }
+            var instructorBioError by remember { mutableStateOf(false) }
+            var startDateError by remember { mutableStateOf(false) }
+            var totalLecturesError by remember { mutableStateOf(false) }
+
+            Spacer(modifier = Modifier.padding(10.dp))
             // Title
+//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
                 value = course?.title ?: title,
-                onValueChange = { title = it },
+                onValueChange = { title = it; titleError = false },
                 label = "Title",
+                isError = titleError,
+                showRequired = true,
             )
+//            if (titleError) {
+//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+//            }
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Branch
-            InputField(
-                value = course?.branch ?: branch,
-                onValueChange = { branch = it },
-                label = "Branch",
-            )
+            var showAddbranchDialog by remember { mutableStateOf(false) }
+            var newBranchName by remember { mutableStateOf("") }
+            var newBranchError by remember { mutableStateOf(false) }
+
+            Column {
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ReusableDropdown(
+                        modifier = Modifier.weight(1f),
+                        label = "Branch",
+                        options = branches.map { it.branch },
+                        value = branch,
+                        onOptionSelected = { selectedBranch ->
+                            branch = selectedBranch; branchError = false
+                        },
+                        isError = branchError,
+                        showRequired = true
+                    )
+                    IconButton(onClick = { showAddbranchDialog = true}) {
+                        Icon(Icons.Default.Add, "Add Branch")
+                    }
+                }
+
+                // Add Branch Dialog
+                if (showAddbranchDialog){
+                    AlertDialog(
+                        onDismissRequest = {
+                            showAddbranchDialog = false
+                            newBranchName = ""
+                            newBranchError = false
+                                           },
+                        title = { Text("Add New Branch") },
+                        text = {
+                            InputField(
+                                value = newBranchName,
+                                onValueChange = { newBranchName = it; newBranchError = false },
+                                label = "Branch Name",
+                                isError = newBranchError,
+                                showRequired = true
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    if (newBranchName.isBlank()) {
+                                        newBranchError = true
+                                        return@Button
+                                    }
+                                    viewModel.addBranch(BranchEntity(branch = newBranchName))
+                                    showAddbranchDialog = false
+                                    newBranchName = ""
+                                }) {
+                                Text("Add")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                showAddbranchDialog = false
+                                newBranchName = ""
+                                newBranchError = false
+                            }) {
+                                Text("Cancel")
+                            }
+                        },
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.padding(10.dp))
+
 
             // Course Image
             InputField(
@@ -145,38 +233,67 @@ fun AddEditCourseScreen(
                 onValueChange = { imagePath = it },
                 label = "Course Image Path",
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Category
+//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
                 value = course?.category ?: category,
-                onValueChange = { category = it },
+                onValueChange = { category = it; categoryError = false },
                 label = "Category",
+                isError = categoryError,
+                showRequired = true
                 )
+//            if (categoryError) {
+//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+//            }
+            Spacer(modifier = Modifier.padding(10.dp))
+
 
             // Course Type
+//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             val courseTypes = CourseType.entries.map { it.name }
             ReusableDropdown(
                 label = "Course Type",
                 options = courseTypes,
-                value = type.name,
+                value = type.toString(),
                 onOptionSelected = { selectedType ->
-                    type = CourseType.valueOf(selectedType)
-                }
+                    type = CourseType.valueOf(selectedType); typeError = false
+                },
+                isError = typeError,
+                showRequired = true
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Instructor Name
+//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
                 value = course?.instructor?.name ?: instructorName,
-                onValueChange = { instructorName = it },
-                label = "Instructor Name"
+                onValueChange = { instructorName = it; instructorNameError = false },
+                label = "Instructor Name",
+                isError = instructorNameError,
+                showRequired = true
             )
+//            if (titleError) {
+//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+//            }
+            Spacer(modifier = Modifier.padding(10.dp))
+
 
             // Instructor Biography
+//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
                 value = course?.instructor?.bio ?: instructorBio,
-                onValueChange = { instructorBio = it },
-                label = "Instructor Biography"
+                onValueChange = { instructorBio = it; instructorBioError = false },
+                label = "Instructor Biography",
+                isError = instructorBioError,
+                showRequired = true
             )
+//            if (instructorBioError) {
+//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+//            }
+            Spacer(modifier = Modifier.padding(10.dp))
+
 
             // Instructor Image Path
             InputField(
@@ -184,13 +301,22 @@ fun AddEditCourseScreen(
                 onValueChange = { instructorImg = it },
                 label = "Instructor Image Path"
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Start Date
+//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
                 value = course?.startDate ?: startDate,
-                onValueChange = { startDate = it },
-                label = "Course Start Date"
+                onValueChange = { startDate = it; startDateError = false },
+                label = "Course Start Date",
+                isError = startDateError,
+                showRequired = true
             )
+//            if (startDateError) {
+//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+//            }
+            Spacer(modifier = Modifier.padding(10.dp))
+
 
             // Course whatsapp Group Link
             InputField(
@@ -198,6 +324,7 @@ fun AddEditCourseScreen(
                 onValueChange = { wGLink = it },
                 label = "Course whatsapp Group Link"
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Details
             InputField(
@@ -205,20 +332,30 @@ fun AddEditCourseScreen(
                 onValueChange = { courseDetails = it },
                 label = "Course Details"
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Number of literatures
+//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
                 value = (course?.totalLectures ?: totalLectures).toString(),
-                onValueChange = { totalLectures = it },  // Now it's String to String
-                label = "Total Lectures"
+                onValueChange = { totalLectures = it; totalLecturesError= false },  // Now it's String to String
+                label = "Total Lectures",
+                isError = totalLecturesError,
+                showRequired = true
             )
+//            if (totalLecturesError) {
+//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+//            }
+            Spacer(modifier = Modifier.padding(10.dp))
+
 
             // Number of literatures finished
             InputField(
                 value = (course?.noOfLiteraturesFinished ?: noOfLiteraturesFinished).toString(),
                 onValueChange = { noOfLiteraturesFinished = it },  // Now it's String to String
-                label = "Number of literatures finished"
+                label = "Number of literatures finished",
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Next Lecture appointment
             InputField(
@@ -226,24 +363,28 @@ fun AddEditCourseScreen(
                 onValueChange = { nextLecture = it },
                 label = "Next Lecture appointment",
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Organizer Name
             InputField(
                 value = course?.organizer?.name ?: organizerName,
                 onValueChange = { organizerName = it },  // Now it's String to String
-                label = "Organizer Name"
+                label = "Organizer Name",
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Organizer Whatsapp
             InputField(
                 value = course?.organizer?.whatsapp ?: organizerWhats,
                 onValueChange = { organizerWhats = it },  // Now it's String to String
-                label = "Organizer Whatsapp"
+                label = "Organizer Whatsapp",
             )
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // When creating the Course object, convert types appropriately
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(vertical = 20.dp),
                 horizontalArrangement = Arrangement.End
             ) {
@@ -252,15 +393,32 @@ fun AddEditCourseScreen(
                     Text("Cancel")
                 }
 
+                val context = LocalContext.current
                 // Save or Add Button
                 Button(
                     onClick = {
+                        // Validate required fields
+                        titleError = title.isBlank()
+                        branchError = branch.isBlank()
+                        categoryError = category.isBlank()
+                        typeError = type.toString().isBlank()
+                        instructorNameError = instructorName.isBlank()
+                        instructorBioError = instructorBio.isBlank()
+                        startDateError = startDate.isBlank()
+                        totalLecturesError = totalLectures.isBlank() || totalLectures.toIntOrNull() == null
+                        if (titleError || branchError || categoryError || typeError ||
+                            instructorNameError || instructorBioError || startDateError ||
+                            totalLecturesError) {
+                            // Show error messages
+                            Toast.makeText(context,"Please fill all required fields correctly.", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         val newCourse = Course(
-                            id = courseId,
+                            id = 0,
                             title = title,
                             branch = branch,
                             category = category,
-                            type = type,
+                            type = type as CourseType,
                             imagePath = when {
                                 selectedImageUri != null -> selectedImageUri.toString()
                                 else -> imagePath
@@ -283,7 +441,7 @@ fun AddEditCourseScreen(
                             organizer = Organizer(
                                 name = organizerName,
                                 whatsapp = organizerWhats
-                            )
+                            ),
                         )
                         if (course == null) {
                             viewModel.addCourse(newCourse.toEntity())

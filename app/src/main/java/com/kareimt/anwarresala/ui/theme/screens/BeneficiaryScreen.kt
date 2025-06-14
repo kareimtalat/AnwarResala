@@ -16,7 +16,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
+import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.ui.theme.components.SearchRow
+import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -87,23 +89,19 @@ fun BeneficiaryScreen(
 
             // Buttons for navigation
             Button(onClick = {
-                // TODO: Specify the Navigation to the AllTheCourses screen
-                navController.navigate("courses_screen/all_the_courses")
+                navController.navigate(Routes.coursesScreen(ScreenType.AllTheCourses))
             }) {Text(text = context.getString(R.string.all_the_courses)) }
 
             Button(onClick = {
-                // TODO: Specify the Navigation to the Online screen
-                navController.navigate("courses_screen/online_courses")
+                navController.navigate(Routes.coursesScreen(ScreenType.OnLine))
             }) {Text(text = context.getString(R.string.online_courses)) }
 
             Button(onClick = {
-                // TODO: Specify the Navigation to the Offline screen
-                navController.navigate("courses_screen/offline_courses")
+                navController.navigate(Routes.coursesScreen(ScreenType.OffLine))
             }) {Text(text = context.getString(R.string.offline_courses)) }
 
             Button(onClick = {
-                // TODO: Specify the Navigation to the TheCoursesOFTheBranch screen
-                navController.navigate("choose_branch")
+                navController.navigate(Routes.ChooseBranch)
             }) {Text(text = context.getString(R.string.branch_courses)) }
         }
     }
