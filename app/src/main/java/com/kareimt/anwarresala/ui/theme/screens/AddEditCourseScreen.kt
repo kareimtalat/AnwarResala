@@ -1,5 +1,6 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -8,19 +9,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -42,11 +52,21 @@ import com.kareimt.anwarresala.data.Course.Instructor
 import com.kareimt.anwarresala.data.Course.Organizer
 import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.data.local.branch.BranchEntity
-import com.kareimt.anwarresala.data.toCourse
-import com.kareimt.anwarresala.data.toEntity
+import com.kareimt.anwarresala.data.local.course.toCourse
+import com.kareimt.anwarresala.data.local.course.toEntity
 import com.kareimt.anwarresala.ui.theme.components.InputField
 import com.kareimt.anwarresala.ui.theme.components.ReusableDropdown
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
+import java.time.Month
+import java.util.Calendar
+import kotlin.toString
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import coil.compose.AsyncImage
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -65,38 +85,47 @@ fun AddEditCourseScreen(
     course = selectedCourse?.toCourse()
     if (courseId == -1) { course = null }
 
-    var category by remember { mutableStateOf(course?.category ?: "") }
-    var title by remember { mutableStateOf(course?.title ?: "") }
-    var branch by remember { mutableStateOf(course?.branch ?: "") }
-    // TODO: use the branches state -Room Entity- after handling it's functionality circle completely
-    //val branches: State<List<BranchEntity>> =
-    //    viewModel.branches.collectAsState(initial = emptyList())
-    var type by remember { mutableStateOf(course?.type ?: "") }
+    var category by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf("") }
+    var branch by remember { mutableStateOf("") }
+    var coursesOfMonth by remember { mutableStateOf(emptyList<String>()) }
+    var type by remember { mutableStateOf<CourseType?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var imagePath by remember { mutableStateOf(course?.imagePath ?: "drawable/anwar_resala_logo") }
-    var instructorName by remember { mutableStateOf(course?.instructor?.name ?: "") }
-    var instructorBio by remember { mutableStateOf(course?.instructor?.bio ?: "") }
-    var instructorImg by remember {
-        mutableStateOf(
-            course?.instructor?.imagePath?.toString() ?: "drawable/anwar_resala_logo"
-        )
+    var imagePath by remember { mutableStateOf("") }
+    var instructorName by remember { mutableStateOf("") }
+    var instructorBio by remember { mutableStateOf("") }
+    var instructorImg by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf("") }
+    var wGLink by remember { mutableStateOf("") }
+    var courseDetails by remember { mutableStateOf("") }
+    var totalLectures by remember { mutableStateOf("") }
+    var noOfLiteraturesFinished by remember { mutableStateOf("") }
+    var nextLecture by remember { mutableStateOf("") }
+    var organizerName by remember { mutableStateOf("") }
+    var organizerWhats by remember { mutableStateOf("") }
+
+    LaunchedEffect(selectedCourse) {
+        selectedCourse?.let { courseEntity ->
+            val course = courseEntity.toCourse()
+            category = course.category
+            title = course.title
+            branch = course.branch
+            coursesOfMonth = course.coursesOfMonth
+            type = course.type
+            imagePath = course.imagePath
+            instructorName = course.instructor.name
+            instructorBio = course.instructor.bio
+            instructorImg = course.instructor.imagePath
+            startDate = course.startDate
+            wGLink = course.wGLink
+            courseDetails = course.courseDetails
+            totalLectures = course.totalLectures.toString()
+            noOfLiteraturesFinished = course.noOfLiteraturesFinished.toString()
+            nextLecture = course.nextLecture
+            organizerName = course.organizer.name
+            organizerWhats = course.organizer.whatsapp
+        }
     }
-    var startDate by remember { mutableStateOf(course?.startDate ?: "") }
-    var wGLink by remember { mutableStateOf(course?.wGLink ?: "") }
-    var courseDetails by remember { mutableStateOf(course?.courseDetails ?: "") }
-    var totalLectures by remember {
-        mutableStateOf(
-            course?.totalLectures?.toString() ?: ""
-        )
-    }
-    var noOfLiteraturesFinished by remember {
-        mutableStateOf(
-            course?.noOfLiteraturesFinished?.toString() ?: ""
-        )
-    }
-    var nextLecture by remember { mutableStateOf(course?.nextLecture ?: "") }
-    var organizerName by remember { mutableStateOf(course?.organizer?.name ?: "") }
-    var organizerWhats by remember { mutableStateOf(course?.organizer?.whatsapp ?: "") }
 
     Scaffold(
         topBar = {
@@ -125,8 +154,7 @@ fun AddEditCourseScreen(
                     text = "Course ID: ${course.id}",
                 )
             }
-
-            val branches by viewModel.branches.collectAsState()
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Error states for validation
             var titleError by remember { mutableStateOf(false) }
@@ -135,32 +163,27 @@ fun AddEditCourseScreen(
             var typeError by remember { mutableStateOf(false) }
             var instructorNameError by remember { mutableStateOf(false) }
             var instructorBioError by remember { mutableStateOf(false) }
-            var startDateError by remember { mutableStateOf(false) }
+            var coursesOfMonthError by remember { mutableStateOf(false) }
             var totalLecturesError by remember { mutableStateOf(false) }
 
-            Spacer(modifier = Modifier.padding(10.dp))
             // Title
-//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
-                value = course?.title ?: title,
+                value = title,
                 onValueChange = { title = it; titleError = false },
                 label = "Title",
                 isError = titleError,
                 showRequired = true,
             )
-//            if (titleError) {
-//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
-//            }
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Branch
-            var showAddbranchDialog by remember { mutableStateOf(false) }
+            val branches by viewModel.branches.collectAsState()
+            var showAddBranchDialog by remember { mutableStateOf(false) }
             var newBranchName by remember { mutableStateOf("") }
-            var newBranchError by remember { mutableStateOf(false) }
-
+            var newBranchError by remember { mutableStateOf(false) } // For the dialog
             Column {
                 Row (
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.widthIn(max = 300.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -173,18 +196,23 @@ fun AddEditCourseScreen(
                             branch = selectedBranch; branchError = false
                         },
                         isError = branchError,
-                        showRequired = true
+                        showRequired = true,
+                        textRPadding = 0,
                     )
-                    IconButton(onClick = { showAddbranchDialog = true}) {
+                    IconButton(onClick = { showAddBranchDialog = true},
+                        modifier = Modifier
+                            .weight(0.25f)
+                            .padding(top = 22.dp)
+                    ) {
                         Icon(Icons.Default.Add, "Add Branch")
                     }
                 }
 
                 // Add Branch Dialog
-                if (showAddbranchDialog){
+                if (showAddBranchDialog){
                     AlertDialog(
                         onDismissRequest = {
-                            showAddbranchDialog = false
+                            showAddBranchDialog = false
                             newBranchName = ""
                             newBranchError = false
                                            },
@@ -195,7 +223,6 @@ fun AddEditCourseScreen(
                                 onValueChange = { newBranchName = it; newBranchError = false },
                                 label = "Branch Name",
                                 isError = newBranchError,
-                                showRequired = true
                             )
                         },
                         confirmButton = {
@@ -206,7 +233,7 @@ fun AddEditCourseScreen(
                                         return@Button
                                     }
                                     viewModel.addBranch(BranchEntity(branch = newBranchName))
-                                    showAddbranchDialog = false
+                                    showAddBranchDialog = false
                                     newBranchName = ""
                                 }) {
                                 Text("Add")
@@ -214,7 +241,7 @@ fun AddEditCourseScreen(
                         },
                         dismissButton = {
                             TextButton(onClick = {
-                                showAddbranchDialog = false
+                                showAddBranchDialog = false
                                 newBranchName = ""
                                 newBranchError = false
                             }) {
@@ -226,32 +253,208 @@ fun AddEditCourseScreen(
             }
             Spacer(modifier = Modifier.padding(10.dp))
 
+            // CoursesOfMonth
+            var showMonthPickerDialog by remember { mutableStateOf(false) }
+            var selectedMonths by remember {
+                mutableStateOf<List<String>>(
+                    (if(course?.coursesOfMonth != null && course.coursesOfMonth.isNotEmpty()){
+                        course.coursesOfMonth
+                    } else emptyList<String>())
+                ) }
+            var currentDate by remember { mutableStateOf(Calendar.getInstance()) }
+            Column{
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                    ) {
+                        Text(
+                            text = "* Required Field",
+                            color = Color.Red,
+                            modifier = Modifier.padding( start = 40.dp )
+                        )
+                    }
+                    Text(
+                        text = "Selected Months: ${
+                            selectedMonths.joinToString(", ") {
+                                "${Month.valueOf(it.split(" ")[0].uppercase())} ${it.split(" ")[1]}"
+                            }
+                        }",
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                    Button(onClick = { showMonthPickerDialog = true }) {
+                        Text("Select Months")
+                    }
+                }
+                if (coursesOfMonthError) {
+                    Text(
+                        text = "Please select at least one month.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(start = 16.dp)
+                            .fillMaxWidth(),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+            if (showMonthPickerDialog) {
+                AlertDialog(
+                    onDismissRequest = { showMonthPickerDialog = false },
+                    title = { Text("Select Course Months") },
+                    text = {
+                        Column {
+                            // Year-Month navigation
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                IconButton(onClick = {
+                                    currentDate = Calendar.getInstance().apply {
+                                        timeInMillis = currentDate.timeInMillis
+                                        add(Calendar.YEAR, -1)
+                                    }
+                                }) {
+                                    Icon(Icons.Default.ArrowBack, "Previous Year")
+                                }
+                                Text(currentDate.get(Calendar.YEAR).toString())
+                                IconButton(onClick = {
+                                    currentDate = Calendar.getInstance().apply {
+                                        timeInMillis = currentDate.timeInMillis
+                                        add(Calendar.YEAR, 1)
+                                    }
+                                }) {
+                                    Icon(Icons.Default.ArrowForward, "Next Year")
+                                }
+                            }
+
+                            // Month grid
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(3),
+                                modifier = Modifier.height(200.dp)
+                            ) {
+                                items(12) { index ->
+                                    val month = Month.entries[index]
+                                    val monthYear = "${month.name.lowercase().capitalize()} ${currentDate.get(Calendar.YEAR)}"
+                                    val isSelected = selectedMonths.contains(monthYear)
+
+                                    OutlinedButton(
+                                        onClick = {
+                                            selectedMonths = if (isSelected) {
+                                                selectedMonths - monthYear
+                                            } else {
+                                                selectedMonths + monthYear
+                                            }
+                                        },
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = if (isSelected) {
+                                                MaterialTheme.colorScheme.primaryContainer
+                                            } else {
+                                                MaterialTheme.colorScheme.surface
+                                            }
+                                        ),
+                                        modifier = Modifier.padding(4.dp)
+                                    ) {
+                                        Text(month.name.substring(0, 3))
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Button(onClick = {
+                            coursesOfMonth = selectedMonths
+                            coursesOfMonthError = selectedMonths.isEmpty()
+                            showMonthPickerDialog = false
+                        }) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showMonthPickerDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Image
-            InputField(
-                value = course?.imagePath ?: imagePath,
-                onValueChange = { imagePath = it },
-                label = "Course Image Path",
-            )
+            // Image picker state
+            var showImagePicker by remember { mutableStateOf(false) }
+            var imageUri by remember { mutableStateOf<Uri?>(null) }
+            val context = LocalContext.current
+            val imagePicker = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                uri?.let {
+                    // Copy the image to app's internal storage
+                    val timestamp = System.currentTimeMillis()
+                    val filename = "course_image_$timestamp.jpg"
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    context.openFileOutput(filename, Context.MODE_PRIVATE).use { outputStream ->
+                        inputStream?.copyTo(outputStream)
+                    }
+                    imagePath = filename
+                    imageUri = uri
+                }
+            }
+
+// Image selection button and preview
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(
+                        text = "Course Image",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Image preview
+                if (imageUri != null || imagePath.isNotEmpty()) {
+                    AsyncImage(
+                        model = imageUri ?: imagePath,
+                        contentDescription = "Selected image",
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                Button(
+                    onClick = { imagePicker.launch("image/*") }
+                ) {
+                    Text("Select Image")
+                }
+            }
+//            InputField(
+//                value = imagePath,
+//                onValueChange = { imagePath = it },
+//                label = "Course Image Path",
+//            )
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Category
-//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
-                value = course?.category ?: category,
+                value = category,
                 onValueChange = { category = it; categoryError = false },
                 label = "Category",
                 isError = categoryError,
                 showRequired = true
                 )
-//            if (categoryError) {
-//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
-//            }
             Spacer(modifier = Modifier.padding(10.dp))
 
-
             // Course Type
-//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             val courseTypes = CourseType.entries.map { it.name }
             ReusableDropdown(
                 label = "Course Type",
@@ -266,61 +469,46 @@ fun AddEditCourseScreen(
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Instructor Name
-//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
-                value = course?.instructor?.name ?: instructorName,
+                value = instructorName,
                 onValueChange = { instructorName = it; instructorNameError = false },
                 label = "Instructor Name",
                 isError = instructorNameError,
                 showRequired = true
             )
-//            if (titleError) {
-//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
-//            }
             Spacer(modifier = Modifier.padding(10.dp))
 
-
             // Instructor Biography
-//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
-                value = course?.instructor?.bio ?: instructorBio,
+                value = instructorBio,
                 onValueChange = { instructorBio = it; instructorBioError = false },
                 label = "Instructor Biography",
                 isError = instructorBioError,
                 showRequired = true
             )
-//            if (instructorBioError) {
-//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
-//            }
             Spacer(modifier = Modifier.padding(10.dp))
 
 
             // Instructor Image Path
             InputField(
-                value = course?.instructor?.imagePath ?: instructorImg,
+                value = instructorImg,
                 onValueChange = { instructorImg = it },
                 label = "Instructor Image Path"
             )
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Start Date
-//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
-                value = course?.startDate ?: startDate,
-                onValueChange = { startDate = it; startDateError = false },
+                value = startDate,
+                onValueChange = { startDate = it },
                 label = "Course Start Date",
-                isError = startDateError,
-                showRequired = true
             )
-//            if (startDateError) {
-//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
-//            }
             Spacer(modifier = Modifier.padding(10.dp))
 
 
             // Course whatsapp Group Link
             InputField(
-                value = course?.wGLink ?: wGLink,
+                value = wGLink,
                 onValueChange = { wGLink = it },
                 label = "Course whatsapp Group Link"
             )
@@ -328,38 +516,40 @@ fun AddEditCourseScreen(
 
             // Course Details
             InputField(
-                value = course?.courseDetails ?: courseDetails,
+                modifier = Modifier
+                    .height(120.dp)
+                    .fillMaxWidth(),
+                value = courseDetails,
                 onValueChange = { courseDetails = it },
-                label = "Course Details"
+                label = "Course Details",
+                singleLine = false
             )
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Number of literatures
-//            Text(text = "(* Required Field)", color = Color.Red, modifier = Modifier.align(Alignment.Start))
             InputField(
-                value = (course?.totalLectures ?: totalLectures).toString(),
+                value = (totalLectures).toString(),
                 onValueChange = { totalLectures = it; totalLecturesError= false },  // Now it's String to String
                 label = "Total Lectures",
                 isError = totalLecturesError,
-                showRequired = true
+                showRequired = true,
+                keyboardType = "Number"
             )
-//            if (totalLecturesError) {
-//                Text("This field is required", color = Color.Red, style = MaterialTheme.typography.bodySmall)
-//            }
             Spacer(modifier = Modifier.padding(10.dp))
 
 
             // Number of literatures finished
             InputField(
-                value = (course?.noOfLiteraturesFinished ?: noOfLiteraturesFinished).toString(),
+                value = (noOfLiteraturesFinished).toString(),
                 onValueChange = { noOfLiteraturesFinished = it },  // Now it's String to String
                 label = "Number of literatures finished",
+                keyboardType = "Number"
             )
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Next Lecture appointment
             InputField(
-                value = course?.nextLecture ?: nextLecture,
+                value = nextLecture,
                 onValueChange = { nextLecture = it },
                 label = "Next Lecture appointment",
             )
@@ -367,7 +557,7 @@ fun AddEditCourseScreen(
 
             // Organizer Name
             InputField(
-                value = course?.organizer?.name ?: organizerName,
+                value = organizerName,
                 onValueChange = { organizerName = it },  // Now it's String to String
                 label = "Organizer Name",
             )
@@ -375,13 +565,14 @@ fun AddEditCourseScreen(
 
             // Organizer Whatsapp
             InputField(
-                value = course?.organizer?.whatsapp ?: organizerWhats,
+                value = organizerWhats,
                 onValueChange = { organizerWhats = it },  // Now it's String to String
                 label = "Organizer Whatsapp",
+                keyboardType = "Phone"
             )
             Spacer(modifier = Modifier.padding(10.dp))
 
-            // When creating the Course object, convert types appropriately
+            // TODO: When creating the Course object, convert types appropriately
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -393,50 +584,51 @@ fun AddEditCourseScreen(
                     Text("Cancel")
                 }
 
-                val context = LocalContext.current
                 // Save or Add Button
+                val context = LocalContext.current
                 Button(
                     onClick = {
                         // Validate required fields
                         titleError = title.isBlank()
+                        coursesOfMonthError = coursesOfMonth.isEmpty()
                         branchError = branch.isBlank()
                         categoryError = category.isBlank()
                         typeError = type.toString().isBlank()
                         instructorNameError = instructorName.isBlank()
                         instructorBioError = instructorBio.isBlank()
-                        startDateError = startDate.isBlank()
                         totalLecturesError = totalLectures.isBlank() || totalLectures.toIntOrNull() == null
                         if (titleError || branchError || categoryError || typeError ||
-                            instructorNameError || instructorBioError || startDateError ||
-                            totalLecturesError) {
+                            instructorNameError || instructorBioError || totalLecturesError || coursesOfMonthError) {
                             // Show error messages
                             Toast.makeText(context,"Please fill all required fields correctly.", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
                         val newCourse = Course(
-                            id = 0,
-                            title = title,
+                            id = course?.id ?: 0,
                             branch = branch,
-                            category = category,
-                            type = type as CourseType,
+                            coursesOfMonth = coursesOfMonth.map { it.toString() },
                             imagePath = when {
                                 selectedImageUri != null -> selectedImageUri.toString()
-                                else -> imagePath
+                                imagePath.isNotEmpty() -> imagePath // Keep existing image path
+                                else -> "drawable/anwar_resala_logo"
                             },
+                            category = category,
+                            title = title,
+                            type = type as CourseType,
                             instructor = Instructor(
                                 name = instructorName,
                                 bio = instructorBio,
                                 imagePath = when {
                                     selectedImageUri != null -> selectedImageUri.toString()
-                                    else -> imagePath
+                                    instructorImg.isNotEmpty() -> instructorImg // Keep existing instructor image
+                                    else -> "drawable/anwar_resala_logo"
                                 },
                             ),
                             startDate = startDate,
                             wGLink = wGLink,
                             courseDetails = courseDetails,
                             totalLectures = totalLectures.toIntOrNull() ?: 0,
-                            noOfLiteraturesFinished = noOfLiteraturesFinished.toIntOrNull()
-                                ?: 0,
+                            noOfLiteraturesFinished = noOfLiteraturesFinished.toIntOrNull() ?: 0,
                             nextLecture = nextLecture,
                             organizer = Organizer(
                                 name = organizerName,
@@ -451,7 +643,7 @@ fun AddEditCourseScreen(
                         onBackClick()
                     },
                 ) {
-                    Text(if (courseId != -1) "Add" else "Save")
+                    Text(if (courseId == -1) "Add" else "Save")
                 }
                 // one } for the Row
             }

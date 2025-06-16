@@ -1,36 +1,38 @@
-package com.kareimt.anwarresala.data
+package com.kareimt.anwarresala.data.local.course
 
-import com.kareimt.anwarresala.data.local.course.CourseEntity
+import com.kareimt.anwarresala.data.Course
+import com.kareimt.anwarresala.data.CourseType
 
 fun CourseEntity.toCourse(): Course = Course(
     id = id,
     branch = branch,
-    imagePath = imagePath?: "drawable/anwar_resala_logo",
+    coursesOfMonth = coursesOfMonth,
+    imagePath = imagePath,
     category = category,
     title = title,
     type = CourseType.valueOf(type),
     instructor = Course.Instructor(
         name = instructorName,
         bio = instructorBio,
-        imagePath = instructorImagePath?: "drawable/anwar_resala_logo"
+        imagePath = instructorImagePath
     ),
     startDate = startDate,
     wGLink = wGLink,
     courseDetails = courseDetails,
     totalLectures = totalLectures,
-    noOfLiteraturesFinished = noOfLiteraturesFinished?: 0,
+    noOfLiteraturesFinished = noOfLiteraturesFinished,
     nextLecture = nextLecture,
-    organizer = if (organizerName != null && organizerWhatsapp != null)
-    {Course.Organizer(
-        name = organizerName,
-        whatsapp = organizerWhatsapp
-    )} else null,
+    organizer = Course.Organizer(
+            name = organizerName,
+            whatsapp = organizerWhatsapp
+    ),
     progress = progress
 )
 
 fun Course.toEntity(): CourseEntity = CourseEntity(
     id = id,
     branch = branch,
+    coursesOfMonth = coursesOfMonth,
     imagePath = imagePath,
     category = category,
     title = title,
@@ -44,7 +46,7 @@ fun Course.toEntity(): CourseEntity = CourseEntity(
     totalLectures = totalLectures,
     noOfLiteraturesFinished = noOfLiteraturesFinished,
     nextLecture = nextLecture,
-    organizerName = organizer?.name,
-    organizerWhatsapp = organizer?.whatsapp,
+    organizerName = organizer.name,
+    organizerWhatsapp = organizer.whatsapp,
     progress = progress
 )

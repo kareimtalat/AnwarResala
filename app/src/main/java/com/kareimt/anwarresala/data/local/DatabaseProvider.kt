@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object DatabaseProvider {
+    // CourseDatabase singleton instance
     @Volatile
     private var INSTANCE: CourseDatabase? = null
     fun getDatabase(context: Context): CourseDatabase {
@@ -20,7 +21,7 @@ object DatabaseProvider {
                 CourseDatabase::class.java,
                 "app_database"
             )
-//                .fallbackToDestructiveMigration() // Handle migrations by recreating the database
+                .fallbackToDestructiveMigration() // Handle migrations by recreating the database
                 .addCallback(object : RoomDatabase.Callback(){
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
@@ -36,6 +37,7 @@ object DatabaseProvider {
         }
     }
 
+    // BranchDatabase singleton instance
     @Volatile
     private var INSTANCE_BRANCH: BranchDatabase? = null
     fun getBranchDatabase(context: Context): BranchDatabase {

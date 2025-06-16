@@ -1,6 +1,7 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,39 +49,9 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
-import com.kareimt.anwarresala.data.toEntity
+import com.kareimt.anwarresala.data.local.course.toEntity
+import com.kareimt.anwarresala.utils.ImageUtils.getImageUri
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
-
-
-//class CourseDetailsActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        lifecycleScope.launch {
-//            // Perform any heavy initialization or data loading here
-//
-//
-//            val course =
-//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-//                    intent.getParcelableExtra<Course>("course", Course::class.java)
-//                } else {
-//                    @Suppress("DEPRECATION")
-//                    intent.getParcelableExtra<Course>("course")
-//                }
-//            if (course == null) {
-//                println("Course is null")
-//                finish()
-//                return@launch
-//            }
-//
-//            // Once data is ready, set the content
-//            setContent {
-//                AnwarResalaTheme {
-//                    CourseDetailsScreen(course = course)
-//                }
-//            }
-//        }
-//    }
-//}
 
 @Composable
 fun CourseDetailsScreen(
@@ -98,28 +69,41 @@ fun CourseDetailsScreen(
     ) {
         item {
             // صورة الكورس
-            if (course.imagePath.startsWith("drawable/")) {
-                val resourceId = LocalContext.current.resources.getIdentifier(
-                    course.imagePath.removePrefix("drawable/"),
-                    "drawable",
-                    LocalContext.current.packageName
-                )
-                Image(
-                    painter = painterResource(resourceId),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                )
-            } else {
-                AsyncImage(
-                    model = course.imagePath,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                )
+            val context = LocalContext.current
+            val imageUri = remember(course.imagePath) {
+                getImageUri(context, course.imagePath)
             }
+
+            // In your layout:
+            AsyncImage(
+                model = imageUri,
+                contentDescription = "Course Image",
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+//            if (course.imagePath.startsWith("drawable/")) {
+//                val resourceId = LocalContext.current.resources.getIdentifier(
+//                    course.imagePath.removePrefix("drawable/"),
+//                    "drawable",
+//                    LocalContext.current.packageName
+//                )
+//                Image(
+//                    painter = painterResource(resourceId),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clip(RoundedCornerShape(8.dp))
+//                )
+//            } else {
+//                AsyncImage(
+//                    model = course.imagePath,
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clip(RoundedCornerShape(8.dp))
+//                )
+//            }
 
             Spacer(Modifier.height(16.dp))
 
@@ -173,13 +157,13 @@ fun CourseDetailsScreen(
                 DetailsSection(course)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // التقدم
+                // Course progress and next lecture
                 ProgressSection(course.progress, course.nextLecture)
-
                 Spacer(modifier = Modifier.height(16.dp))
-                // التواصل
-                course.organizer?.let { organizer ->
-                    OrganizerSection(organizer)
+
+                // Organizer details
+                if (course.organizer.name!=""){
+                    OrganizerSection(course.organizer)
                 }
             }
         }
@@ -273,7 +257,9 @@ private fun DetailsSection(course: Course) {
         DetailRow(text = "تاريخ البداية", text2 = course.startDate)
         DetailRow(text = "عدد محاضرات الكورس", text2 = course.totalLectures.toString())
         DetailRow(text = "عدد المحاضرات المنتهية", text2 = course.noOfLiteraturesFinished.toString())
-        course.wGLink?.let { WGSection(it) }
+        if (course.wGLink.isNotEmpty()) {
+            WGSection(course.wGLink)
+        }
     }
 }
 
@@ -288,10 +274,19 @@ private fun WGSection(
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data = wGLink.toUri()
+                try {
+                    // Ensure the link is properly formatted
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        data = if (wGLink.startsWith("http")) {
+                            wGLink.toUri()
+                        } else {
+                            "https://$wGLink".toUri()
+                        }
+                    }
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Couldn't open WhatsApp", Toast.LENGTH_SHORT).show()
                 }
-                context.startActivity(intent)
             },
         horizontalArrangement = Arrangement.Center
     ) {
@@ -312,12 +307,13 @@ private fun WGSection(
 private fun ProgressSection(progress: Float, nextLecture: String?=null) {
     Column {
         ProgressIndicator(progress = progress)
-        if (progress<1f) {
-            nextLecture?.let {
+        if (progress<1f)/*Mean course not finished yet*/ {
+            if (nextLecture!=""){
                 DetailRowForNextLit(
                     icon = Icons.Default.Schedule,
-                    text = "المحاضرة القادمة: $it"
+                    text = "المحاضرة القادمة: $nextLecture"
                 )
+
             }
         }
     }
@@ -367,27 +363,29 @@ private fun OrganizerSection(organizer: Course.Organizer) {
         val context= LocalContext.current
 
         // Organizer whats No.
-         Row(
-            modifier = Modifier
-                //.padding(top = 3.dp)
-                .fillMaxWidth()
-                .clickable {
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = "https://wa.me/${organizer.whatsapp}".toUri()
-                    }
-                    context.startActivity(intent)
-                },
-            horizontalArrangement = Arrangement.Center,
-        ) {
-             Spacer(Modifier.width(8.dp))
-             Text(text = organizer.whatsapp)
-             Image(
-                 painter = painterResource(R.drawable.whatsapp),
-                 contentDescription = null,
-                 modifier = Modifier
-                     .height(32.dp)
-                     .padding(bottom = 7.dp)
-                 )
+        if (organizer.whatsapp!="") {
+            Row(
+               modifier = Modifier
+                   //.padding(top = 3.dp)
+                   .fillMaxWidth()
+                   .clickable {
+                       val intent = Intent(Intent.ACTION_VIEW).apply {
+                           data = "https://wa.me/${organizer.whatsapp}".toUri()
+                       }
+                       context.startActivity(intent)
+                   },
+               horizontalArrangement = Arrangement.Center,
+           ) {
+                Spacer(Modifier.width(8.dp))
+                Text(text = organizer.whatsapp)
+                Image(
+                    painter = painterResource(R.drawable.whatsapp),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(32.dp)
+                        .padding(bottom = 7.dp)
+                    )
+           }
         }
     }
 }

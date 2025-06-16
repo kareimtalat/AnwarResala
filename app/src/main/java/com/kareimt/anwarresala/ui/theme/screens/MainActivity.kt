@@ -43,7 +43,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kareimt.anwarresala.R
-import com.kareimt.anwarresala.data.toCourse
+import com.kareimt.anwarresala.data.local.course.toCourse
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.screens.Routes.addEditCourse
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.CoursesScreen

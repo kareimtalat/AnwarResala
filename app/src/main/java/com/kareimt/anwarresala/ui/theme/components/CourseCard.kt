@@ -40,11 +40,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.CourseType
-import com.kareimt.anwarresala.data.toEntity
+import com.kareimt.anwarresala.data.local.course.toEntity
 import com.kareimt.anwarresala.ui.theme.screens.ConfirmationDialog
+import com.kareimt.anwarresala.utils.ImageUtils.getImageUri
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
 // ****** The card of the course
@@ -56,6 +58,10 @@ fun CourseCard(
     viewModel: CoursesViewModel
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val imageUri = remember(course.imagePath) {
+        getImageUri(context, course.imagePath)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,28 +71,38 @@ fun CourseCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // The course image
-            val painter=when{
-                course.imagePath.startsWith("drawable/") == true -> {
-                    val resourceName = course.imagePath.removePrefix("drawable/")
-                    val resourceId = LocalContext.current.resources.getIdentifier(
-                        resourceName,
-                        "drawable",
-                        LocalContext.current.packageName
-                    )
-                    painterResource(resourceId)
-                }
-                else -> painterResource(R.drawable.anwar_resala_logo)
-            }
-
-            Image(
-                painter = painter,
-                contentDescription = null,
+            AsyncImage(
+                model = imageUri,
+                contentDescription = "Course Image",
                 modifier = Modifier
-                    .height(120.dp)
                     .fillMaxWidth()
+                    .height(120.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
+
+//            val painter=when{
+//                course.imagePath.startsWith("drawable/") == true -> {
+//                    val resourceName = course.imagePath.removePrefix("drawable/")
+//                    val resourceId = LocalContext.current.resources.getIdentifier(
+//                        resourceName,
+//                        "drawable",
+//                        LocalContext.current.packageName
+//                    )
+//                    painterResource(resourceId)
+//                }
+//                else -> painterResource(R.drawable.anwar_resala_logo)
+//            }
+
+//            Image(
+//                painter = painter,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .height(120.dp)
+//                    .fillMaxWidth()
+//                    .clip(RoundedCornerShape(8.dp)),
+//                contentScale = ContentScale.Crop
+//            )
             Spacer(Modifier.height(8.dp))
 
             // Row for Category, Title and Instructor
@@ -164,8 +180,8 @@ fun CourseCard(
             Spacer(Modifier.height(4.dp))
 
             // إظهار العناصر الاختيارية فقط إذا كانت موجودة
-            if (course.progress<1f) {
-                if (course.nextLecture!="") {
+            if (course.progress <1f) {
+                if (course.nextLecture !="") {
                     DetailRowForNextLit(icon = Icons.Default.Schedule, text = "المحاضرة القادمة: ${course.nextLecture}")
                 }
             }

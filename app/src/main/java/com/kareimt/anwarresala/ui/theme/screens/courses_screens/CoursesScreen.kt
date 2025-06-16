@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.kareimt.anwarresala.ui.theme.components.CourseCard
 import com.kareimt.anwarresala.ui.theme.components.SearchRow
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
-import com.kareimt.anwarresala.data.toCourse
+import com.kareimt.anwarresala.data.local.course.toCourse
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

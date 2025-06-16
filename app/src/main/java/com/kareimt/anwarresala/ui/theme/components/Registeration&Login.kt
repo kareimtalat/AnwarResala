@@ -133,6 +133,7 @@ fun ThePrompt(context: Context, onClickFun: () -> Unit,preText:String,clickableT
 // The Input Field
 @Composable
 fun InputField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -141,11 +142,17 @@ fun InputField(
     keyboardType: String = "Text",
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isError: Boolean = false,
-    showRequired: Boolean = false
+    showRequired: Boolean = false,
+    singleLine : Boolean = true,
+    textRPadding: Int = 40,
 ){
     val textDirection=if (rtl){TextDirection.Rtl}else{TextDirection.Ltr}
     val textAlign=if (rtl){TextAlign.Start}else{TextAlign.End}
-    val imeActionEnum=if (imeAction=="Next"){ImeAction.Next}else{ImeAction.Go}
+    val imeActionEnum=
+        if (imeAction=="Next"){ImeAction.Next} else{
+            if (!singleLine) { ImeAction.Default }
+            else ImeAction.Go
+            }
     val keyboardTypeEnum = when (keyboardType) {
         "Number" -> KeyboardType.Number
         "Phone" -> KeyboardType.Phone
@@ -166,7 +173,7 @@ fun InputField(
             Text(
                 text = "* Required Field",
                 color = Color.Red,
-                modifier = Modifier.padding( start = 40.dp )
+                modifier = Modifier.padding( start = textRPadding.dp )
             )
         }
     }
@@ -182,7 +189,7 @@ fun InputField(
                 .padding(end = 16.dp),
         )
                 },
-        modifier = Modifier.widthIn(max = 300.dp),
+        modifier = modifier.widthIn(max = 300.dp),
         textStyle = LocalTextStyle.current.copy(textDirection = textDirection,textAlign = textAlign),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -216,18 +223,19 @@ fun InputField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReusableDropdown(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     label: String,
     options: List<String> /*= emptyList()*/,
     value: String/*=options.first()*/,
     onOptionSelected: (String) -> Unit = {},
     isError: Boolean= false,
-    showRequired: Boolean = false
+    showRequired: Boolean = false,
+    textRPadding: Int = 32,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Column (
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         if (showRequired) {
@@ -238,7 +246,7 @@ fun ReusableDropdown(
                 Text(
                     text = "* Required Field",
                     color = Color.Red,
-                    modifier = Modifier.padding(start = 32.dp)
+                    modifier = Modifier.padding(start = textRPadding.dp)
                 )
             }
         }
