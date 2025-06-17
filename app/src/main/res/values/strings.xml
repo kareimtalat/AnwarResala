@@ -54,7 +54,7 @@
     <string name="the_title">العنوان</string>
     <string name="online">أونلاين</string>
     <string name="offline">أوفلاين</string>
-    <string name="hybrid">أونلاين و أوفلاين</string>
+    <string name="hybrid">أونلاين و أوفلاين معاً</string>
 
     // Instructor names
     <string name="dr_layla_saad">د. ليلى سعد</string>

@@ -3,6 +3,8 @@ package com.kareimt.anwarresala.ui.theme.screens
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,10 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -43,10 +47,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.Course.Instructor
 import com.kareimt.anwarresala.data.Course.Organizer
@@ -56,17 +65,10 @@ import com.kareimt.anwarresala.data.local.course.toCourse
 import com.kareimt.anwarresala.data.local.course.toEntity
 import com.kareimt.anwarresala.ui.theme.components.InputField
 import com.kareimt.anwarresala.ui.theme.components.ReusableDropdown
+import com.kareimt.anwarresala.utils.ImageUtils
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 import java.time.Month
 import java.util.Calendar
-import kotlin.toString
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import coil.compose.AsyncImage
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -104,26 +106,28 @@ fun AddEditCourseScreen(
     var organizerName by remember { mutableStateOf("") }
     var organizerWhats by remember { mutableStateOf("") }
 
-    LaunchedEffect(selectedCourse) {
-        selectedCourse?.let { courseEntity ->
-            val course = courseEntity.toCourse()
-            category = course.category
-            title = course.title
-            branch = course.branch
-            coursesOfMonth = course.coursesOfMonth
-            type = course.type
-            imagePath = course.imagePath
-            instructorName = course.instructor.name
-            instructorBio = course.instructor.bio
-            instructorImg = course.instructor.imagePath
-            startDate = course.startDate
-            wGLink = course.wGLink
-            courseDetails = course.courseDetails
-            totalLectures = course.totalLectures.toString()
-            noOfLiteraturesFinished = course.noOfLiteraturesFinished.toString()
-            nextLecture = course.nextLecture
-            organizerName = course.organizer.name
-            organizerWhats = course.organizer.whatsapp
+    if (courseId!=-1) {
+        LaunchedEffect(selectedCourse) {
+            selectedCourse?.let { courseEntity ->
+                val course = courseEntity.toCourse()
+                category = course.category
+                title = course.title
+                branch = course.branch
+                coursesOfMonth = course.coursesOfMonth
+                type = course.type
+                imagePath = course.imagePath
+                instructorName = course.instructor.name
+                instructorBio = course.instructor.bio
+                instructorImg = course.instructor.imagePath
+                startDate = course.startDate
+                wGLink = course.wGLink
+                courseDetails = course.courseDetails
+                totalLectures = course.totalLectures.toString()
+                noOfLiteraturesFinished = course.noOfLiteraturesFinished.toString()
+                nextLecture = course.nextLecture
+                organizerName = course.organizer.name
+                organizerWhats = course.organizer.whatsapp
+            }
         }
     }
 
@@ -382,10 +386,15 @@ fun AddEditCourseScreen(
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Image
-            // Image picker state
-            var showImagePicker by remember { mutableStateOf(false) }
-            var imageUri by remember { mutableStateOf<Uri?>(null) }
             val context = LocalContext.current
+            var imageUri by remember {
+                mutableStateOf<Uri?>(
+                    if (imagePath.isNotEmpty()) {
+                        ImageUtils.getImageUri(context, imagePath)
+                    } else null
+                )
+            }
+
             val imagePicker = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.GetContent()
             ) { uri: Uri? ->
@@ -401,8 +410,7 @@ fun AddEditCourseScreen(
                     imageUri = uri
                 }
             }
-
-// Image selection button and preview
+            // Image selection button and preview
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -436,12 +444,22 @@ fun AddEditCourseScreen(
                 ) {
                     Text("Select Image")
                 }
+
+                // Delete button
+                if (imageUri != null || imagePath.isNotEmpty()) {
+                    Button(
+                        onClick = {
+                            imageUri = null
+                            imagePath = ""
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Delete Image")
+                    }
+                }
             }
-//            InputField(
-//                value = imagePath,
-//                onValueChange = { imagePath = it },
-//                label = "Course Image Path",
-//            )
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Category
@@ -455,13 +473,19 @@ fun AddEditCourseScreen(
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Type
-            val courseTypes = CourseType.entries.map { it.name }
+            val courseTypeDisplayMap = mapOf(
+                CourseType.OFFLINE to stringResource(R.string.offline),
+                CourseType.ONLINE to stringResource(R.string.online),
+                CourseType.HYBRID to stringResource(R.string.hybrid)
+            )
+            val courseTypes = CourseType.entries.map { courseTypeDisplayMap[it] ?: it.name }
             ReusableDropdown(
                 label = "Course Type",
                 options = courseTypes,
-                value = type.toString(),
+                value = type?.let { courseTypeDisplayMap[it]/* ?: it.toString()*/ } ?: "",
                 onOptionSelected = { selectedType ->
-                    type = CourseType.valueOf(selectedType); typeError = false
+                    type = CourseType.entries.find { courseTypeDisplayMap[it] == selectedType }
+                    typeError = false
                 },
                 isError = typeError,
                 showRequired = true
@@ -490,11 +514,87 @@ fun AddEditCourseScreen(
 
 
             // Instructor Image Path
-            InputField(
-                value = instructorImg,
-                onValueChange = { instructorImg = it },
-                label = "Instructor Image Path"
-            )
+            var instructorImgUri by remember {
+                mutableStateOf<Uri?>(
+                    if (instructorImg.isNotEmpty()) {
+                        ImageUtils.getImageUri(context, instructorImg)
+                    } else null
+                )
+            }
+            LaunchedEffect(course) {
+                course?.let {
+                    if (it.imagePath.isNotEmpty()) {
+                        imageUri = ImageUtils.getImageUri(context, it.imagePath)
+                    }
+                    if (it.instructor.imagePath.isNotEmpty()) {
+                        instructorImgUri = ImageUtils.getImageUri(context, it.instructor.imagePath)
+                    }
+                }
+            }
+
+            val instructorImgPicker = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                uri?.let {
+                    // Copy the image to app's internal storage
+                    val timestamp = System.currentTimeMillis()
+                    val filename = "instructor_img_$timestamp.jpg"
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    context.openFileOutput(filename, Context.MODE_PRIVATE).use { outputStream ->
+                        inputStream?.copyTo(outputStream)
+                    }
+                    instructorImg = filename
+                    instructorImgUri = uri
+                }
+            }
+            // (Image selection button) and (preview)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(
+                        text = "Instructor Image",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                // Image preview
+                if (instructorImgUri != null || instructorImg.isNotEmpty()) {
+                    AsyncImage(
+                        model = instructorImgUri ?: instructorImg,
+                        contentDescription = "Selected image",
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Button(
+                    onClick = { instructorImgPicker.launch("image/*") }
+                ) {
+                    Text("Select Image")
+                }
+
+                // Delete button
+                if (instructorImgUri != null || instructorImg.isNotEmpty()) {
+                    Button(
+                        onClick = {
+                            instructorImgUri = null
+                            instructorImg = ""
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Delete Image")
+                    }
+                }
+            }
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Start Date

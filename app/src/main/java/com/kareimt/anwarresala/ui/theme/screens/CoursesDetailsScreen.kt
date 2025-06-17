@@ -49,6 +49,7 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.data.local.course.toEntity
 import com.kareimt.anwarresala.utils.ImageUtils.getImageUri
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
@@ -73,8 +74,6 @@ fun CourseDetailsScreen(
             val imageUri = remember(course.imagePath) {
                 getImageUri(context, course.imagePath)
             }
-
-            // In your layout:
             AsyncImage(
                 model = imageUri,
                 contentDescription = "Course Image",
@@ -82,29 +81,6 @@ fun CourseDetailsScreen(
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop
             )
-//            if (course.imagePath.startsWith("drawable/")) {
-//                val resourceId = LocalContext.current.resources.getIdentifier(
-//                    course.imagePath.removePrefix("drawable/"),
-//                    "drawable",
-//                    LocalContext.current.packageName
-//                )
-//                Image(
-//                    painter = painterResource(resourceId),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clip(RoundedCornerShape(8.dp))
-//                )
-//            } else {
-//                AsyncImage(
-//                    model = course.imagePath,
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clip(RoundedCornerShape(8.dp))
-//                )
-//            }
-
             Spacer(Modifier.height(16.dp))
 
             Column (
@@ -210,25 +186,18 @@ private fun InstructorSection(instructor: Course.Instructor) {
             Spacer(Modifier.width(13.dp))
 
             // Instructor image
-            if (instructor.imagePath.startsWith("drawable/")) {
-                Image(
-                    painter = painterResource(R.drawable.anwar_resala_logo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                AsyncImage(
-                    model = instructor.imagePath,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
+            val context = LocalContext.current
+            val instructorImgUri = remember(instructor.imagePath) {
+                getImageUri(context, instructor.imagePath)
             }
+            AsyncImage(
+                model = instructorImgUri,
+                contentDescription = "Instructor Image",
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
         }
     }
 }
@@ -250,16 +219,19 @@ private fun DetailsSection(course: Course) {
         Spacer(modifier = Modifier.height(8.dp))
         DetailRow(text = LocalContext.current.getString(R.string.the_title), text2 = course.title)
         DetailRow(text = "التصنيف", text2 = course.category)
-        DetailRow(text = "نوع الكورس", text2 = course.type.toString())
+        val type = when (course.type) {
+            CourseType.ONLINE -> stringResource(R.string.online)
+            CourseType.OFFLINE -> stringResource(R.string.offline)
+            CourseType.HYBRID -> stringResource(R.string.hybrid)
+        }
+        DetailRow(text = "نوع الكورس", text2 = type)
         // Some long description
-        course.courseDetails?.let { DetailRow(text = "وصف الكورس", text2 = it) }
+        DetailRow(text = "وصف الكورس", text2 = course.courseDetails)
         DetailRow(text = "الفرع", text2 =course.branch)
         DetailRow(text = "تاريخ البداية", text2 = course.startDate)
         DetailRow(text = "عدد محاضرات الكورس", text2 = course.totalLectures.toString())
         DetailRow(text = "عدد المحاضرات المنتهية", text2 = course.noOfLiteraturesFinished.toString())
-        if (course.wGLink.isNotEmpty()) {
-            WGSection(course.wGLink)
-        }
+        if (course.wGLink.isNotEmpty()) { WGSection(course.wGLink) }
     }
 }
 

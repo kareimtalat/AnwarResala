@@ -1,11 +1,13 @@
 package com.kareimt.anwarresala.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import java.io.File
 import androidx.core.net.toUri
 
 object ImageUtils {
+    @SuppressLint("DiscouragedApi")
     fun getImageUri(context: Context, imagePath: String): Uri {
         return when {
             imagePath.startsWith("drawable/") -> {

@@ -80,29 +80,6 @@ fun CourseCard(
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
-
-//            val painter=when{
-//                course.imagePath.startsWith("drawable/") == true -> {
-//                    val resourceName = course.imagePath.removePrefix("drawable/")
-//                    val resourceId = LocalContext.current.resources.getIdentifier(
-//                        resourceName,
-//                        "drawable",
-//                        LocalContext.current.packageName
-//                    )
-//                    painterResource(resourceId)
-//                }
-//                else -> painterResource(R.drawable.anwar_resala_logo)
-//            }
-
-//            Image(
-//                painter = painter,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .height(120.dp)
-//                    .fillMaxWidth()
-//                    .clip(RoundedCornerShape(8.dp)),
-//                contentScale = ContentScale.Crop
-//            )
             Spacer(Modifier.height(8.dp))
 
             // Row for Category, Title and Instructor
@@ -149,7 +126,7 @@ fun CourseCard(
             Row (
                 modifier = Modifier.fillMaxWidth()
             ){
-                // نوع الكورس
+                // Course type
                 val typeText = when (course.type) {
                     CourseType.ONLINE -> stringResource(R.string.online)
                     CourseType.OFFLINE -> stringResource(R.string.offline)
