@@ -1,4 +1,4 @@
-package com.kareimt.anwarresala.ui.theme.screens
+package com.kareimt.anwarresala.ui.theme.screens.beneficiary
 
 import android.content.Intent
 import android.widget.Toast
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -51,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.data.local.course.toEntity
+import com.kareimt.anwarresala.ui.theme.components.ConfirmationDialog
 import com.kareimt.anwarresala.utils.ImageUtils.getImageUri
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
@@ -60,8 +60,6 @@ fun CourseDetailsScreen(
     viewModel: CoursesViewModel,
     onNavigateToEdit: () -> Unit,
     onBack: () -> Boolean,
-    onDeleteCourse: () -> Boolean,
-    navController: NavHostController
 ) {
     if (course == null) return
 
@@ -87,6 +85,16 @@ fun CourseDetailsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.End,
             ) {
+                Text(
+                    text = course.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
+                )
+
                 // Action buttons
                 var showDeleteDialog by remember { mutableStateOf(false) }
                 Row(
@@ -118,7 +126,22 @@ fun CourseDetailsScreen(
                         message = "${stringResource(R.string.are_you_sure_you_want_to_delete_this_course) + " " + course.title}?",
                         onDismiss = { showDeleteDialog = false },
                         onConfirm = {
+                            // Only delete course image if it's not the default logo
+                            if (course.imagePath != "@drawable/anwar_resala_logo") {
+                                context.deleteFile(course.imagePath)
+                            }
+
+                            // Only delete instructor image if it exists and is not the default logo
+                            course.instructor.imagePath?.let { instructorImage ->
+                                if (instructorImage != "@drawable/anwar_resala_logo") {
+                                    context.deleteFile(instructorImage)
+                                }
+                            }
+
+                            // Delete course data from database
                             viewModel.deleteCourse(course.toEntity())
+                            onBack()
+                            Toast.makeText(context, "Course deleted successfully", Toast.LENGTH_SHORT).show()
                             showDeleteDialog = false
                         }
                     )
@@ -226,9 +249,9 @@ private fun DetailsSection(course: Course) {
         }
         DetailRow(text = "نوع الكورس", text2 = type)
         // Some long description
-        DetailRow(text = "وصف الكورس", text2 = course.courseDetails)
+        if (course.courseDetails.isNotEmpty()) { DetailRow(text = "وصف الكورس", text2 = course.courseDetails) }
         DetailRow(text = "الفرع", text2 =course.branch)
-        DetailRow(text = "تاريخ البداية", text2 = course.startDate)
+        if (course.startDate.isNotEmpty()) { DetailRow(text = "تاريخ البداية", text2 = course.startDate) }
         DetailRow(text = "عدد محاضرات الكورس", text2 = course.totalLectures.toString())
         DetailRow(text = "عدد المحاضرات المنتهية", text2 = course.noOfLiteraturesFinished.toString())
         if (course.wGLink.isNotEmpty()) { WGSection(course.wGLink) }

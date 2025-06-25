@@ -1,4 +1,4 @@
-package com.kareimt.anwarresala.ui.theme.screens
+package com.kareimt.anwarresala.ui.theme.screens.beneficiary
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
@@ -16,8 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
-import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.ui.theme.components.SearchRow
+import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 import java.text.SimpleDateFormat
@@ -93,8 +93,18 @@ fun BeneficiaryScreen(
             }) {Text(text = context.getString(R.string.all_the_courses)) }
 
             Button(onClick = {
-                navController.navigate(Routes.coursesScreen(ScreenType.OnLine))
-            }) {Text(text = context.getString(R.string.online_courses)) }
+                navController.navigate(Routes.coursesScreen(ScreenType.OnLine)) {
+                    // Optional: Pop up to start destination and save state
+                    // this would make that if user pressed on back button, it will go back to the previous previous screen
+//                    popUpTo(navController.graph.startDestinationId) {
+//                        saveState = true
+//                    }
+//                    launchSingleTop = true
+//                    restoreState = true
+                }
+            }) {
+                Text(text = context.getString(R.string.online_courses))
+            }
 
             Button(onClick = {
                 navController.navigate(Routes.coursesScreen(ScreenType.OffLine))

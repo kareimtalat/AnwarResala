@@ -39,12 +39,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -145,12 +147,21 @@ fun InputField(
     showRequired: Boolean = false,
     singleLine : Boolean = true,
     textRPadding: Int = 40,
+    enabled: Boolean = true,
+    textStyle: TextStyle = LocalTextStyle.current,
+    placeholder: String = "",
 ){
     val textDirection=if (rtl){TextDirection.Rtl}else{TextDirection.Ltr}
-    val textAlign=if (rtl){TextAlign.Start}else{TextAlign.End}
+    val textAlign= if (!enabled) {TextAlign.Center} else {
+        if (rtl){TextAlign.Start} else {TextAlign.End} }
+    val textStyle2 = if (textStyle== LocalTextStyle.current) {
+        LocalTextStyle.current.copy(textDirection = textDirection, textAlign = textAlign)
+    }else {
+        textStyle
+    }
     val imeActionEnum=
-        if (imeAction=="Next"){ImeAction.Next} else{
-            if (!singleLine) { ImeAction.Default }
+        if (imeAction=="Next"&&singleLine){ImeAction.Next} else{
+            if (!singleLine) { ImeAction.None }
             else ImeAction.Go
             }
     val keyboardTypeEnum = when (keyboardType) {
@@ -181,17 +192,18 @@ fun InputField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        enabled = enabled,
         label = { Text(
             text = label,
-            textAlign = TextAlign.End,
+            textAlign = textAlign,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(end = 16.dp),
         )
                 },
         modifier = modifier.widthIn(max = 300.dp),
-        textStyle = LocalTextStyle.current.copy(textDirection = textDirection,textAlign = textAlign),
-        singleLine = true,
+        textStyle = textStyle2,
+        singleLine = singleLine,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardTypeEnum,
             imeAction = imeActionEnum
@@ -207,6 +219,15 @@ fun InputField(
         ),
         visualTransformation = visualTransformation,
         isError = isError,
+        placeholder = {
+            Text(
+                text = placeholder,
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .padding(end = 22.dp)
+                    .fillMaxWidth(),
+            )
+        },
     )
 
     if (isError) {

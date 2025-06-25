@@ -99,6 +99,10 @@
     // Database strings
     <string name="delete_course">حذف الكورس</string>
     <string name="are_you_sure_you_want_to_delete_this_course">هل أنت متأكد من رغبتك في حذف كورس</string>
+    <string name="add_new_branch">اسم الفرع الجديد</string>
+    <string name="branch_name">اسم الفرع</string>
+    <string name="add">إضافة</string>
+    <string name="cancel">إلغاء</string>
 
 
 </resources>

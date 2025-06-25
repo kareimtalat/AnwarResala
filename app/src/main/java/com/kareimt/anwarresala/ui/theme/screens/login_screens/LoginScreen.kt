@@ -17,47 +17,21 @@ import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.ui.theme.components.InputField
 import com.kareimt.anwarresala.ui.theme.components.PasswordFieldWithToggle
 import com.kareimt.anwarresala.ui.theme.components.ThePrompt
+import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
-
-//class LoginActivity: ComponentActivity(){
-//    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        lifecycleScope.launch {
-//            // Perform any heavy initialization or data loading here
-//
-//            // Once data is ready, set the content
-//            setContent {
-//                AnwarResalaTheme {
-//                    Surface(
-//                        modifier = Modifier.fillMaxSize(),
-//                        color = MaterialTheme.colorScheme.background
-//                    ) {
-//                        LoginScreen(
-//                            viewModel = viewModel,
-//                            context = this@LoginActivity
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     viewModel: VolunteerViewModel, context: Context,
-    navController: NavController? = null,
-    onBackClick: () -> Unit
+    navController: NavController? = null
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Column(
+        Column(/*The second column is for Spaced by*/
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -65,8 +39,6 @@ fun LoginScreen(
             Text(
                 text = stringResource(R.string.login),
             )
-
-
 
             // EmailField...
             InputField(
@@ -94,7 +66,7 @@ fun LoginScreen(
             // Forget password Prompt
             ThePrompt(context = context,
                 onClickFun =  {
-                    navController?.navigate("forget_password_screen")
+                    navController?.navigate(Routes.ForgetPassword)
                      },
                 preText = "",
                 clickableText = context.getString(R.string.overwrite_password))
@@ -102,7 +74,7 @@ fun LoginScreen(
             // Register Prompt
             ThePrompt(context = context,
                 onClickFun =  {
-                    navController?.navigate("register_screen")
+                    navController?.navigate(Routes.Registration)
                     },
                 preText = context.getString(R.string.dont_have_account),
                 clickableText = context.getString(R.string.register))

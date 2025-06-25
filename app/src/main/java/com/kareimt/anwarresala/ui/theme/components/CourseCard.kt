@@ -45,7 +45,6 @@ import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.data.local.course.toEntity
-import com.kareimt.anwarresala.ui.theme.screens.ConfirmationDialog
 import com.kareimt.anwarresala.utils.ImageUtils.getImageUri
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 
@@ -87,7 +86,6 @@ fun CourseCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
-                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Instructor
@@ -96,7 +94,8 @@ fun CourseCard(
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.width(13.dp))
 
@@ -196,9 +195,19 @@ fun CourseCard(
             message = "${stringResource(R.string.are_you_sure_you_want_to_delete_this_course) + " " + course.title}?",
             onDismiss = { showDeleteDialog = false },
             onConfirm = {
+                // Only delete course image if it's not the default logo
+                if (course.imagePath != "@drawable/anwar_resala_logo") {
+                    context.deleteFile(course.imagePath)
+                }
+
+                // Only delete instructor image if it is not the default logo
+                if (course.instructor.imagePath != "@drawable/anwar_resala_logo") {
+                    context.deleteFile(course.instructor.imagePath)
+                }
+
+                // Delete course data from database
                 viewModel.deleteCourse(course.toEntity())
-                showDeleteDialog = false
-            }
+                showDeleteDialog = false            }
         )
     }
 }

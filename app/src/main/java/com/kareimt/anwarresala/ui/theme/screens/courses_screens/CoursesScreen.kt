@@ -28,9 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.course.CourseEntity
-import com.kareimt.anwarresala.ui.theme.screens.AddCourseFloatingButton
+import com.kareimt.anwarresala.ui.theme.components.AddCourseFloatingButton
 import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.viewmodels.UiState
+import kotlin.toString
 
 @Composable
 fun CoursesScreen(
@@ -160,8 +161,6 @@ fun CoursesScreen3(
     screenType: ScreenType,
     branch: String
 ) {
-    val branches by courseViewModel.branches.collectAsState()
-
     // Which courses will appear
     var courses = emptyList<CourseEntity>()
     courses = (if (searchQuery!="") {
@@ -170,17 +169,27 @@ fun CoursesScreen3(
     }else{
         val coursesInGeneral by courseViewModel.courses.collectAsState()
         when {
-            (screenType == ScreenType.AllTheCourses) -> {
-                coursesInGeneral
-            }
             (screenType == ScreenType.OnLine) -> {
-                coursesInGeneral.filter { it.type.toString()=="ONLINE" || it.type.toString()=="HYBRID" }
+                coursesInGeneral.filter { courseEntity ->
+                    courseEntity.type.toString().let { type ->
+                        type == "ONLINE" || type == "HYBRID"
+                    }
+                }
             }
             (screenType == ScreenType.OffLine) -> {
-                coursesInGeneral.filter { it.type.toString()=="OFFLINE" || it.type.toString()=="HYBRID" }
+                coursesInGeneral.filter { courseEntity ->
+                    courseEntity.type.toString().let { type ->
+                        type == "OFFLINE" || type == "HYBRID"
+                    }
+                }
+            }
+            (screenType == ScreenType.BCSpecific) -> {
+                coursesInGeneral.filter { courseEntity ->
+                    courseEntity.branch.trim() == branch.trim()
+                }
             }
             else -> {
-                coursesInGeneral.filter { it.branch.toString() == branch }
+                coursesInGeneral
             }
         }
     })

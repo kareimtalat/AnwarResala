@@ -46,11 +46,16 @@ import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.course.toCourse
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.screens.Routes.addEditCourse
+import com.kareimt.anwarresala.ui.theme.screens.beneficiary.AddEditCourseScreen
+import com.kareimt.anwarresala.ui.theme.screens.beneficiary.BeneficiaryScreen
+import com.kareimt.anwarresala.ui.theme.screens.beneficiary.ChooseBranchScreen
+import com.kareimt.anwarresala.ui.theme.screens.beneficiary.CourseDetailsScreen
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.CoursesScreen
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
 import com.kareimt.anwarresala.ui.theme.screens.login_screens.ForgetPasswordScreen
 import com.kareimt.anwarresala.ui.theme.screens.login_screens.LoginScreen
 import com.kareimt.anwarresala.ui.theme.screens.login_screens.RegistrationScreen
+import com.kareimt.anwarresala.ui.theme.screens.login_screens.VolunteerCodeScreen
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 import com.kareimt.anwarresala.viewmodels.CoursesViewModelFactory
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
@@ -138,7 +143,7 @@ fun MainScreen(context: Context, navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                navController.navigate(Routes.LoginScreen)
+                navController.navigate(Routes.VolunteerCode)
             }
             ) { Text(text = context.getString(R.string.volunteer)) }
         }
@@ -165,14 +170,27 @@ fun AnwarResalaNavigation(
         }
 
         // CoursesScreen
-        composable(Routes.CoursesScreen) {
+        composable(
+            route = Routes.CoursesScreen,
+            arguments = listOf(
+                navArgument("screenType") {
+                    type = NavType.EnumType(ScreenType::class.java)
+                    defaultValue = ScreenType.AllTheCourses
+                                          },
+                navArgument("branch") { type = NavType.StringType; defaultValue = "" })
+        ) { backStackEntry ->
+            val screenType = backStackEntry.arguments?.getSerializable("screenType") as? ScreenType
+                ?: ScreenType.AllTheCourses
+            val branch = backStackEntry.arguments?.getString("branch") ?: ""
+
             CoursesScreen(
                 courseViewModel = coursesViewModel,
                 onAddCourseClick = { navController.navigate(addEditCourse(-1)) },
                 context = context,
-                screenType = ScreenType.AllTheCourses,
+                screenType = screenType,
                 navController = navController,
                 searchQuery = "",
+                branch = branch,
             ) { coursesViewModel.updateSearchQuery(it) }
         }
 
@@ -190,7 +208,15 @@ fun AnwarResalaNavigation(
             RegistrationScreen(
                 viewModel = volunteerViewModel,
                 context = context,
-                onBackClick = { navController.navigateUp() },
+                navController = navController
+            )
+        }
+
+        // Volunteer code Screen
+        composable(Routes.VolunteerCode) {
+            VolunteerCodeScreen(
+                viewModel = volunteerViewModel,
+                context = context,
                 navController = navController
             )
         }
@@ -200,7 +226,6 @@ fun AnwarResalaNavigation(
             LoginScreen(
                 viewModel = volunteerViewModel,
                 context = context,
-                onBackClick = { navController.navigateUp() },
                 navController = navController
             )
         }
@@ -219,7 +244,6 @@ fun AnwarResalaNavigation(
             ChooseBranchScreen(
                 context = context,
                 navController = navController,
-                volunteerViewModel = volunteerViewModel,
                 searchQuery = "",
                 onSearchQueryChange = { coursesViewModel.updateSearchQuery(it) },
                 courseViewModel = coursesViewModel
@@ -242,9 +266,7 @@ fun AnwarResalaNavigation(
                     course = courseEntity.toCourse(),
                     viewModel = coursesViewModel,
                     onNavigateToEdit = { navController.navigate(addEditCourse(courseId)) },
-                    onBack = { navController.navigateUp() },
-                    onDeleteCourse = { navController.navigateUp() },
-                    navController = navController
+                    onBack = { navController.navigateUp() }
                 )
             }
         }

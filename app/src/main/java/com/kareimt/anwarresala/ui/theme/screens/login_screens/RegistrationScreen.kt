@@ -1,6 +1,7 @@
 package com.kareimt.anwarresala.ui.theme.screens.login_screens
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,38 +20,11 @@ import com.kareimt.anwarresala.ui.theme.components.ThePrompt
 import com.kareimt.anwarresala.ui.theme.components.ReusableDropdown
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 
-
-//class RegistrationActivity: ComponentActivity(){
-//    val viewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        lifecycleScope.launch {
-//            // Perform any heavy initialization or data loading here
-//
-//        // Once data is ready, set the content
-//        setContent{
-//            AnwarResalaTheme{
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ){
-////                    RegistrationScreen(
-////                        viewModel=viewModel,
-////                        context = this@RegistrationActivity
-////                    )
-//                }
-//            }
-//        }
-//        }
-//    }
-//}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
     viewModel: VolunteerViewModel,
     context: Context,
-    onBackClick: () -> Unit,
     navController: androidx.navigation.NavController
     ) {
     Column(
@@ -79,7 +53,8 @@ fun RegistrationScreen(
             InputField(
                 value = viewModel.name,
                 onValueChange = viewModel::onNameChanged,
-                label = stringResource(R.string.nameLabel)
+                label = stringResource(R.string.nameLabel),
+                rtl = false
             )
 
             //ResponsibilityField...
@@ -141,10 +116,24 @@ fun RegistrationScreen(
                 //TODO: what will happen when press Register. Will do two things:
 //                1. Check the data validation and if right send it to the server and create account for the user.
 //                2. Go to login activity.
+                if (viewModel.validateRegistrationData()) {
+                    viewModel.registerVolunteer(
+                    onSuccess = {
+                        // Show success message
+                        Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()
+                        // Navigate to login screen
+                        navController.navigate("login_screen"){
+                            // Clear back stack to prevent going back to registration screen
+                            popUpTo("registration_screen") { inclusive = true}
+                        }
+                    },
+                    onError = { error->
+                        // Show error message
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                    }
+                    )
+                }
             }) {Text(context.getString(R.string.register)) }
-
-
-
         }
 
         }

@@ -93,6 +93,8 @@ dependencies {
     // When using the BoM, don't specify versions in Firebase dependencies
     // implementation("com.google.firebase:firebase-analytics") // REMOVED
     implementation(libs.firebase.analytics)
+    implementation (libs.firebase.auth.ktx)
+
 
     //For Retrofit
     //implementation("com.squareup.retrofit2:retrofit:2.9.0") // REMOVED
