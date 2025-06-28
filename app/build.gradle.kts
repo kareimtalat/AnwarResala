@@ -1,4 +1,5 @@
 plugins {
+    id("com.google.gms.google-services")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -62,45 +63,33 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    //implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7") // REMOVED
-    implementation(libs.androidx.lifecycle.viewmodel.compose) // ADDED
-    //implementation("io.coil-kt:coil-compose:2.5.0") // REMOVED
-    implementation(libs.coil.compose) // ADDED
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.coil.compose)
 
     //for coroutines generally
-    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") // REMOVED
-    implementation(libs.kotlinx.coroutines.core) // ADDED
-    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") // REMOVED
-    implementation(libs.kotlinx.coroutines.android) // ADDED
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
     //for lifecycle of coroutines
-    //implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7") // REMOVED
-    implementation(libs.androidx.lifecycle.viewmodel.ktx) // ADDED
-    //implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0-alpha01") // REMOVED
-    implementation(libs.androidx.lifecycle.runtime.ktx) // ADDED
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
     //for using firebase with coroutines
-    //implementation("com.google.firebase:firebase-firestore-ktx:25.1.4") // REMOVED
-    implementation(libs.firebase.firestore.ktx) // ADDED
-    //implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3") // REMOVED
-    implementation(libs.kotlinx.coroutines.play.services) // ADDED
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Import the Firebase BoM
-    //implementation(platform("com.google.firebase:firebase-bom:33.13.0")) // REMOVED
-    implementation(platform(libs.firebase.bom)) // ADDED
+    implementation(platform(libs.firebase.bom))
 
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
-    // implementation("com.google.firebase:firebase-analytics") // REMOVED
     implementation(libs.firebase.analytics)
     implementation (libs.firebase.auth.ktx)
 
 
     //For Retrofit
-    //implementation("com.squareup.retrofit2:retrofit:2.9.0") // REMOVED
-    implementation(libs.retrofit) // ADDED
-    //implementation("com.squareup.retrofit2:converter-gson:2.9.0") // REMOVED
-    implementation(libs.retrofit.converter.gson) // ADDED
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
     // Extended set of Material icons
     implementation (libs.androidx.material.icons.extended)
 

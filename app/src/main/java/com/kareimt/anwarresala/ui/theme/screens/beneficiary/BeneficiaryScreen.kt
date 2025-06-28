@@ -111,7 +111,7 @@ fun BeneficiaryScreen(
             }) {Text(text = context.getString(R.string.offline_courses)) }
 
             Button(onClick = {
-                navController.navigate(Routes.ChooseBranch)
+                navController.navigate(Routes.CHOOSE_BRANCH)
             }) {Text(text = context.getString(R.string.branch_courses)) }
         }
     }

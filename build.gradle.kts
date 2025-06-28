@@ -8,4 +8,7 @@ plugins {
 
     // For the Room KSP
     id("com.google.devtools.ksp") version "2.0.21-1.0.27" apply false
+
+    // for firebase
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }

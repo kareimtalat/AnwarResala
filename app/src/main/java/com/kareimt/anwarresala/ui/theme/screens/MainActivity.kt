@@ -44,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.course.toCourse
+import com.kareimt.anwarresala.data.repository.FirebaseVolunteerRepository
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.screens.Routes.addEditCourse
 import com.kareimt.anwarresala.ui.theme.screens.beneficiary.AddEditCourseScreen
@@ -62,16 +63,21 @@ import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModelFactory
 import kotlinx.coroutines.time.delay
 import java.time.Duration
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
     private val coursesViewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(this) }
-    private val volunteerViewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory() }
+    private val volunteerViewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory(FirebaseVolunteerRepository()) }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        configureFirebaseServices()
 
         // Simple boolean for keeping splash screen
         var keepSplashScreen = true
@@ -92,6 +98,13 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun configureFirebaseServices() {
+        // Initialize Firebase Auth and Firestore
+        FirebaseApp.initializeApp(this)
+        Firebase.auth
+        Firebase.firestore
     }
 }
 
@@ -136,14 +149,14 @@ fun MainScreen(context: Context, navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Button(onClick = {
-                navController.navigate(Routes.Beneficiary)
+                navController.navigate(Routes.BENEFICIARY)
             }
             ) { Text(text = context.getString(R.string.Beneficiary)) }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                navController.navigate(Routes.VolunteerCode)
+                navController.navigate(Routes.VOLUNTEER_CODE)
             }
             ) { Text(text = context.getString(R.string.volunteer)) }
         }
@@ -160,9 +173,9 @@ fun AnwarResalaNavigation(
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    NavHost(navController = navController, startDestination = Routes.Main) {
+    NavHost(navController = navController, startDestination = Routes.MAIN) {
         // Main Screen
-        composable(Routes.Main) {
+        composable(Routes.MAIN) {
             MainScreen(
                 context = context,
                 navController
@@ -171,7 +184,7 @@ fun AnwarResalaNavigation(
 
         // CoursesScreen
         composable(
-            route = Routes.CoursesScreen,
+            route = Routes.COURSES_SCREEN,
             arguments = listOf(
                 navArgument("screenType") {
                     type = NavType.EnumType(ScreenType::class.java)
@@ -195,7 +208,7 @@ fun AnwarResalaNavigation(
         }
 
         // ForgetPasswordScreen
-        composable(Routes.ForgetPassword) {
+        composable(Routes.FORGET_PASSWORD) {
             ForgetPasswordScreen(
                 context = context,
                 onBackClick = { navController.navigateUp() },
@@ -204,7 +217,7 @@ fun AnwarResalaNavigation(
         }
 
         // RegistrationScreen
-        composable(Routes.Registration) {
+        composable(Routes.REGISTRATION) {
             RegistrationScreen(
                 viewModel = volunteerViewModel,
                 context = context,
@@ -213,7 +226,7 @@ fun AnwarResalaNavigation(
         }
 
         // Volunteer code Screen
-        composable(Routes.VolunteerCode) {
+        composable(Routes.VOLUNTEER_CODE) {
             VolunteerCodeScreen(
                 viewModel = volunteerViewModel,
                 context = context,
@@ -222,7 +235,7 @@ fun AnwarResalaNavigation(
         }
 
         // LoginScreen
-        composable(Routes.LoginScreen) {
+        composable(Routes.LOGIN_SCREEN) {
             LoginScreen(
                 viewModel = volunteerViewModel,
                 context = context,
@@ -231,7 +244,7 @@ fun AnwarResalaNavigation(
         }
 
         // BeneficiaryScreen
-        composable(Routes.Beneficiary) {
+        composable(Routes.BENEFICIARY) {
             BeneficiaryScreen(
                 context = context,
                 navController = navController,
@@ -240,7 +253,7 @@ fun AnwarResalaNavigation(
         }
 
         // ChooseBranchScreen
-        composable(Routes.ChooseBranch) {
+        composable(Routes.CHOOSE_BRANCH) {
             ChooseBranchScreen(
                 context = context,
                 navController = navController,
@@ -252,7 +265,7 @@ fun AnwarResalaNavigation(
 
         // CourseDetailsScreen
         composable(
-            route = Routes.CourseDetails,
+            route = Routes.COURSE_DETAILS,
             arguments = listOf(navArgument ("courseId") { type = NavType.IntType })
         ) { backStackEntry ->
             // Receive the value
@@ -273,13 +286,13 @@ fun AnwarResalaNavigation(
 
         // AddEditCourseScreen
         composable(
-            route = Routes.AddEditCourse,
+            route = Routes.ADD_EDIT_COURSE,
             arguments = listOf(navArgument("courseId") {
                 type = NavType.IntType
                 defaultValue = -1
             })
         ) { backStackEntry ->
-            var courseId = backStackEntry.arguments?.getInt("courseId") ?: -1
+            val courseId = backStackEntry.arguments?.getInt("courseId") ?: -1
             AddEditCourseScreen(
                 courseId = courseId,
                 onBackClick = { navController.navigateUp() },

@@ -1,20 +1,18 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
-import com.kareimt.anwarresala.data.CourseType
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
-import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 
 object Routes{
-    const val Main = "main"
-    const val CoursesScreen = "courses_screen/{screenType}/{branch}"
-    const val Beneficiary = "beneficiary"
-    const val Registration = "registration"
-    const val CourseDetails = "course_details/{courseId}"
-    const val AddEditCourse = "add_edit_course/{courseId}"
-    const val ForgetPassword = "forget_password_screen"
-    const val LoginScreen = "login_screen"
-    const val ChooseBranch = "choose_branch"
-    const val VolunteerCode = "volunteer_code"
+    const val MAIN = "main"
+    const val COURSES_SCREEN = "courses_screen/{screenType}/{branch}"
+    const val BENEFICIARY = "beneficiary"
+    const val REGISTRATION = "registration"
+    const val COURSE_DETAILS = "course_details/{courseId}"
+    const val ADD_EDIT_COURSE = "add_edit_course/{courseId}"
+    const val FORGET_PASSWORD = "forget_password_screen"
+    const val LOGIN_SCREEN = "login_screen"
+    const val CHOOSE_BRANCH = "choose_branch"
+    const val VOLUNTEER_CODE = "volunteer_code"
 
     // Helper functions for routes with parameters
     fun courseDetails(courseId: Int) = "course_details/$courseId"

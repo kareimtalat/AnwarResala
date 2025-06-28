@@ -59,11 +59,27 @@ fun PasswordFieldWithToggle(
     onValueChange: (String) -> Unit,
     label: String,
     imeAction: String = "Next",
+    isError: Boolean = false,
+    showRequired: Boolean = false,
+    textRPadding: Int = 40,
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
     val imeAction = if (imeAction == "Next") ImeAction.Next else ImeAction.Go
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
+
+    if (showRequired) {
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+        ) {
+            Text(
+                text = "* Required Field",
+                color = Color.Red,
+                modifier = Modifier.padding( start = textRPadding.dp )
+            )
+        }
+    }
 
     OutlinedTextField(
         modifier = Modifier.widthIn(max = 300.dp),
@@ -105,7 +121,17 @@ fun PasswordFieldWithToggle(
                 )
             }
         },
+        isError = isError,
     )
+
+    if (isError) {
+        Text(
+            text = "This field is required",
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+        )
+    }
 }
 
 // The Prompt

@@ -57,7 +57,7 @@ fun VolunteerCodeScreen(
             // Confirm Button
             Button(onClick = {
                 if (viewModel.activityCode == "19450" && viewModel.volunteerCode == "19450") {
-                    navController?.navigate(Routes.LoginScreen)
+                    navController?.navigate(Routes.LOGIN_SCREEN)
                 } else {
                     viewModel.showError(context,"Invalid Activity or Volunteer Code")
                 }

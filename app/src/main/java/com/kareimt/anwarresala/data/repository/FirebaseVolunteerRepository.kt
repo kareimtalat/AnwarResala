@@ -10,7 +10,33 @@ class FirebaseVolunteerRepository : VolunteerRepository {
     private val auth = Firebase.auth
     private val db = Firebase.firestore
 
-    override suspend fun registerVolunteer(volunteer: VolunteerEntity): Result<String> {
+    override suspend fun loginVolunteer(email: String, password: String): Result<VolunteerEntity> =
+        try {
+            // Authenticate user
+            val authResult = auth.signInWithEmailAndPassword(email, password).await()
+            val uid = authResult.user?.uid ?: throw Exception("User ID not found")
+
+            // Fetch volunteer data from Firestore
+            val volunteerDoc = db.collection("volunteers").document(uid).get().await()
+
+            if (volunteerDoc.exists()) {
+                val volunteer = VolunteerEntity(
+                    name = volunteerDoc.getString("name") ?: "",
+                    email = email,
+                    password = password, // Note: Consider if you really need to store password
+                    responsibility = volunteerDoc.getString("responsibility") ?: "",
+                    branch = volunteerDoc.getString("branch") ?: "",
+                    committee = volunteerDoc.getString("committee") ?: ""
+                )
+                Result.success(volunteer)
+            } else {
+                Result.failure(Exception("Volunteer data not found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun registerVolunteer(volunteer: VolunteerEntity): Result<VolunteerEntity> {
         return try {
             // Create authentication account
             val authResult = auth.createUserWithEmailAndPassword(
@@ -33,7 +59,7 @@ class FirebaseVolunteerRepository : VolunteerRepository {
                 .set(volunteerData)
                 .await()
 
-            Result.success(authResult.user?.uid ?: "")
+            Result.success(volunteer)
         } catch (e: Exception) {
             Result.failure(e)
         }

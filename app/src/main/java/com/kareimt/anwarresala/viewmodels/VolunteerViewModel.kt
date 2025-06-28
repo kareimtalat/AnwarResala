@@ -1,6 +1,7 @@
 package com.kareimt.anwarresala.viewmodels
 
 import android.content.Context
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,62 +14,135 @@ import androidx.lifecycle.viewModelScope
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 import com.kareimt.anwarresala.data.repository.VolunteerRepository
+import com.kareimt.anwarresala.ui.theme.screens.Routes
 import kotlinx.coroutines.launch
+import kotlin.compareTo
 
 class VolunteerViewModel (private val repository: VolunteerRepository): ViewModel() {
+    // Error states
+    private var _isNameError = mutableStateOf(false)
+    val isNameError: Boolean get() = _isNameError.value
+
+    private var _isResponsibilityError = mutableStateOf(false)
+    val isResponsibilityError: Boolean get() = _isResponsibilityError.value
+
+    private var _isBranchError = mutableStateOf(false)
+    val isBranchError: Boolean get() = _isBranchError.value
+
+    private var _isCommitteeError = mutableStateOf(false)
+    val isCommitteeError: Boolean get() = _isCommitteeError.value
+
+    private var _isEmailError = mutableStateOf(false)
+    val isEmailError: Boolean get() = _isEmailError.value
+
+    private var _isPasswordError = mutableStateOf(false)
+    val isPasswordError: Boolean get() = _isPasswordError.value
+
+    private var _isRePasswordError = mutableStateOf(false)
+    val isRePasswordError: Boolean get() = _isRePasswordError.value
+
+    // Validation function for each field
+    private fun validateName(): Boolean {
+        _isNameError.value = name.trim().length < 3
+        return !_isNameError.value
+    }
+
+    private fun validateResponsibility(): Boolean {
+        _isResponsibilityError.value = responsibility.trim().isEmpty()
+        return !_isResponsibilityError.value
+    }
+
+    private fun validateBranch(): Boolean {
+        _isBranchError.value = branch.trim().isEmpty()
+        return !_isBranchError.value
+    }
+
+    private fun validateCommittee(): Boolean {
+        _isCommitteeError.value = committee.trim().isEmpty()
+        return !_isCommitteeError.value
+    }
+
+    private fun validateEmail(): Boolean {
+        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+        _isEmailError.value = !email.trim().matches(emailPattern.toRegex())
+        return !_isEmailError.value
+    }
+
+    private fun validatePassword(): Boolean {
+        _isPasswordError.value = password.length < 6
+        return !_isPasswordError.value
+    }
+
+    private fun validateRePassword(): Boolean {
+        _isRePasswordError.value = password != rePassword
+        return !_isRePasswordError.value
+    }
+
+    fun resetForm() {
+        // Reset all form fields
+        name = ""
+        responsibility = ""
+        branch = ""
+        committee = ""
+        email = ""
+        password = ""
+        rePassword = ""
+
+        resetErrors()
+    }
+
     fun validateRegistrationData(): Boolean {
-        return when{
-            name.isBlank() -> false
-            email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> false
-            password.length < 6 -> false
-            password != rePassword -> false
-            responsibility.isBlank() -> false
-            branch.isBlank() -> false
-            committee.isBlank() -> false
-            else -> true
-        }
+        return validateName() &&
+                validateResponsibility() &&
+                validateBranch() &&
+                validateCommittee() &&
+                validateEmail() &&
+                validatePassword() &&
+                validateRePassword()
+    }
+
+    // Reset error states
+    private fun resetErrors() {
+        _isNameError.value = false
+        _isResponsibilityError.value = false
+        _isBranchError.value = false
+        _isCommitteeError.value = false
+        _isEmailError.value = false
+        _isPasswordError.value = false
+        _isRePasswordError.value = false
     }
 
     fun registerVolunteer(
         onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        successMessage: String
     ){
         viewModelScope.launch {
-            try {
-                // Call your repository/API to register the volunteer
-                repository.registerVolunteer(
-                    VolunteerEntity(
-                        name = name,
-                        responsibility = responsibility,
-                        branch = branch,
-                        committee = committee,
-                        email = email,
-                        password = password,
-                    )
-                )
-                onSuccess()
-            } catch (e: Exception) {
-                // Handle the error, e.g., show a toast or log it
-                onError(e.message ?: "Registration failed")
+            if(!validateRegistrationData()) {
+                onError("Please fill all fields correctly")
+                return@launch
             }
+
+            val volunteer = VolunteerEntity(
+                name = name,
+                responsibility = responsibility,
+                branch = branch,
+                committee = committee,
+                email = email,
+                password = password
+            )
+
+            repository.registerVolunteer(volunteer).fold(
+                onSuccess = {
+                    resetForm()
+                    onSuccess()
+                },
+                onFailure = {error ->
+                    onError(error.message?: "Registration failed")
+                },
+            )
         }
     }
-
-    // 1. Dropdown Options Data Structures
-//    sealed class Responsibility{
-//        data class SpecificResponsibility(val name: String): Responsibility()
-//        object None: Responsibility()
-//    }
-//
-//    sealed class Branch{
-//        data class SpecificBranch(val name: String): Branch()
-//        object None: Branch()
-//    }
-//
-//    sealed class Committee{
-//        data class SpecificCommittee(val name: String): Committee()
-//        object None: Committee()
-//    }
 
     // 2. State Variables: Hold the data for your form fields&dropdown option types.
     var name by mutableStateOf("")
@@ -180,6 +254,29 @@ class VolunteerViewModel (private val repository: VolunteerRepository): ViewMode
     }
 
     // 4. Optional: Actions (e.g., Form Submission):
+    fun loginVolunteer(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            if (email.isBlank() || password.isBlank()) {
+                onError("Email and password cannot be empty")
+                return@launch
+            }
+
+            val result = repository.loginVolunteer(email, password)
+            result.fold(
+                onSuccess = {
+                // Handle successful login, e.g., navigate to the next screen
+                 onSuccess()
+                },
+                onFailure = { error ->
+                    // Handle login failure, e.g., show an error message
+                    onError(error.message ?: "Login failed")
+                }
+            )
+        }
+    }
     fun submitForm() {
         // Implement logic to handle form submission (e.g., save data, navigate).
         // You might call a repository or use a use case here.
@@ -190,19 +287,6 @@ class VolunteerViewModel (private val repository: VolunteerRepository): ViewMode
         // Reset the form after submission (if needed):
         resetForm()
     }
-
-    private fun resetForm() {
-        name = ""
-        responsibility = ""
-        branch = ""
-        committee = ""
-        email = ""
-        password = ""
-    }
-
-
-
-
 }
 
 

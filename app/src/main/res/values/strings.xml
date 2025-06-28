@@ -22,6 +22,9 @@
     <string name="leader">مسؤول فرع</string>
     <string name="activity_officer">مسؤول النشاط</string>
     <string name="choose_your_branch">إختر فرعك</string>
+    <string name="registration_success">تم التسجيل بنجاح برجاء إنتظار تأكيد المسئول على حسابك.</string>
+    <string name="registration_error">برجاء ملئ جميع الحقول بشكل صحيح</string>
+
     // Branch names
     <string name="central">المركزي</string>
     <string name="tenth_of_ramadan">العاشر من رمضان</string>
