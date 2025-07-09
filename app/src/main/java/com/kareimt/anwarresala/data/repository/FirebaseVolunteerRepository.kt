@@ -38,13 +38,19 @@ class FirebaseVolunteerRepository : VolunteerRepository {
 
     override suspend fun registerVolunteer(volunteer: VolunteerEntity): Result<VolunteerEntity> {
         return try {
-            // Create authentication account
+            // 1. Create authentication account
             val authResult = auth.createUserWithEmailAndPassword(
                 volunteer.email,
                 volunteer.password
             ).await()
 
-            val volunteerData = mapOf(
+            // Get firebase user ID
+            val userId = authResult.user?.uid
+                ?: return Result.failure(Exception("Failed to retrieve user ID after successful authentication."))
+
+            // 2. Prepare additional volunteer data
+            // It's good practice to ensure the email and name from VolunteerEntity are always correct.
+            val volunteerData = hashMapOf(
                 "name" to volunteer.name,
                 "email" to volunteer.email,
                 "responsibility" to volunteer.responsibility,
@@ -52,14 +58,18 @@ class FirebaseVolunteerRepository : VolunteerRepository {
                 "committee" to volunteer.committee,
                 )
 
-
-            // Store additional volunteer data
+            // 3. Store additional volunteer data using actual the user ID
             db.collection("volunteers")
-                .document(authResult.user?.uid ?: "")
+                .document(userId)
                 .set(volunteerData)
                 .await()
 
-            Result.success(volunteer)
+            // 4. If all steps succeed, return success with the updated VolunteerEntity including the userId
+            // It's important to pass back the entity with the newly assigned Firebase ID
+
+
+            Result.success(volunteer.copy(firebaseId = userId))
+
         } catch (e: Exception) {
             Result.failure(e)
         }

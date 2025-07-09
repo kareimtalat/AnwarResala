@@ -155,8 +155,7 @@ fun RegistrationScreen(
                         onError = { error ->
                             Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                         },
-                        successMessage = context.getString(R.string.registration_success)
-                    )
+                        )
                 }
                 else{
                     Toast.makeText(context, context.getString(R.string.registration_error), Toast.LENGTH_LONG).show()
