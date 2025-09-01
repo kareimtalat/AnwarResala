@@ -23,7 +23,6 @@ class FirebaseVolunteerRepository : VolunteerRepository {
                 val volunteer = VolunteerEntity(
                     name = volunteerDoc.getString("name") ?: "",
                     email = email,
-                    password = password, // Note: Consider if you really need to store password
                     responsibility = volunteerDoc.getString("responsibility") ?: "",
                     branch = volunteerDoc.getString("branch") ?: "",
                     committee = volunteerDoc.getString("committee") ?: ""
@@ -36,13 +35,18 @@ class FirebaseVolunteerRepository : VolunteerRepository {
             Result.failure(e)
         }
 
-    override suspend fun registerVolunteer(volunteer: VolunteerEntity): Result<VolunteerEntity> {
+    override suspend fun registerVolunteer(
+        volunteer: VolunteerEntity,
+        password: String
+    ): Result<VolunteerEntity> {
         return try {
             // 1. Create authentication account
             val authResult = auth.createUserWithEmailAndPassword(
                 volunteer.email,
-                volunteer.password
+                password
             ).await()
+
+            println("Authentication successful & UID: ${authResult.user?.uid}")
 
             // Get firebase user ID
             val userId = authResult.user?.uid
@@ -56,6 +60,7 @@ class FirebaseVolunteerRepository : VolunteerRepository {
                 "responsibility" to volunteer.responsibility,
                 "branch" to volunteer.branch,
                 "committee" to volunteer.committee,
+                "firebaseId" to userId
                 )
 
             // 3. Store additional volunteer data using actual the user ID
@@ -64,13 +69,14 @@ class FirebaseVolunteerRepository : VolunteerRepository {
                 .set(volunteerData)
                 .await()
 
+            println("Volunteer data stored successfully in Firestore for UID: $userId")
+
             // 4. If all steps succeed, return success with the updated VolunteerEntity including the userId
             // It's important to pass back the entity with the newly assigned Firebase ID
-
-
             Result.success(volunteer.copy(firebaseId = userId))
 
         } catch (e: Exception) {
+            println("Registration error: ${e.message}")
             Result.failure(e)
         }
     }

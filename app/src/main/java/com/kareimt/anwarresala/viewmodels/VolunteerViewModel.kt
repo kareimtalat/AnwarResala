@@ -15,7 +15,9 @@ import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 import com.kareimt.anwarresala.data.repository.VolunteerRepository
 import kotlinx.coroutines.launch
 
-class VolunteerViewModel (private val repository: VolunteerRepository): ViewModel() {
+class VolunteerViewModel (private val repository: VolunteerRepository,
+    private val localVolunteerDao: com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
+    ): ViewModel() {
     // 1. Initialization: Set up the ViewModel with any necessary dependencies.
     init {
         // You can initialize any data or state here if needed.
@@ -120,10 +122,6 @@ class VolunteerViewModel (private val repository: VolunteerRepository): ViewMode
             stringResource(R.string.other),
         )
     }
-
-    // 4. Optional: Validation State and Functions: If you need to validate user input.
-    var isFormValid by mutableStateOf(false)
-        private set
 
     // Add validation functions (e.g., validateEmail(), validatePassword())
     // and update isFormValid accordingly.
@@ -230,6 +228,7 @@ class VolunteerViewModel (private val repository: VolunteerRepository): ViewMode
         onError: (String) -> Unit
     ){
         viewModelScope.launch {
+            try {
             val volunteer = VolunteerEntity(
                 name = name,
                 responsibility = responsibility,
@@ -237,18 +236,27 @@ class VolunteerViewModel (private val repository: VolunteerRepository): ViewMode
                 committee = committee,
                 email = email
             )
+            println("Registering Volunteer: $volunteer")
 
-            repository.registerVolunteer(volunteer,password).fold(
+            val result = repository.registerVolunteer(volunteer, password)
+            println("Registration attempt completed. and about to go on fold(success or failure)")
+
+            result.fold(
                 onSuccess = { registeredVolunteer ->
+                    println("Registration Result: $registeredVolunteer")
                     resetForm()
-                    onSuccess()
-                    // TODO: Optionally, save the registeredVolunteer (with firebaseId) to local Room DB here
                     localVolunteerDao.insert(registeredVolunteer)
+                    onSuccess()
                 },
                 onFailure = {error ->
-                    onError(error.message?: "Registration failed")
-                },
+                    println("Registration failed: ${error.message}")
+                    onError(error.message ?: "Registration failed")
+                }
             )
+            } catch (e: Exception) {
+                println("Unexpected error during registration: ${e.message}")
+                onError("An unexpected error occurred: ${e.message}")
+            }
         }
     }
 
@@ -280,12 +288,13 @@ class VolunteerViewModel (private val repository: VolunteerRepository): ViewMode
 
 
 class VolunteerViewModelFactory(
-    private val repository: VolunteerRepository
+    private val repository: VolunteerRepository,
+    private val localVolunteerDao: com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(VolunteerViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return VolunteerViewModel(repository) as T
+            return VolunteerViewModel(repository,localVolunteerDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

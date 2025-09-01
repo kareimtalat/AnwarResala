@@ -143,8 +143,10 @@ fun RegistrationScreen(
             //Register Button
             Button(onClick = {
                 if (viewModel.validateRegistrationData()) {
+                    println("Form validation passed.")
                     viewModel.registerVolunteer(
                         onSuccess = {
+                            println("Registration success callback executed.")
                             navController.navigate(Routes.LOGIN_SCREEN) {
                                 popUpTo(Routes.REGISTRATION) {
                                     inclusive = true
@@ -153,11 +155,13 @@ fun RegistrationScreen(
                             Toast.makeText(context, "Your registration had done successfully", Toast.LENGTH_LONG).show()
                         },
                         onError = { error ->
+                            println("Registration error: $error")
                             Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                         },
-                        )
+                    )
                 }
-                else{
+                else {
+                    println("Form validation failed.")
                     Toast.makeText(context, context.getString(R.string.registration_error), Toast.LENGTH_LONG).show()
                 }
             }) {Text(context.getString(R.string.register)) }

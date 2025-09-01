@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kareimt.anwarresala.data.local.branch.BranchDatabase
 import com.kareimt.anwarresala.data.local.course.CourseDatabase
+import com.kareimt.anwarresala.data.local.volunteer.VolunteerDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,6 +51,23 @@ object DatabaseProvider {
 //                .fallbackToDestructiveMigration() // Handle migrations by recreating the database if there is a schema change
                 .build()
             INSTANCE_BRANCH = instance
+            instance
+        }
+    }
+
+    // VolunteerDatabase singleton instance
+    @Volatile
+    private var INSTANCE_VOLUNTEER: VolunteerDatabase? = null
+    fun getVolunteerDatabase(context: Context): VolunteerDatabase {
+        return INSTANCE_VOLUNTEER ?: synchronized(this) {
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                VolunteerDatabase::class.java,
+                "volunteers_database"
+            )
+                .fallbackToDestructiveMigration() // Handle migrations by recreating the database if there is a schema change
+                .build()
+            INSTANCE_VOLUNTEER = instance
             instance
         }
     }

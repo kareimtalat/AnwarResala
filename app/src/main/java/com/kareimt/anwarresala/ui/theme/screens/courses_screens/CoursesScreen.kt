@@ -162,8 +162,7 @@ fun CoursesScreen3(
     branch: String
 ) {
     // Which courses will appear
-    var courses = emptyList<CourseEntity>()
-    courses = (if (searchQuery!="") {
+    val courses: List<CourseEntity> = (if (searchQuery!="") {
         val uiState by courseViewModel.uiState.collectAsState(initial = UiState())
         uiState.courses
     }else{

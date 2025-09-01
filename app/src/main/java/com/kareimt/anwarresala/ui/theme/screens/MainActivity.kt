@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -67,10 +68,13 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.kareimt.anwarresala.data.local.DatabaseProvider
+import com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
 
 class MainActivity : ComponentActivity() {
+    private lateinit var volunteerDao: VolunteerDao
     private val coursesViewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(this) }
-    private val volunteerViewModel: VolunteerViewModel by viewModels { VolunteerViewModelFactory(FirebaseVolunteerRepository()) }
+    private lateinit var volunteerViewModel: VolunteerViewModel
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +82,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         configureFirebaseServices()
+
+        // Initialize the DAO and ViewModel
+        volunteerDao = DatabaseProvider.getVolunteerDatabase(this).volunteerDao()
+        volunteerViewModel = ViewModelProvider(this,
+            VolunteerViewModelFactory(FirebaseVolunteerRepository(), volunteerDao)
+        )[VolunteerViewModel::class.java]
 
         // Simple boolean for keeping splash screen
         var keepSplashScreen = true
