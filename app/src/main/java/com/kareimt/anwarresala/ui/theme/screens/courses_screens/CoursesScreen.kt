@@ -5,10 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -23,8 +27,11 @@ import com.kareimt.anwarresala.data.local.course.toCourse
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.course.CourseEntity
@@ -101,54 +108,60 @@ fun CoursesScreen2(
     navController: NavController,
     branch: String
 ){
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Screen label
-        Text(
-            text = when {
-                (screenType == ScreenType.AllTheCourses) -> {
-                    context.getString(R.string.all_the_courses)
-                }
-                (screenType == ScreenType.OnLine) -> {
-                       context.getString(R.string.online_courses)
-                       }
-                (screenType == ScreenType.OffLine) -> {
-                    context.getString(R.string.offline_courses)
-                }
-                else -> {
-                    context.getString(R.string.courses_of) + " $branch"
-                }
-            },
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)  {
+        Column(
             modifier = Modifier
-                .padding(bottom = 16.dp, top = 16.dp)
-                .fillMaxWidth()
-        )
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(
+                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()+5.dp
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+    //        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Screen label
+            Text(
+                text = when {
+                    (screenType == ScreenType.AllTheCourses) -> {
+                        context.getString(R.string.all_the_courses)
+                    }
+                    (screenType == ScreenType.OnLine) -> {
+                           context.getString(R.string.online_courses)
+                           }
+                    (screenType == ScreenType.OffLine) -> {
+                        context.getString(R.string.offline_courses)
+                    }
+                    else -> {
+                        context.getString(R.string.courses_of) + " $branch"
+                    }
+                },
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(bottom = 16.dp, top = 16.dp)
+                    .fillMaxWidth()
+            )
 
-        // Search bar
-        SearchRow(
-            query = searchQuery,
-            onQueryChange = { onSearchQueryChange(it) },
-            onSearch = { courseViewModel.searchCourses() }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+            // Search bar
+            SearchRow(
+                query = searchQuery,
+                onQueryChange = { onSearchQueryChange(it) },
+                onSearch = { courseViewModel.searchCourses() }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Courses list
-        CoursesScreen3(
-            courseViewModel = courseViewModel,
-            context= context,
-            searchQuery = searchQuery,
-            navController = navController,
-            screenType = screenType,
-            branch = branch
-        )
+            // Courses list
+            CoursesScreen3(
+                courseViewModel = courseViewModel,
+                context= context,
+                searchQuery = searchQuery,
+                navController = navController,
+                screenType = screenType,
+                branch = branch
+            )
+        }
     }
 }
 

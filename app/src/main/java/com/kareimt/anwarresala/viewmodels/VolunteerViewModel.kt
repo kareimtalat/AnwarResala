@@ -10,6 +10,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 import com.kareimt.anwarresala.data.repository.VolunteerRepository
@@ -19,12 +21,23 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
     private val localVolunteerDao: com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
     ): ViewModel() {
     // 1. Initialization: Set up the ViewModel with any necessary dependencies.
+    var isLoggedIn by mutableStateOf(false)
+        private set
+
     init {
+        isLoggedIn = Firebase.auth.currentUser != null
+        Firebase.auth.addAuthStateListener { auth ->
+        isLoggedIn = auth.currentUser != null}
         // You can initialize any data or state here if needed.
         // For example, you might want to load initial data from the repository.
     }
 
     // 2. State Variables: Hold the data for your form fields&dropdown option types.
+    // TODO: use isLoading and onError on the UI
+    var isLoading = false
+    var onError by mutableStateOf("")
+        private set
+
     var name by mutableStateOf("")
         private set // Use private setters to control updates from the UI.
 
@@ -51,6 +64,10 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
 
     var volunteerCode by mutableStateOf("")
         private set
+
+    var currentVolunteer by mutableStateOf<VolunteerEntity?>( null)
+        private set
+
 
     // 3. Event Handling Functions: Respond to user input (e.g., typing in a text field, selecting from a dropdown).
     fun onNameChanged(newName: String) {
@@ -88,6 +105,25 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
     fun onVolunteerCodeChanged(newVolunteerCode: String) {
         volunteerCode = newVolunteerCode.takeWhile { char -> char != '\n' }
     }
+
+    fun getCurrentVolunteer() {
+        viewModelScope.launch {
+            try {
+                isLoading = true
+                currentVolunteer = localVolunteerDao.getVolunteer()
+            } catch (e: Exception) {
+                onError =
+                    "Failed to fetch the current volunteer data from the local database: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun emptyOnError(){
+        onError = ""
+    }
+
     //The list of options at the menus
     @Composable
     fun getResponsibilityOptions(): List<String> {
@@ -211,6 +247,11 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
                 validateRePassword()
     }
 
+    fun validateLoginData(): Boolean {
+        return validateEmail() &&
+                validatePassword()
+    }
+
     // Reset error states
     private fun resetErrors() {
         _isNameError.value = false
@@ -245,7 +286,9 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
                 onSuccess = { registeredVolunteer ->
                     println("Registration Result: $registeredVolunteer")
                     resetForm()
-                    localVolunteerDao.insert(registeredVolunteer)
+                    localVolunteerDao.replace(registeredVolunteer)
+                    // Prevent auto-login
+                    logout()
                     onSuccess()
                 },
                 onFailure = {error ->
@@ -270,18 +313,67 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
                 return@launch
             }
 
-            val result = repository.loginVolunteer(email, password)
-            result.fold(
-                onSuccess = {
-                // Handle successful login, e.g., navigate to the next screen
-                 onSuccess()
-                },
-                onFailure = { error ->
-                    // Handle login failure, e.g., show an error message
-                    onError(error.message ?: "Login failed")
+            println("email: $email")
+            val approved = repository.checkApproval(email)
+            println("approved: $approved")
+
+            try {
+                if (approved.getOrNull() != null) {
+                    if (approved.getOrNull()!!) {
+                        val result = repository.loginVolunteer(email, password)
+                        result.fold(
+                            onSuccess = { registeredVolunteer ->
+                                // Handle successful login, e.g., navigate to the next screen
+                                localVolunteerDao.replace(registeredVolunteer)
+                                currentVolunteer = registeredVolunteer
+                                println("From login fun: ${currentVolunteer.toString()}")
+                                isLoggedIn = true
+                                onSuccess()
+                            },
+                            onFailure = { error ->
+                                // Handle login failure, e.g., show an error message
+                                onError(error.message ?: "Login failed")
+                            }
+                        )
+                    } else {
+                        onError("Your account hadn't approved yet.")
+                    }
+                } else {
+                    onError("Your account not found. Check e-mail typo or it might had been rejected or deleted.")
                 }
-            )
+            } catch (e: Exception) {
+                onError("Exception: ${e.message}")
+            }
         }
+    }
+
+    fun storeCurrentVolunteerLocally() {
+        viewModelScope.launch {
+            try {
+                val result = repository.fetchCurrentVolunteerData()
+                        result.fold(
+                            onSuccess = { currentVolunteerData ->
+                                localVolunteerDao.replace(currentVolunteerData)
+                                currentVolunteer = currentVolunteerData
+                                println("From storeCurrentVolunteerLocally fun: ${currentVolunteer.toString()}")
+                            },
+                            onFailure = { error ->
+                                onError = "Fetching Current Volunteer Data failed: ${error.message}"
+                            }
+                        )
+            } catch (e: Exception) {
+                onError="Exception: ${e.message}"
+            }
+        }
+    }
+
+    fun logout() {
+        repository.signOutVolunteer()
+        isLoggedIn = false
+    }
+
+    fun deleteAccount() {
+        // TODO: Handel it's functionality
     }
 }
 

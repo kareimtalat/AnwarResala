@@ -13,6 +13,7 @@ object Routes{
     const val LOGIN_SCREEN = "login_screen"
     const val CHOOSE_BRANCH = "choose_branch"
     const val VOLUNTEER_CODE = "volunteer_code"
+    const val APPROVAL = "approval_screen"
 
     // Helper functions for routes with parameters
     fun courseDetails(courseId: Int) = "course_details/$courseId"

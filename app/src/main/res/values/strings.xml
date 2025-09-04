@@ -12,6 +12,15 @@
     <string name="offline_courses">الأوف لاين</string>
     <string name="all_our_current_courses">جميع الكورسات الحالية</string>
     <string name="loading">...جاري التحميل</string>
+    <string name="ok">حسناً</string>
+    <string name="welcome">مرحباً</string>
+    <string name="back">رجوع</string>
+    <string name="you_are_already_loggedin">لقد قمت بتسجيل الدخول بالفعل</string>
+    <string name="delete_account">حذف الحساب</string>
+    <string name="delete_account_confirmation">هل أنت متأكد من رغبتك بحذف الحساب نهائياً؟</string>
+    <string name="sign_out">تسجيل الخروج</string>
+    <string name="sign_out_des">هل أنت متأكد من رغبتك بتسجيل الخروج من الحساب؟</string>
+    <string name="confirm">تأكيد</string>
 
     // Registration strings
     <string name="volunteer_register">تسجيل المتطوع</string>
@@ -22,8 +31,9 @@
     <string name="leader">مسؤول فرع</string>
     <string name="activity_officer">مسؤول النشاط</string>
     <string name="choose_your_branch">إختر فرعك</string>
-    <string name="registration_success">تم التسجيل بنجاح برجاء إنتظار تأكيد المسئول على حسابك.</string>
     <string name="registration_error">برجاء ملئ جميع الحقول بشكل صحيح</string>
+    <string name="registration_submitted">تم التسجيل بنجاح</string>
+    <string name="approval_pending_message">تم إرسال طلبك للمسؤول وسيرسل التطبيق إشعار لك عندما يتم قبول طلبك</string>
 
     // Branch names
     <string name="central">المركزي</string>
@@ -59,41 +69,6 @@
     <string name="offline">أوفلاين</string>
     <string name="hybrid">أونلاين و أوفلاين معاً</string>
 
-    // Instructor names
-    <string name="dr_layla_saad">د. ليلى سعد</string>
-    <string name="ms_reham_hamdey">أ. ريهام حمدي</string>
-    <string name="ms_ragaa_mohamed">أ. رجاء محمد</string>
-    <string name="mr_hossam_elsayed">أ. حسام السيد</string>
-
-    // Instructor bios
-    <string name="dr_layla_saad_bio">د. ليلى سعد، أستاذة جامعية في علم النفس، حاصلة على دكتوراه في علم النفس الاجتماعي. لديها خبرة في تقديم الاستشارات النفسية والتدريب على مهارات الحياة.</string>
-    <string name="ms_reham_hamdey_bio">أ. ريهام حمدي، مدربة معتمدة في مجال التنمية البشرية، حاصلة على بكالوريوس في علم النفس. تقدم ورش عمل ودورات تدريبية في مجالات التواصل الفعال وإدارة الوقت.</string>
-    <string name="ms_ragaa_mohamed_bio">أ. رجاء محمد، مدربة معتمدة في مجال التنمية البشرية، حاصلة على بكالوريوس في إدارة الأعمال. تقدم ورش عمل ودورات تدريبية في مجالات القيادة والتواصل الفعال.</string>
-    <string name="mr_hossam_elsayed_bio">أ. حسام السيد، مدرب معتمد في مجال التنمية البشرية، حاصل على بكالوريوس في إدارة الأعمال. عمل في مجال الموارد البشرية في شركة دولية لمدة 5 سنوات. لديه خبرة في تقديم ورش العمل والدورات التدريبية في مجالات القيادة والتواصل الفعال.</string>
-
-
-    // Category names
-    <string name="human_development">تنمية بشرية</string>
-    <string name="religious">ديني</string>
-
-    // Course titles
-    <string name="before_marriage_we_should">قبل ما نتجوز لازم</string>
-    <string name="how_to_raise_your_son">كيف تربي إبنك في النهج الاسلامي</string>
-    <string name="soft_skills">Soft skills</string>
-    <string name="interview_skills">Interview skills</string>
-
-    // Course details
-    <string name="before_marriage_de">هذا الكورس سيعلمك الكيثير عن العلاقات الزوجية والاسرية وكيفية إدارتها. مناسب للمقبلين على الزواج أو المتزوجين بالفعل.</string>
-    <string name="how_to_raise_your_son_de">هذا الكورس سيعلمك كيفية تربية ابنك في النهج الاسلامي. مناسب للآباء والأمهات.</string>
-    <string name="soft_skills_de">هذا الكورس سيعلمك المهارات الشخصية اللازمة للنجاح في الحياة العملية. مناسب لجميع الأعمار.</string>
-    <string name="interview_skills_de">هذا الكورس سيعلمك كيفية التحضير للمقابلات الشخصية وكيفية التعامل معها. مناسب للباحثين عن عمل أو الذين يفكرون في تغيير وظائفهم.</string>
-
-    // Organizer names
-    <string name="fatema_rabee3">أ. فاطمة ربيع</string>
-    <string name="tasnim">أ. تسنيم</string>
-    <string name="ziko">أ. محمد زكريا</string>
-    <string name="kareim_talat">أ. كريم طلعت</string>
-
     // For The Activity of CoursesByBranches
     <string name="all_the_branches">الكورسات حسب الفروع</string>
     <string name="the_courses_of_branch">كورسات فرع</string>
@@ -106,6 +81,35 @@
     <string name="branch_name">اسم الفرع</string>
     <string name="add">إضافة</string>
     <string name="cancel">إلغاء</string>
+
+    // Approving and rejecting volunteers requests screen
+    <string name="pending_requests">طلبات قيد الإنتظار</string>
+    <string name="approved_requests">طلبات تمت الموافقة عليها</string>
+    <string name="no_pending_requests">لا توجد طلبات قيد الإنتظار</string>
+    <string name="no_pending_requests_desc">عندما يقوم المتطوعين بالتسجيل سوف تظهر طلباتهم لك هنا</string>
+    <string name="approve_reject_request">طلب موافقة أو رفض</string>
+    <string name="delete_volunteer">حذف المتطوع</string>
+    <string name="confirm_approve_reject">تأكيد قبول أو رفض المتطوع</string>
+    <string name="confirm_delete_volunteer">تأكيد حذف المتطوع</string>
+    <string name="approve">قبول</string>
+    <string name="delete">حذف</string>
+    <string name="reject">رفض</string>
+    <string name="no_approved_requests">لا توجد طلبات تمت الموافقة عليها</string>
+    <string name="no_approved_requests_desc">عندما توافق على طلبات المتطوعين ستبدأ بالظهور هنا</string>
+    <string name="there">بك</string>
+    <string name="approval_requests">طلبات القبول</string>
+    <string name="approve_request">قبول الطلب</string>
+    <string name="reject_request">رفض الطلب</string>
+    <string name="confirm_approve">تأكيد القبول</string>
+    <string name="confirm_reject">تأكيد الرفض</string>
+    <string name="confirm_delete">تأكيد الحذف</string>
+    <string name="pending">قيد الإنتظار</string>
+    <string name="approved">تم قبوله</string>
+    <string name="responsibility">المسئوليه</string>
+
+    // Login strings
+    <string name="not_apptoved">حسابك مازال بإنتظار الموافقة عليه</string>
+    <string name="dont_have_account_locally">لا يوجد لديك حساب محلي بعد</string>
 
 
 </resources>

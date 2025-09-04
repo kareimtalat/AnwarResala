@@ -5,14 +5,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
@@ -24,30 +32,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-//class BeneficiaryActivity: ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        lifecycleScope.launch {
-//            // Perform any heavy initialization or data loading here
-//
-//            // Once data is ready, set the content
-//            setContent {
-//                AnwarResalaTheme {
-//                    Surface(
-//                        modifier = Modifier
-//                            .fillMaxSize(),
-//                        color = MaterialTheme.colorScheme.background
-//                    ) {
-//                        BeneficiaryActivityContent(context = this@BeneficiaryActivity)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
 @Composable
 fun BeneficiaryScreen(
     context: Context,
@@ -56,63 +40,70 @@ fun BeneficiaryScreen(
     onSearchQueryChange: (String) -> Unit = {},
     courseViewModel: CoursesViewModel
 ){
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ){
-            // Get current month name in Arabic
-            val calendar = Calendar.getInstance()
-            val dateFormat = SimpleDateFormat("MMMM", Locale("ar")) // "MMMM" for full month name
-            val currentMonthArabic = dateFormat.format(calendar.time)
-
-            // Concatenate the strings
-            val baseText = context.getString(R.string.the_current_courses_of_the_month)
-            val combinedText = "$baseText $currentMonthArabic"
-
-            // Display the combined text
-            Text(
-                text = combinedText,
-                textAlign = TextAlign.End
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)  {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                .padding(
+                        top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()+5.dp
             )
+            ){
+                // Get current month name in Arabic
+                val calendar = Calendar.getInstance()
+                val dateFormat = SimpleDateFormat("MMMM", Locale("ar")) // "MMMM" for full month name
+                val currentMonthArabic = dateFormat.format(calendar.time)
 
-            // Search bar
-            SearchRow(
-                query = searchQuery,
-                onQueryChange = { onSearchQueryChange(it) },
-                onSearch = { courseViewModel.searchCourses() }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+                // Concatenate the strings
+                val baseText = context.getString(R.string.the_current_courses_of_the_month)
+                val combinedText = "$baseText $currentMonthArabic"
 
-            // Buttons for navigation
-            Button(onClick = {
-                navController.navigate(Routes.coursesScreen(ScreenType.AllTheCourses))
-            }) {Text(text = context.getString(R.string.all_the_courses)) }
+                // Display the combined text
+                Text(
+                    text = combinedText,
+                    textAlign = TextAlign.End
+                )
 
-            Button(onClick = {
-                navController.navigate(Routes.coursesScreen(ScreenType.OnLine)) {
-                    // Optional: Pop up to start destination and save state
-                    // this would make that if user pressed on back button, it will go back to the previous previous screen
-//                    popUpTo(navController.graph.startDestinationId) {
-//                        saveState = true
-//                    }
-//                    launchSingleTop = true
-//                    restoreState = true
+                // Search bar
+                SearchRow(
+                    query = searchQuery,
+                    onQueryChange = { onSearchQueryChange(it) },
+                    onSearch = { courseViewModel.searchCourses() }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Buttons for navigation
+                Button(onClick = {
+                    navController.navigate(Routes.coursesScreen(ScreenType.AllTheCourses))
+                }) {Text(text = context.getString(R.string.all_the_courses)) }
+
+                Button(onClick = {
+                    navController.navigate(Routes.coursesScreen(ScreenType.OnLine)) {
+                        // Optional: Pop up to start destination and save state
+                        // this would make that if user pressed on back button, it will go back to the previous previous screen
+    //                    popUpTo(navController.graph.startDestinationId) {
+    //                        saveState = true
+    //                    }
+    //                    launchSingleTop = true
+    //                    restoreState = true
+                    }
+                }) {
+                    Text(text = context.getString(R.string.online_courses))
                 }
-            }) {
-                Text(text = context.getString(R.string.online_courses))
+
+                Button(onClick = {
+                    navController.navigate(Routes.coursesScreen(ScreenType.OffLine))
+                }) {Text(text = context.getString(R.string.offline_courses)) }
+
+                Button(onClick = {
+                    navController.navigate(Routes.CHOOSE_BRANCH)
+                }) {Text(text = context.getString(R.string.branch_courses)) }
             }
-
-            Button(onClick = {
-                navController.navigate(Routes.coursesScreen(ScreenType.OffLine))
-            }) {Text(text = context.getString(R.string.offline_courses)) }
-
-            Button(onClick = {
-                navController.navigate(Routes.CHOOSE_BRANCH)
-            }) {Text(text = context.getString(R.string.branch_courses)) }
         }
     }
 }

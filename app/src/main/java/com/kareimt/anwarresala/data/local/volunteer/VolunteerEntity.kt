@@ -12,4 +12,5 @@ data class VolunteerEntity(
     val branch: String,
     val committee: String,
     val email: String,
+    val approved: Boolean = false,
 )

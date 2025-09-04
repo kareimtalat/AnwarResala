@@ -5,10 +5,53 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 import kotlinx.coroutines.tasks.await
+import kotlin.Result
 
 class FirebaseVolunteerRepository : VolunteerRepository {
     private val auth = Firebase.auth
     private val db = Firebase.firestore
+
+    override suspend fun fetchCurrentVolunteerData() : Result<VolunteerEntity> =
+        try {
+            // Authenticate user
+            val uid = auth.currentUser?.uid ?: throw Exception("User ID not found")
+
+            // Fetch volunteer data from Firestore
+            val volunteerDoc = db.collection("volunteers").document(uid).get().await()
+
+            if (volunteerDoc.exists()) {
+                val volunteer = VolunteerEntity(
+                    name = volunteerDoc.getString("name") ?: "",
+                    email = volunteerDoc.getString("email") ?: "",
+                    responsibility = volunteerDoc.getString("responsibility") ?: "",
+                    branch = volunteerDoc.getString("branch") ?: "",
+                    committee = volunteerDoc.getString("committee") ?: "",
+                    firebaseId = uid,
+                    approved = volunteerDoc.getBoolean("approved") ?: false,
+                )
+                Result.success(volunteer)
+            } else {
+                Result.failure(Exception("Volunteer data not found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+
+    override suspend fun checkApproval(email: String) : Result<Boolean> =
+        try {
+            val volunteerDocs = db.collection("volunteers").whereEqualTo("email", email).get().await()
+            if (!volunteerDocs.isEmpty){
+                val firstDoc = volunteerDocs.documents[0]
+                val approved = firstDoc.getBoolean("approved") ?: false
+                Result.success(approved)
+            } else {
+                Result.failure(Exception("Volunteer not found for email: $email"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
 
     override suspend fun loginVolunteer(email: String, password: String): Result<VolunteerEntity> =
         try {
@@ -25,7 +68,9 @@ class FirebaseVolunteerRepository : VolunteerRepository {
                     email = email,
                     responsibility = volunteerDoc.getString("responsibility") ?: "",
                     branch = volunteerDoc.getString("branch") ?: "",
-                    committee = volunteerDoc.getString("committee") ?: ""
+                    committee = volunteerDoc.getString("committee") ?: "",
+                    firebaseId = uid,
+                    approved = volunteerDoc.getBoolean("approved") ?: false,
                 )
                 Result.success(volunteer)
             } else {
@@ -60,7 +105,8 @@ class FirebaseVolunteerRepository : VolunteerRepository {
                 "responsibility" to volunteer.responsibility,
                 "branch" to volunteer.branch,
                 "committee" to volunteer.committee,
-                "firebaseId" to userId
+                "firebaseId" to userId,
+                "approved" to false,
                 )
 
             // 3. Store additional volunteer data using actual the user ID
@@ -80,4 +126,10 @@ class FirebaseVolunteerRepository : VolunteerRepository {
             Result.failure(e)
         }
     }
+
+    override fun signOutVolunteer() {
+        auth.signOut()
+        println("Volunteer signed out successfully.")
+    }
+
 }

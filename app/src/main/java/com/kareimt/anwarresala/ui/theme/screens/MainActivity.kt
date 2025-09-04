@@ -1,9 +1,11 @@
 package com.kareimt.anwarresala.ui.theme.screens
 
 // For the navigation
+import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,10 +21,14 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,21 +38,31 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.kareimt.anwarresala.R
+import com.kareimt.anwarresala.data.local.DatabaseProvider
 import com.kareimt.anwarresala.data.local.course.toCourse
+import com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
 import com.kareimt.anwarresala.data.repository.FirebaseVolunteerRepository
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
+import com.kareimt.anwarresala.ui.theme.components.ActionConfirmationDialog
 import com.kareimt.anwarresala.ui.theme.screens.Routes.addEditCourse
 import com.kareimt.anwarresala.ui.theme.screens.beneficiary.AddEditCourseScreen
 import com.kareimt.anwarresala.ui.theme.screens.beneficiary.BeneficiaryScreen
@@ -54,27 +70,26 @@ import com.kareimt.anwarresala.ui.theme.screens.beneficiary.ChooseBranchScreen
 import com.kareimt.anwarresala.ui.theme.screens.beneficiary.CourseDetailsScreen
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.CoursesScreen
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
-import com.kareimt.anwarresala.ui.theme.screens.login_screens.ForgetPasswordScreen
-import com.kareimt.anwarresala.ui.theme.screens.login_screens.LoginScreen
-import com.kareimt.anwarresala.ui.theme.screens.login_screens.RegistrationScreen
-import com.kareimt.anwarresala.ui.theme.screens.login_screens.VolunteerCodeScreen
+import com.kareimt.anwarresala.ui.theme.screens.volunteer.ApprovalScreen
+import com.kareimt.anwarresala.ui.theme.screens.volunteer.ForgetPasswordScreen
+import com.kareimt.anwarresala.ui.theme.screens.volunteer.LoginScreen
+import com.kareimt.anwarresala.ui.theme.screens.volunteer.RegistrationScreen
+import com.kareimt.anwarresala.ui.theme.screens.volunteer.VolunteerCodeScreen
+import com.kareimt.anwarresala.viewmodels.ApprovalViewModel
+import com.kareimt.anwarresala.viewmodels.ApprovalViewModelFactory
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
 import com.kareimt.anwarresala.viewmodels.CoursesViewModelFactory
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModelFactory
 import kotlinx.coroutines.time.delay
 import java.time.Duration
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.kareimt.anwarresala.data.local.DatabaseProvider
-import com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private lateinit var volunteerDao: VolunteerDao
     private val coursesViewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(this) }
     private lateinit var volunteerViewModel: VolunteerViewModel
+//    private lateinit var approvalViewModel: ApprovalViewModel
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +103,20 @@ class MainActivity : ComponentActivity() {
         volunteerViewModel = ViewModelProvider(this,
             VolunteerViewModelFactory(FirebaseVolunteerRepository(), volunteerDao)
         )[VolunteerViewModel::class.java]
+
+        val locale = Locale("ar")
+        Locale.setDefault(locale)
+        val config = resources.configuration
+        config.setLocale(locale)
+        createConfigurationContext(config)
+
+        // storeCurrentVolunteerLocally
+        val isLoggedIn = volunteerViewModel.isLoggedIn
+        volunteerViewModel.getCurrentVolunteer()
+        val isApproved = volunteerViewModel.currentVolunteer?.approved ?: false
+        if (isLoggedIn && volunteerViewModel.currentVolunteer == null || !isApproved) {
+            volunteerViewModel.storeCurrentVolunteerLocally()
+        }
 
         // Simple boolean for keeping splash screen
         var keepSplashScreen = true
@@ -103,7 +132,8 @@ class MainActivity : ComponentActivity() {
             AnwarResalaTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background) {
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     AnwarResalaNavigation(coursesViewModel, volunteerViewModel)
                 }
             }
@@ -119,37 +149,70 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(context: Context, navController: NavController) {
+fun MainScreen(context: Context, navController: NavController, volunteerViewModel: VolunteerViewModel) {
+    val isLoggedIn = volunteerViewModel.isLoggedIn
+    var showDelAccountDialog = false
+    var showSignOutDialog = false
+
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(
-            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+            bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 5.dp
         )
         ) {
+        if (volunteerViewModel.isLoggedIn) {
+            val fullName = volunteerViewModel.currentVolunteer?.name
+            val firstName = fullName?.split(" ")?.firstOrNull() ?: fullName
+            Text(
+                context.getString(R.string.welcome)+" $firstName",
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 70.dp),
+                )
+        }
 
         // anwar_resala_logo
-        Image(
-            painter = painterResource(id = R.drawable.anwar_resala_logo),
-            contentDescription = "Anwar Resala Logo",
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 27.dp, end = 25.dp)
-                .width(90.dp)
-                // موازنة الإرتفاع مع العرض
-                .aspectRatio(1f)
-                //.clip(CircleShape)
-        )
-
-        // resala_logo
-        Image(
-            painter = painterResource(id = R.drawable.ressala_logo),
-            contentDescription = "Resala Logo",
+        Column (
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(top = 33.dp, start = 25.dp)
-                .width(90.dp)
-                .aspectRatio(1f)
-        )
+                .padding(top = 27.dp, start = 25.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.anwar_resala_logo),
+                contentDescription = "Anwar Resala Logo",
+                modifier = Modifier
+                    .width(90.dp)
+                    // موازنة الإرتفاع مع العرض
+                    .aspectRatio(1f)
+                    //.clip(CircleShape)
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+
+            if (isLoggedIn) {
+                IconButton( onClick = {showSignOutDialog = true} ) { Icon( painter = painterResource(R.drawable.ic_sign_out), contentDescription = "Sign Out", tint = Color.Unspecified ) }
+            }
+        }
+
+        // resala_logo
+        Column (
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 33.dp, end = 25.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ressala_logo),
+                contentDescription = "Resala Logo",
+                modifier = Modifier
+                    .width(90.dp)
+                    .aspectRatio(1f)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (isLoggedIn) {
+                IconButton( onClick = {showDelAccountDialog = true} , modifier = Modifier.align ( Alignment.End )) { Icon( painter = painterResource(R.drawable.ic_delete_account), contentDescription = "Delete Account", tint = Color.Unspecified ) }
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -166,10 +229,37 @@ fun MainScreen(context: Context, navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = {
-                navController.navigate(Routes.VOLUNTEER_CODE)
+                val destination = if (isLoggedIn && volunteerViewModel.currentVolunteer!=null) Routes.APPROVAL else Routes.VOLUNTEER_CODE
+                if (isLoggedIn && volunteerViewModel.currentVolunteer?.responsibility == context.getString(R.string.committee_member)) {
+                    Toast.makeText(context, context.getString(R.string.you_are_already_loggedin), Toast.LENGTH_SHORT).show()
+                } else {
+                    navController.navigate(destination)
+            }
             }
             ) { Text(text = context.getString(R.string.volunteer)) }
         }
+    }
+
+    if (showSignOutDialog) {
+        ActionConfirmationDialog(
+            title = stringResource(R.string.sign_out),
+            message = stringResource(R.string.sign_out_des),
+            confirmText = stringResource(R.string.sign_out),
+            dismissText = stringResource(R.string.cancel),
+            onConfirm = {volunteerViewModel.logout()},
+            onDismiss = { navController.navigateUp() }
+        )
+    }
+
+    if (showDelAccountDialog){
+        ActionConfirmationDialog(
+            title = stringResource(R.string.delete_account),
+            message = stringResource(R.string.delete_account_confirmation),
+            confirmText = stringResource(R.string.delete),
+            dismissText = stringResource(R.string.cancel),
+            onConfirm = { volunteerViewModel.deleteAccount() },
+            onDismiss = { navController.navigateUp() }
+        )
     }
 }
 
@@ -188,7 +278,8 @@ fun AnwarResalaNavigation(
         composable(Routes.MAIN) {
             MainScreen(
                 context = context,
-                navController
+                navController,
+                volunteerViewModel = volunteerViewModel
             )
         }
 
@@ -308,6 +399,16 @@ fun AnwarResalaNavigation(
                 onBackClick = { navController.navigateUp() },
                 viewModel = coursesViewModel
             )
+        }
+
+        // Approval Screen
+        composable (Routes.APPROVAL) {
+            val context = LocalContext.current
+            val application = context.applicationContext as Application
+            val volunteerDao = DatabaseProvider.getVolunteerDatabase(application).volunteerDao()
+
+            val viewModel: ApprovalViewModel = viewModel(factory = ApprovalViewModelFactory(application, volunteerDao))
+            ApprovalScreen(viewModel = viewModel, navController = navController)
         }
     }
 }

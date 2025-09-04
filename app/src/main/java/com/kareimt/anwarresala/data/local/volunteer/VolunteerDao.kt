@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -19,12 +20,24 @@ interface VolunteerDao {
     @Delete
     suspend fun delete(volunteer: VolunteerEntity)
 
-//    @Query("SELECT * FROM volunteer")
-//    fun getAllVolunteers(): Flow<List<VolunteerEntity>>
-//
-//    @Query("SELECT * FROM volunteer WHERE id = :id")
-//    suspend fun getVolunteerById(id: String): VolunteerEntity?
-//
-//    @Query("SELECT * FROM volunteer WHERE email = :email")
-//    suspend fun getVolunteerByEmail(email: String): VolunteerEntity?
+    @Query("DELETE FROM volunteer")
+    suspend fun deleteAll()
+
+    @Transaction
+    suspend fun replace(volunteer: VolunteerEntity) {
+        deleteAll()
+        insert(volunteer)
+    }
+
+    @Query("SELECT * FROM volunteer")
+    fun getAllVolunteers(): Flow<List<VolunteerEntity>>
+
+    @Query("SELECT * FROM volunteer WHERE id = :id")
+    suspend fun getVolunteerById(id: String): VolunteerEntity?
+
+    @Query("SELECT * FROM volunteer WHERE email = :email")
+    suspend fun getVolunteerByEmail(email: String): VolunteerEntity?
+
+    @Query("SELECT * FROM volunteer LIMIT 1")
+    suspend fun getVolunteer(): VolunteerEntity?
 }

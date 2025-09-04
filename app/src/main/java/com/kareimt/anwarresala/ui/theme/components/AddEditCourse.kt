@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -60,6 +61,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
 import com.kareimt.anwarresala.data.local.branch.BranchEntity
 import com.kareimt.anwarresala.utils.ImageUtils
@@ -527,8 +529,8 @@ fun ConfirmationDialog(
     message: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    confirmText: String = "Confirm",
-    dismissText: String = "Dismiss"
+    confirmText: String = stringResource(R.string.confirm),
+    dismissText: String = stringResource(R.string.cancel)
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
