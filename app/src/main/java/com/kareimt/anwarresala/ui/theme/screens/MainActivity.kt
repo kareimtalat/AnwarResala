@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -25,8 +26,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,10 +63,12 @@ import com.google.firebase.ktx.Firebase
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.DatabaseProvider
 import com.kareimt.anwarresala.data.local.course.toCourse
-import com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
-import com.kareimt.anwarresala.data.repository.FirebaseVolunteerRepository
+import com.kareimt.anwarresala.data.repository.course.CourseRepository
+import com.kareimt.anwarresala.data.repository.course.CourseRepositoryInterface
+import com.kareimt.anwarresala.data.repository.volunteer.VolunteerRepository
 import com.kareimt.anwarresala.ui.theme.AnwarResalaTheme
 import com.kareimt.anwarresala.ui.theme.components.ActionConfirmationDialog
+import com.kareimt.anwarresala.ui.theme.components.ReusableAlertDialog
 import com.kareimt.anwarresala.ui.theme.screens.Routes.addEditCourse
 import com.kareimt.anwarresala.ui.theme.screens.beneficiary.AddEditCourseScreen
 import com.kareimt.anwarresala.ui.theme.screens.beneficiary.BeneficiaryScreen
@@ -86,8 +92,11 @@ import java.time.Duration
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
-    private lateinit var volunteerDao: VolunteerDao
-    private val coursesViewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(this) }
+    val coursesRepository = CourseRepository()
+    private val coursesViewModel: CoursesViewModel by viewModels { CoursesViewModelFactory(
+        this,
+        repository = coursesRepository
+    ) }
     private lateinit var volunteerViewModel: VolunteerViewModel
 //    private lateinit var approvalViewModel: ApprovalViewModel
 
@@ -99,11 +108,12 @@ class MainActivity : ComponentActivity() {
         configureFirebaseServices()
 
         // Initialize the DAO and ViewModel
-        volunteerDao = DatabaseProvider.getVolunteerDatabase(this).volunteerDao()
+        val volunteerDao = DatabaseProvider.getVolunteerDatabase(this).volunteerDao()
         volunteerViewModel = ViewModelProvider(this,
-            VolunteerViewModelFactory(FirebaseVolunteerRepository(), volunteerDao)
+            VolunteerViewModelFactory(VolunteerRepository(), volunteerDao, coursesViewModel)
         )[VolunteerViewModel::class.java]
 
+        // Make app Rtl layout and arabic language only
         val locale = Locale("ar")
         Locale.setDefault(locale)
         val config = resources.configuration
@@ -118,7 +128,10 @@ class MainActivity : ComponentActivity() {
             volunteerViewModel.storeCurrentVolunteerLocally()
         }
 
-        // Simple boolean for keeping splash screen
+        // Get Firebase quota
+        volunteerViewModel.setIsFirebaseQuotaExceeded()
+
+        // Splash screen keeping boolean
         var keepSplashScreen = true
         splashScreen.setKeepOnScreenCondition { keepSplashScreen }
 
@@ -140,6 +153,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Get the branch entities
+    override fun onStart() {
+        super.onStart()
+        coursesViewModel.setupBranchesListener()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        coursesViewModel.removeBranchesListener()
+        println("Branches Listeners removed")
+    }
+
     private fun configureFirebaseServices() {
         // Initialize Firebase Auth and Firestore
         FirebaseApp.initializeApp(this)
@@ -151,8 +176,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(context: Context, navController: NavController, volunteerViewModel: VolunteerViewModel) {
     val isLoggedIn = volunteerViewModel.isLoggedIn
-    var showDelAccountDialog = false
-    var showSignOutDialog = false
+    var showDelAccountDialog by remember { mutableStateOf(false) }
+    var showSignOutDialog by remember { mutableStateOf(false) }
+    val isFirebaseQuotaExceeded = volunteerViewModel.isFirebaseQuotaExceeded
+    val activity = LocalActivity.current
+    val shouldExitApp = volunteerViewModel.shouldExitApp
+
+    if (shouldExitApp) {
+        println(" LaunchedEffect triggering")
+        LaunchedEffect(Unit) {
+            activity?.finish()
+            volunteerViewModel.resetExitRequest()
+        }
+    }
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -161,6 +197,25 @@ fun MainScreen(context: Context, navController: NavController, volunteerViewMode
             bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 5.dp
         )
         ) {
+        if (isFirebaseQuotaExceeded) {
+            ReusableAlertDialog(
+                title = stringResource(R.string.alert),
+                message = stringResource(R.string.firebaseQuotaExceeded),
+                onDismiss = { volunteerViewModel.requestAppExit() },
+                onConfirm = { volunteerViewModel.requestAppExit() },
+                confirmText = stringResource(R.string.ok),
+            )
+        }
+
+        if (volunteerViewModel.isLoading) {
+            Column (
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
         if (volunteerViewModel.isLoggedIn) {
             val fullName = volunteerViewModel.currentVolunteer?.name
             val firstName = fullName?.split(" ")?.firstOrNull() ?: fullName
@@ -237,29 +292,35 @@ fun MainScreen(context: Context, navController: NavController, volunteerViewMode
             }
             }
             ) { Text(text = context.getString(R.string.volunteer)) }
+
+            if (showSignOutDialog) {
+                ActionConfirmationDialog(
+                    title = stringResource(R.string.sign_out),
+                    message = stringResource(R.string.sign_out_des),
+                    confirmText = stringResource(R.string.sign_out),
+                    dismissText = stringResource(R.string.cancel),
+                    onConfirm = {
+                        volunteerViewModel.logout()
+                        showSignOutDialog = false
+                                },
+                    onDismiss = { showSignOutDialog = false }
+                )
+            }
+
+            if (showDelAccountDialog){
+                ActionConfirmationDialog(
+                    title = stringResource(R.string.delete_account),
+                    message = stringResource(R.string.delete_account_confirmation),
+                    confirmText = stringResource(R.string.delete),
+                    dismissText = stringResource(R.string.cancel),
+                    onConfirm = {
+                        volunteerViewModel.deleteAccount()
+                        showDelAccountDialog = false
+                                },
+                    onDismiss = { showDelAccountDialog = false }
+                )
+            }
         }
-    }
-
-    if (showSignOutDialog) {
-        ActionConfirmationDialog(
-            title = stringResource(R.string.sign_out),
-            message = stringResource(R.string.sign_out_des),
-            confirmText = stringResource(R.string.sign_out),
-            dismissText = stringResource(R.string.cancel),
-            onConfirm = {volunteerViewModel.logout()},
-            onDismiss = { navController.navigateUp() }
-        )
-    }
-
-    if (showDelAccountDialog){
-        ActionConfirmationDialog(
-            title = stringResource(R.string.delete_account),
-            message = stringResource(R.string.delete_account_confirmation),
-            confirmText = stringResource(R.string.delete),
-            dismissText = stringResource(R.string.cancel),
-            onConfirm = { volunteerViewModel.deleteAccount() },
-            onDismiss = { navController.navigateUp() }
-        )
     }
 }
 
@@ -305,6 +366,7 @@ fun AnwarResalaNavigation(
                 navController = navController,
                 searchQuery = "",
                 branch = branch,
+                volunteerViewModel = volunteerViewModel,
             ) { coursesViewModel.updateSearchQuery(it) }
         }
 
@@ -360,7 +422,8 @@ fun AnwarResalaNavigation(
                 navController = navController,
                 searchQuery = "",
                 onSearchQueryChange = { coursesViewModel.updateSearchQuery(it) },
-                courseViewModel = coursesViewModel
+                courseViewModel = coursesViewModel,
+                volunteerViewModel = volunteerViewModel,
             )
         }
 
@@ -397,7 +460,8 @@ fun AnwarResalaNavigation(
             AddEditCourseScreen(
                 courseId = courseId,
                 onBackClick = { navController.navigateUp() },
-                viewModel = coursesViewModel
+                viewModel = coursesViewModel,
+                volunteerViewModel
             )
         }
 

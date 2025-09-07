@@ -1,5 +1,8 @@
 package com.kareimt.anwarresala.ui.theme.screens.volunteer
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +22,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,6 +61,20 @@ fun ApprovalScreen(
     var showActionDialog by remember { mutableStateOf(false) }
     var actionType by remember { mutableStateOf("") } // "approve", "reject", or "delete"
 
+    val rotation = remember { Animatable(0f) }
+    var shouldAnimate by remember { mutableStateOf(false) }
+    LaunchedEffect(shouldAnimate) {
+        if (shouldAnimate) {
+            rotation.snapTo(0f)
+            rotation.animateTo(
+                targetValue = 360f * 2,
+                animationSpec = tween(durationMillis = 1200, easing = LinearEasing)
+            )
+            rotation.snapTo(0f)
+            shouldAnimate = false // Reset trigger
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -80,10 +99,14 @@ fun ApprovalScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
-                    IconButton(onClick = {viewModel.refreshVolunteers()}) {
+                    IconButton(onClick = {
+                        viewModel.refreshVolunteers()
+                        shouldAnimate = true
+                    }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_refresh),
                             contentDescription = "Refresh",
+                            modifier = Modifier.rotate(rotation.value),
                             tint = Color.Unspecified
                         )
                     }

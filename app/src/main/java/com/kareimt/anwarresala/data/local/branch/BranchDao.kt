@@ -10,7 +10,10 @@ import com.kareimt.anwarresala.data.local.course.CourseEntity
 
 @Dao
 interface BranchDao {
-     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertBranches(branches: List<BranchEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
      suspend fun insertBranch(branch: BranchEntity)
 
      @Query("SELECT * FROM branches")
@@ -19,10 +22,13 @@ interface BranchDao {
      @Delete
      suspend fun deleteBranch(branch: BranchEntity)
 
+     @Query("DELETE FROM branches")
+     suspend fun deleteAllBranches()
+
     @Query("SELECT * FROM branches WHERE id = :id")
     suspend fun getBranchById(id: Int): BranchEntity?
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBranches(branches: List<BranchEntity>)
 
     @Update

@@ -1,6 +1,5 @@
 package com.kareimt.anwarresala.ui.theme.components
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -38,6 +39,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -46,10 +48,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.kareimt.anwarresala.R
 
 
 // The password field with a toggle button to show/hide the password
@@ -62,7 +64,14 @@ fun PasswordFieldWithToggle(
     isError: Boolean = false,
     showRequired: Boolean = false,
     textRPadding: Int = 40,
+    labelToStart: String = ""
 ) {
+    val textAlign = if (labelToStart=="false" || labelToStart.isEmpty()){
+            TextAlign.End
+        } else {
+            TextAlign.Start
+        }
+
     var isPasswordVisible by remember { mutableStateOf(false) }
     val imeAction = if (imeAction == "Next") ImeAction.Next else ImeAction.Go
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -74,7 +83,7 @@ fun PasswordFieldWithToggle(
             horizontalArrangement = Arrangement.Start,
         ) {
             Text(
-                text = "* Required Field",
+                text = stringResource(R.string.required_field),
                 color = Color.Red,
                 modifier = Modifier.padding( start = textRPadding.dp )
             )
@@ -88,7 +97,7 @@ fun PasswordFieldWithToggle(
         label = {
             Text(
                 text = label,
-                textAlign = TextAlign.End,
+                textAlign = textAlign,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 16.dp),
@@ -126,7 +135,7 @@ fun PasswordFieldWithToggle(
 
     if (isError) {
         Text(
-            text = "This field is required",
+            text = stringResource(R.string.fill_field_properly),
             color = Color.Red,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
@@ -136,8 +145,12 @@ fun PasswordFieldWithToggle(
 
 // The Prompt
 @Composable
-fun ThePrompt(context: Context, onClickFun: () -> Unit,preText:String,clickableText: String) {
+fun ThePrompt(onClickFun: () -> Unit, preText:String, clickableText: String) {
     Row {
+        Text(" ")
+        Text(
+            text = preText,
+        )
         ClickableText(
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color(0xFF2144DA))) {
@@ -150,11 +163,6 @@ fun ThePrompt(context: Context, onClickFun: () -> Unit,preText:String,clickableT
                 onClickFun()
             }
         )
-        Text(" ")
-        Text(
-            text = preText,
-        )
-
     }
 }
 
@@ -176,10 +184,21 @@ fun InputField(
     enabled: Boolean = true,
     textStyle: TextStyle = LocalTextStyle.current,
     placeholder: String = "",
+    labelToStart: String = "",
 ){
     val textDirection=if (rtl){TextDirection.Rtl}else{TextDirection.Ltr}
-    val textAlign= if (!enabled) {TextAlign.Center} else {
+    var textAlign = if (!enabled) {TextAlign.Center} else {
         if (rtl){TextAlign.Start} else {TextAlign.End} }
+
+    // textAlign if selected labelToStart
+    if (labelToStart.isNotEmpty()){
+        textAlign = if (labelToStart=="false"){
+            TextAlign.End
+        } else {
+            TextAlign.Start
+        }
+    }
+
     val textStyle2 = if (textStyle== LocalTextStyle.current) {
         LocalTextStyle.current.copy(textDirection = textDirection, textAlign = textAlign)
     }else {
@@ -208,7 +227,7 @@ fun InputField(
             horizontalArrangement = Arrangement.Start,
         ) {
             Text(
-                text = "* Required Field",
+                text = stringResource(R.string.required_field),
                 color = Color.Red,
                 modifier = Modifier.padding( start = textRPadding.dp )
             )
@@ -219,14 +238,15 @@ fun InputField(
         value = value,
         onValueChange = onValueChange,
         enabled = enabled,
-        label = { Text(
-            text = label,
-            textAlign = textAlign,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 16.dp),
-        )
-                },
+        label = {
+            Text(
+                text = label,
+                textAlign = textAlign,
+                modifier = Modifier
+//                    .fillMaxWidth()
+                    .padding(start = 16.dp),
+            )
+        },
         modifier = modifier.widthIn(max = 300.dp),
         textStyle = textStyle2,
         singleLine = singleLine,
@@ -248,17 +268,17 @@ fun InputField(
         placeholder = {
             Text(
                 text = placeholder,
-                textAlign = TextAlign.End,
+                textAlign = TextAlign.Start,
                 modifier = Modifier
                     .padding(end = 22.dp)
-                    .fillMaxWidth(),
+//                    .fillMaxWidth(),
             )
         },
     )
 
     if (isError) {
         Text(
-            text = "This field is required",
+            text = stringResource(R.string.fill_field_properly),
             color = Color.Red,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
@@ -291,7 +311,7 @@ fun ReusableDropdown(
                 horizontalArrangement = Arrangement.Start,
             ) {
                 Text(
-                    text = "* Required Field",
+                    text = stringResource(R.string.required_field),
                     color = Color.Red,
                     modifier = Modifier.padding(start = textRPadding.dp)
                 )
@@ -306,11 +326,11 @@ fun ReusableDropdown(
                 modifier = Modifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)//The only solution after a lot of suffering trying (Modifier.onClickable { expanded = !expanded })
                     .widthIn(max = 300.dp),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
                 label={Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
+                    horizontalArrangement = Arrangement.Start,
+//                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = label)
                     Spacer(Modifier.width(3.dp))
@@ -323,13 +343,6 @@ fun ReusableDropdown(
                 value = value,
                 /*Just must call it*/onValueChange = {},
                 readOnly = true,
-                /*placeholder = {
-                    Text(
-                        text = value,
-                        modifier = Modifier.padding(end = 30.dp),
-                        textAlign = TextAlign.End,
-                    )
-                }*/
                 isError = isError,
             )
 
@@ -340,7 +353,7 @@ fun ReusableDropdown(
                         text = { Text(
                             text = optionName,
                             modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End)},
+                            textAlign = TextAlign.Start)},
                         onClick = {
                             onOptionSelected(optionName)
                             expanded = false
@@ -353,7 +366,7 @@ fun ReusableDropdown(
 
         if (isError) {
             Text(
-                text = "This field is required",
+                text = stringResource(R.string.fill_field_properly),
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 4.dp)
@@ -362,3 +375,26 @@ fun ReusableDropdown(
     }
 
 }
+
+@Composable
+fun ReusableAlertDialog(
+    title: String,
+    message: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    confirmText: String,
+    ){
+    AlertDialog(
+        onDismissRequest = {onDismiss()},
+        title = {
+            Text(text = title)
+        },
+        text = {
+            Text(message)
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm() }) { Text(text = confirmText) }
+        }
+    )
+}
+

@@ -11,7 +11,7 @@
     <string name="online_courses">الأون لاين</string>
     <string name="offline_courses">الأوف لاين</string>
     <string name="all_our_current_courses">جميع الكورسات الحالية</string>
-    <string name="loading">...جاري التحميل</string>
+    <string name="loading">جاري التحميل…</string>
     <string name="ok">حسناً</string>
     <string name="welcome">مرحباً</string>
     <string name="back">رجوع</string>
@@ -21,6 +21,10 @@
     <string name="sign_out">تسجيل الخروج</string>
     <string name="sign_out_des">هل أنت متأكد من رغبتك بتسجيل الخروج من الحساب؟</string>
     <string name="confirm">تأكيد</string>
+    <string name="alert">تحذير</string>
+    <string name="firebaseQuotaExceeded">عفواً التطبيق متوقف في الوقت الحالي. برجاء المحاولة لاحقاً</string>
+    <string name="required_field">*الحقل مطلوب</string>
+    <string name="fill_field_properly">برجاء ملئ الحقل بشكل صحيح</string>
 
     // Registration strings
     <string name="volunteer_register">تسجيل المتطوع</string>
@@ -33,7 +37,7 @@
     <string name="choose_your_branch">إختر فرعك</string>
     <string name="registration_error">برجاء ملئ جميع الحقول بشكل صحيح</string>
     <string name="registration_submitted">تم التسجيل بنجاح</string>
-    <string name="approval_pending_message">تم إرسال طلبك للمسؤول وسيرسل التطبيق إشعار لك عندما يتم قبول طلبك</string>
+    <string name="approval_pending_message">تم إرسال طلبك للمسؤول برجاء التواصل معه للموافقة على طلبك. ثم قم بتسجيل الدخول</string>
 
     // Branch names
     <string name="central">المركزي</string>
@@ -44,7 +48,8 @@
     <string name="nasr_city">مدينة نصر</string>
     <string name="other">أخرى</string>
 
-    <string name="already_have_account">هل لديك حساب بالفعل. إذاً</string>
+    // Registration
+    <string name="already_have_account">هل لديك حساب بالفعل. إذاً </string>
     <string name="login">سجل الدخول</string>
     <string name="forget_password">نسيت كلمة المرور</string>
     <string name="overwrite_password">إعادة تعيين كلمة المرور</string>
@@ -57,7 +62,7 @@
     <string name="br">P.R.</string>
     <string name="social">Social</string>
     <string name="organizing">التنظيم</string>
-    <string name="hr">H.R.</string>
+    <string name="media">Media</string>
     <string name="email_label">أدخل البريد الإلكتروني</string>
     <string name="password_label">أدخل كلمة المرور</string>
     <string name="renter_password_label">أعد إدخال كلمة المرور</string>
@@ -109,7 +114,16 @@
 
     // Login strings
     <string name="not_apptoved">حسابك مازال بإنتظار الموافقة عليه</string>
-    <string name="dont_have_account_locally">لا يوجد لديك حساب محلي بعد</string>
+    <string name="dont_have_account_locally">إذا كنت لم تقم بإنشاء حساب فبرجاء القيام بذلك أولاً</string>
+
+    // Volunteer code
+    <string name="activity_code">كود النشاط</string>
+    <string name="volunteer_code">كود المتطوع</string>
+
+    // Choose branch screen
+    <string name="remove_branch">حذف الفرع</string>
+    <string name="remove_branch_confirmation">هل أنت متأكد من رغبتك بحذف فرع %s؟</string>
+
 
 
 </resources>

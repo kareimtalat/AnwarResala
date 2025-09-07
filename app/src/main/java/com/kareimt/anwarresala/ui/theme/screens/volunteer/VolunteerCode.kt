@@ -17,9 +17,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.ui.theme.components.InputField
 import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
@@ -34,7 +36,6 @@ fun VolunteerCodeScreen(
         Toast.makeText(context,viewModel.onError,Toast.LENGTH_LONG).show()
         viewModel.emptyOnError()
     }
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)  {
         Column(
             modifier = Modifier.fillMaxSize()
                 .padding(
@@ -50,7 +51,7 @@ fun VolunteerCodeScreen(
             ) {
                 //Activity label
                 Text(
-                    text = "Volunteer Code",
+                    text = stringResource(R.string.volunteer_code),
                 )
 
 
@@ -58,7 +59,7 @@ fun VolunteerCodeScreen(
                 InputField(
                     value = viewModel.activityCode,
                     onValueChange = viewModel::onActivityCodeChanged,
-                    label = "Activity Code",
+                    label = stringResource(R.string.activity_code),
                     rtl = false,
                     keyboardType = "Text"
                 )
@@ -67,7 +68,7 @@ fun VolunteerCodeScreen(
                 InputField(
                     value = viewModel.volunteerCode,
                     onValueChange = viewModel::onVolunteerCodeChanged,
-                    label = "Volunteer Code",
+                    label = stringResource(R.string.volunteer_code),
                     rtl = false,
                     keyboardType = "Text"
                 )
@@ -79,9 +80,9 @@ fun VolunteerCodeScreen(
                     } else {
                         viewModel.showError(context,"Invalid Activity or Volunteer Code")
                     }
-                }) { Text("Confirm") }
+                }) { Text(stringResource(R.string.confirm)) }
             }
 
         }
-    }
+
 }

@@ -63,9 +63,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.Course
-import com.kareimt.anwarresala.data.local.branch.BranchEntity
 import com.kareimt.anwarresala.utils.ImageUtils
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 import java.time.Month
 import java.util.Calendar
 import java.util.Locale
@@ -427,7 +427,8 @@ fun BranchField(
     viewModel: CoursesViewModel,
     branch: String,
     onOptionSelected: (String) -> Unit,
-    branchError: Boolean
+    branchError: Boolean,
+    volunteerViewModel: VolunteerViewModel,
 ){
     // Branch
     val branches by viewModel.branches.collectAsState()
@@ -440,6 +441,16 @@ fun BranchField(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (volunteerViewModel.currentVolunteer?.responsibility == stringResource(R.string.activity_officer)) {
+                IconButton(onClick = { showAddBranchDialog = true},
+                    modifier = Modifier
+                        .weight(0.25f)
+                        .padding(top = 22.dp)
+                ) {
+                    Icon(Icons.Default.Add, "Add Branch")
+                }
+            }
+
             ReusableDropdown(
                 modifier = Modifier.weight(1f),
                 label = "Branch",
@@ -450,13 +461,6 @@ fun BranchField(
                 showRequired = true,
                 textRPadding = 0,
             )
-            IconButton(onClick = { showAddBranchDialog = true},
-                modifier = Modifier
-                    .weight(0.25f)
-                    .padding(top = 22.dp)
-            ) {
-                Icon(Icons.Default.Add, "Add Branch")
-            }
         }
 
         // Add Branch Dialog
@@ -483,7 +487,7 @@ fun BranchField(
                                 newBranchError = true
                                 return@Button
                             }
-                            viewModel.addBranch(BranchEntity(branch = newBranchName))
+                            viewModel.addBranch(newBranchName)
                             showAddBranchDialog = false
                             newBranchName = ""
                         }) {

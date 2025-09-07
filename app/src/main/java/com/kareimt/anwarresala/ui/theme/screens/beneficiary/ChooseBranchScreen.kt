@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -39,10 +40,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.branch.BranchEntity
+import com.kareimt.anwarresala.ui.theme.components.ConfirmationDialog
 import com.kareimt.anwarresala.ui.theme.components.SearchRow
 import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.ui.theme.screens.courses_screens.ScreenType
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 
 @Composable
 fun ChooseBranchScreen(
@@ -50,16 +53,21 @@ fun ChooseBranchScreen(
     navController: NavController,
     searchQuery: String = "",
     onSearchQueryChange: (String) -> Unit,
-    courseViewModel: CoursesViewModel
+    courseViewModel: CoursesViewModel,
+    volunteerViewModel: VolunteerViewModel,
 ) {
     var showAddBranchDialog by remember { mutableStateOf(false) }
     var newBranchName by remember { mutableStateOf("") }
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)  {
+    var showRemoveBranchDialog by remember { mutableStateOf(false) }
+    var removedBranch by remember { mutableStateOf<BranchEntity?>(null) }
+
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(
                     top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
-                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()+5.dp
+                    bottom = WindowInsets.navigationBars.asPaddingValues()
+                        .calculateBottomPadding() + 5.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -74,28 +82,47 @@ fun ChooseBranchScreen(
 
             // Search bar
             // TODO: Modify it to search branches instead of courses
-            SearchRow(
-                query = searchQuery,
-                onQueryChange = { onSearchQueryChange(it) },
-                onSearch = { courseViewModel.searchCourses() }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+//            SearchRow(
+//                query = searchQuery,
+//                onQueryChange = { onSearchQueryChange(it) },
+//                onSearch = { courseViewModel.searchCourses() }
+//            )
+//            Spacer(modifier = Modifier.height(16.dp))
 
             // Branches list
             val branches by courseViewModel.branches.collectAsState()
             LazyColumn (
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
             ){
                 items(branches) { branchEntity ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 7.dp, end = 95.dp),
-                        horizontalArrangement = Arrangement.End,
+//                            .padding(top = 7.dp, end = 95.dp)
+                            ,
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        if (volunteerViewModel.currentVolunteer?.responsibility == stringResource(R.string.activity_officer)){
+                            Button(
+                                onClick = {
+                                    showRemoveBranchDialog = true
+                                    removedBranch = branchEntity
+                                }
+                            ) {
+                                Text(
+                                    "-",
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+
                         Button(
                             onClick = {
                                 navController.navigate(Routes.coursesScreen(ScreenType.BCSpecific, branchEntity.branch))
@@ -106,34 +133,41 @@ fun ChooseBranchScreen(
                                 textAlign = TextAlign.Center,
                             )
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Button(
-                            onClick = {
-                                courseViewModel.deleteBranch(branchEntity)
-                            }
-                        ) {
-                            Text(
-                                "-",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
+
                     }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
 
             // Add Branch Button
-            Button(
-                onClick = { showAddBranchDialog = true }
-            ) {
-                Text(
-                    text = "+",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+            if (volunteerViewModel.currentVolunteer?.responsibility == stringResource(R.string.activity_officer)) {
+                Button(
+                    onClick = { showAddBranchDialog = true }
+                ) {
+                    Text(
+                        text = "+",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
                     )
+                }
             }
 
+            if (showRemoveBranchDialog){
+                ConfirmationDialog(
+                    title = stringResource(R.string.remove_branch),
+                    message = stringResource(R.string.remove_branch_confirmation, removedBranch?.branch ?: "-"),
+                    onDismiss = {
+                        removedBranch = null
+                        showRemoveBranchDialog = false
+                                },
+                    onConfirm = {
+                        courseViewModel.deleteBranch(removedBranch!!)
+                        showRemoveBranchDialog = false
+                                },
+                    confirmText = stringResource(R.string.delete),
+                    dismissText = stringResource(R.string.cancel),
+                )
+            }
             // Add Branch Dialog
             if (showAddBranchDialog) {
                 AlertDialog(
@@ -151,18 +185,14 @@ fun ChooseBranchScreen(
                         OutlinedTextField(
                             value = newBranchName,
                             onValueChange = { newBranchName = it },
-                            label = { Text(
-                                text = context.getString(R.string.branch_name),
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.fillMaxWidth()
-                                ) }
+                            label = { Text(text = context.getString(R.string.branch_name),) }
                         )
                     },
                     confirmButton = {
                         Button(
                             onClick = {
                                 if (newBranchName.isNotBlank()) {
-                                    courseViewModel.addBranch(BranchEntity(branch = newBranchName))
+                                    courseViewModel.addBranch(newBranchName)
                                     newBranchName = ""
                                     showAddBranchDialog = false
                                 }
@@ -183,9 +213,5 @@ fun ChooseBranchScreen(
                     }
                 )
             }
-
-
-
         }
-    }
 }

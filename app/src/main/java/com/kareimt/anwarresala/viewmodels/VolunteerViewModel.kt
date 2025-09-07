@@ -3,6 +3,7 @@ package com.kareimt.anwarresala.viewmodels
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,14 +14,23 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.kareimt.anwarresala.R
+import com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
-import com.kareimt.anwarresala.data.repository.VolunteerRepository
+import com.kareimt.anwarresala.data.repository.volunteer.VolunteerRepositoryInterface
 import kotlinx.coroutines.launch
 
-class VolunteerViewModel (private val repository: VolunteerRepository,
-    private val localVolunteerDao: com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
-    ): ViewModel() {
+class VolunteerViewModel (
+    private val repository: VolunteerRepositoryInterface,
+    private val localVolunteerDao: VolunteerDao,
+    private val coursesViewModel: CoursesViewModel
+) : ViewModel() {
     // 1. Initialization: Set up the ViewModel with any necessary dependencies.
+    var shouldExitApp by mutableStateOf(false)
+        private set
+
+    var isFirebaseQuotaExceeded by mutableStateOf(false)
+        private set
+
     var isLoggedIn by mutableStateOf(false)
         private set
 
@@ -34,7 +44,8 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
 
     // 2. State Variables: Hold the data for your form fields&dropdown option types.
     // TODO: use isLoading and onError on the UI
-    var isLoading = false
+    var isLoading by mutableStateOf(false)
+        private set
     var onError by mutableStateOf("")
         private set
 
@@ -106,6 +117,28 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
         volunteerCode = newVolunteerCode.takeWhile { char -> char != '\n' }
     }
 
+    // Setters
+    fun setIsFirebaseQuotaExceeded (){
+        viewModelScope.launch {
+            try {
+                val result = repository.setIsFirebaseQuotaExceeded()
+                println("About to setIsFirebaseQuotaExceeded")
+
+                result.fold(
+                    onSuccess = { isFirebaseQuotaExceededResult ->
+                        isFirebaseQuotaExceeded = isFirebaseQuotaExceededResult
+                        println("From setIsFirebaseQuotaExceeded fun: $isFirebaseQuotaExceeded")
+                    },
+                    onFailure = { error ->
+                        println("Fetching isFirebaseQuotaExceededResult failed: ${error.message}")
+                    }
+                )
+            } catch (e: Exception) {
+                println("Exception: ${e.message}")
+            }
+        }
+    }
+
     fun getCurrentVolunteer() {
         viewModelScope.launch {
             try {
@@ -138,23 +171,20 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
     // TODO: Connect it to the BranchEntity of Room, but remember add to it (The centeral)
     @Composable
     fun getBranchOptions(): List<String> {
-        return listOf(
-            stringResource(R.string.central),
-            stringResource(R.string.tenth_of_ramadan),
-            stringResource(R.string.helwan),
-            stringResource(R.string.maadi),
-            stringResource(R.string.faisal),
-            stringResource(R.string.nasr_city),
-            stringResource(R.string.other),
-        )
+        val branchEntities = coursesViewModel.branches.collectAsState()
+        val staticBranches = listOf(stringResource(R.string.central))
+        val dynamicBranches = branchEntities.value.map { it.branch }
+
+        return staticBranches + dynamicBranches
     }
+
     @Composable
     fun getCommitteeOptions(): List<String> {
         return listOf(
             stringResource(R.string.br),
             stringResource(R.string.social),
             stringResource(R.string.organizing),
-            stringResource(R.string.hr),
+            stringResource(R.string.media),
             stringResource(R.string.other),
         )
     }
@@ -268,6 +298,7 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ){
+        isLoading = true
         viewModelScope.launch {
             try {
             val volunteer = VolunteerEntity(
@@ -301,12 +332,14 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
                 onError("An unexpected error occurred: ${e.message}")
             }
         }
+        isLoading = false
     }
 
     fun loginVolunteer(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        isLoading = true
         viewModelScope.launch {
             if (email.isBlank() || password.isBlank()) {
                 onError("Email and password cannot be empty")
@@ -345,48 +378,70 @@ class VolunteerViewModel (private val repository: VolunteerRepository,
                 onError("Exception: ${e.message}")
             }
         }
+        isLoading = false
     }
 
     fun storeCurrentVolunteerLocally() {
-        viewModelScope.launch {
-            try {
-                val result = repository.fetchCurrentVolunteerData()
-                        result.fold(
-                            onSuccess = { currentVolunteerData ->
-                                localVolunteerDao.replace(currentVolunteerData)
-                                currentVolunteer = currentVolunteerData
-                                println("From storeCurrentVolunteerLocally fun: ${currentVolunteer.toString()}")
-                            },
-                            onFailure = { error ->
-                                onError = "Fetching Current Volunteer Data failed: ${error.message}"
-                            }
-                        )
-            } catch (e: Exception) {
-                onError="Exception: ${e.message}"
+        if (currentVolunteer!=null||isLoggedIn) {
+            viewModelScope.launch {
+                try {
+                    val result = repository.fetchCurrentVolunteerData()
+                    println("About to storeCurrentVolunteerLocally")
+
+                    result.fold(
+                        onSuccess = { currentVolunteerData ->
+                            localVolunteerDao.replace(currentVolunteerData)
+                            currentVolunteer = currentVolunteerData
+                            println("From storeCurrentVolunteerLocally fun: ${currentVolunteer.toString()}")
+                        },
+                        onFailure = { error ->
+                            onError = "Fetching Current Volunteer Data failed: ${error.message}"
+                        }
+                    )
+                } catch (e: Exception) {
+                    onError="Exception: ${e.message}"
+                }
             }
         }
     }
 
     fun logout() {
         repository.signOutVolunteer()
+        deleteCurrentVolunteerLocally()
         isLoggedIn = false
     }
 
     fun deleteAccount() {
+        deleteCurrentVolunteerLocally()
         // TODO: Handel it's functionality
+    }
+
+    fun deleteCurrentVolunteerLocally(){
+        viewModelScope.launch {
+            localVolunteerDao.deleteAll()
+        }
+    }
+
+    fun requestAppExit() {
+        shouldExitApp = true
+    }
+
+    fun resetExitRequest() {
+        shouldExitApp = false
     }
 }
 
 
 
 class VolunteerViewModelFactory(
-    private val repository: VolunteerRepository,
-    private val localVolunteerDao: com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
+    private val repository: VolunteerRepositoryInterface,
+    private val localVolunteerDao: VolunteerDao,
+    private val coursesViewModel: CoursesViewModel
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(VolunteerViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return VolunteerViewModel(repository,localVolunteerDao) as T
+            return VolunteerViewModel(repository,localVolunteerDao, coursesViewModel) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

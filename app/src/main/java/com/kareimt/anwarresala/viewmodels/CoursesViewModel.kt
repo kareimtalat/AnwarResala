@@ -1,12 +1,17 @@
 package com.kareimt.anwarresala.viewmodels
 
 import android.content.Context
+import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.kareimt.anwarresala.data.local.branch.BranchEntity
 import com.kareimt.anwarresala.data.local.course.CourseEntity
 import com.kareimt.anwarresala.data.local.DatabaseProvider
+import com.kareimt.anwarresala.data.repository.course.CourseRepositoryInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +20,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-class CoursesViewModel(context:Context) : ViewModel() {
+class CoursesViewModel(context:Context, private val repository: CourseRepositoryInterface) : ViewModel() {
+    // Before connect firebase
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
@@ -69,7 +75,7 @@ class CoursesViewModel(context:Context) : ViewModel() {
         }
     }
 
-    fun addBranch(branch: BranchEntity) {
+    fun addBranchLocally(branch: BranchEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             branchDao.insertBranch(branch)
             _branches.value = branchDao.getAllBranches()
@@ -85,7 +91,7 @@ class CoursesViewModel(context:Context) : ViewModel() {
     }
 
     // For Delete exact branch
-    fun deleteBranch(branch: BranchEntity) {
+    fun deleteBranchLocally(branch: BranchEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             branchDao.deleteBranch(branch)
             loadBranches()
@@ -144,13 +150,87 @@ class CoursesViewModel(context:Context) : ViewModel() {
             _selectedCourse.value = course
         }
     }
+
+
+
+
+    // After add firebase
+    // Attributes
+    var onError by mutableStateOf("")
+        private set
+
+    // setters
+    fun emptyOnError (){
+        onError = ""
+    }
+
+
+    // getters
+
+
+    // Normal functions
+
+    fun addBranch(newBranch: String) {
+        setLoading(true)
+        try {
+            viewModelScope.launch {
+                val result = repository.addBranchOnFirebase(newBranch)
+                result.fold(
+                    onSuccess = { branch ->
+                        addBranchLocally(branch)
+                    },
+                    onFailure = { error ->
+                        setError( "Fetching Current Volunteer Data failed: ${error.message}")
+                    }
+                )
+            }
+        } catch (e: Exception) {
+            setError("Exception: ${e.message}")
+        }
+        setLoading(false)
+    }
+
+    fun setupBranchesListener() {
+        repository.getBranches {
+            repository.getBranches { result ->
+                result.fold(
+                    onSuccess = { branches ->
+                        viewModelScope.launch (Dispatchers.IO) {
+                            branchDao.deleteAllBranches()
+                            branchDao.insertBranches(branches)
+                            _branches.value = branches
+                            println("Successfully loaded ${branches.size} branches")
+                        }
+                    },
+                    onFailure = { error ->
+                        println("BranchSync, Error: ${result.exceptionOrNull()}")
+                        _uiState.update { it.copy(error = error.message) }
+                    }
+                )
+            }
+        }
+    }
+
+    fun removeBranchesListener() {
+        repository.removeBranchesListener()
+    }
+
+    fun deleteBranch(branch: BranchEntity) {
+        viewModelScope.launch (Dispatchers.IO) {
+            repository.deleteBranchOnFirebase(branch)
+        }
+    }
+
 }
 
-class CoursesViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class CoursesViewModelFactory(private val context: Context, private val repository: CourseRepositoryInterface) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CoursesViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CoursesViewModel(context) as T
+            return CoursesViewModel(
+                context,
+                repository = repository
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

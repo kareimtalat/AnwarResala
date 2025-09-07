@@ -1,4 +1,4 @@
-package com.kareimt.anwarresala.data.repository
+package com.kareimt.anwarresala.data.repository.volunteer
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -7,7 +7,7 @@ import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 import kotlinx.coroutines.tasks.await
 import kotlin.Result
 
-class FirebaseVolunteerRepository : VolunteerRepository {
+class VolunteerRepository : VolunteerRepositoryInterface {
     private val auth = Firebase.auth
     private val db = Firebase.firestore
 
@@ -131,5 +131,18 @@ class FirebaseVolunteerRepository : VolunteerRepository {
         auth.signOut()
         println("Volunteer signed out successfully.")
     }
+
+    override suspend fun setIsFirebaseQuotaExceeded () : Result<Boolean> =
+        try {
+            val firebaseQuotaDoc = db.collection("firebase_quota_exceeded").document("1").get().await()
+            if (firebaseQuotaDoc.exists()){
+                val isFirebaseQuotaExceeded = firebaseQuotaDoc.getBoolean("is_firebase_quota_exceeded") ?: false
+                Result.success(isFirebaseQuotaExceeded)
+            } else {
+                Result.failure(Exception("Can\'t fetch firebase quota"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
 }

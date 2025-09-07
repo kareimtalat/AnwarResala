@@ -38,6 +38,8 @@ object DatabaseProvider {
         }
     }
 
+
+
     // BranchDatabase singleton instance
     @Volatile
     private var INSTANCE_BRANCH: BranchDatabase? = null
@@ -48,12 +50,14 @@ object DatabaseProvider {
                 BranchDatabase::class.java,
                 "branch_database"
             )
-//                .fallbackToDestructiveMigration() // Handle migrations by recreating the database if there is a schema change
+                .fallbackToDestructiveMigration() // Handle migrations by recreating the database if there is a schema change
                 .build()
             INSTANCE_BRANCH = instance
             instance
         }
     }
+
+
 
     // VolunteerDatabase singleton instance
     @Volatile

@@ -52,11 +52,15 @@ fun RegistrationScreen(
 
     when {
         viewModel.isLoading -> {
-            CircularProgressIndicator()
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                CircularProgressIndicator()
+            }
         }
 
         !viewModel.isLoading -> {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)  {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -80,7 +84,6 @@ fun RegistrationScreen(
 
                         // Login Prompt
                         ThePrompt(
-                            context = context,
                             onClickFun = {
                                 navController.navigate("login_screen")
                             },
@@ -152,6 +155,7 @@ fun RegistrationScreen(
                             label = stringResource(R.string.password_label),
                             showRequired = true,
                             isError = viewModel.isPasswordError,
+                            labelToStart = "true",
                         )
 
                         //RePasswordField
@@ -162,11 +166,11 @@ fun RegistrationScreen(
                             imeAction = "Go",
                             showRequired = true,
                             isError = viewModel.isRePasswordError,
+                            labelToStart = "true",
                         )
 
                         //Register Button
                         Button(onClick = {
-                            viewModel.isLoading = true
                             if (viewModel.validateRegistrationData()) {
                                 println("Form validation passed.")
                                 viewModel.registerVolunteer(
@@ -185,14 +189,11 @@ fun RegistrationScreen(
                                 Toast.makeText(context, R.string.registration_error, Toast.LENGTH_LONG)
                                     .show()
                             }
-
-                            viewModel.isLoading = false
                         }
 
                         ) { Text(context.getString(R.string.register)) }
                     }
                 }
-            }
 
             // Approval Alert Dialog
             if (showApprovalDialog.value) {

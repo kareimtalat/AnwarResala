@@ -38,6 +38,7 @@ import com.kareimt.anwarresala.data.local.course.CourseEntity
 import com.kareimt.anwarresala.ui.theme.components.AddCourseFloatingButton
 import com.kareimt.anwarresala.ui.theme.screens.Routes
 import com.kareimt.anwarresala.viewmodels.UiState
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 import kotlin.toString
 
 @Composable
@@ -49,6 +50,7 @@ fun CoursesScreen(
     navController: NavController,
     branch: String = "",
     searchQuery: String,
+    volunteerViewModel: VolunteerViewModel,
     onSearchQueryChange: (String) -> Unit,
     ) {
     val uiState by courseViewModel.uiState.collectAsState()
@@ -83,14 +85,14 @@ fun CoursesScreen(
             }
         }
 
-
-
-        AddCourseFloatingButton(
-            modifier = Modifier
-                .padding(16.dp, 16.dp, 16.dp, 50.dp)
-                .align(Alignment.BottomEnd),
-            onClick = onAddCourseClick
-        )
+        if ( volunteerViewModel.isLoggedIn && volunteerViewModel.currentVolunteer?.approved ?: false) {
+            AddCourseFloatingButton(
+                modifier = Modifier
+                    .padding(16.dp, 16.dp, 16.dp, 50.dp)
+                    .align(Alignment.BottomEnd),
+                onClick = onAddCourseClick
+            )
+        }
     }
 }
 

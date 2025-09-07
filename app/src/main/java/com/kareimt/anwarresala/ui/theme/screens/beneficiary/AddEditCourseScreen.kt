@@ -52,6 +52,7 @@ import com.kareimt.anwarresala.ui.theme.components.InputField
 import com.kareimt.anwarresala.ui.theme.components.SelectingTimeDateField
 import com.kareimt.anwarresala.ui.theme.components.ReusableDropdown
 import com.kareimt.anwarresala.viewmodels.CoursesViewModel
+import com.kareimt.anwarresala.viewmodels.VolunteerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -59,6 +60,7 @@ fun AddEditCourseScreen(
     courseId: Int,
     onBackClick: () -> Unit,
     viewModel: CoursesViewModel,
+    volunteerViewModel : VolunteerViewModel
 ) {
     var course: Course? = null
     LaunchedEffect(courseId) {
@@ -131,10 +133,10 @@ fun AddEditCourseScreen(
                 .padding(padding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .padding(
                     top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
-                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()+5.dp
+                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                 ),
 //            verticalArrangement = Arrangement.spacedBy(9.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -144,8 +146,10 @@ fun AddEditCourseScreen(
                 Text(
                     text = "Course ID: ${course.id}",
                 )
+                Spacer(modifier = Modifier.padding(10.dp))
+                Text("Last touch: "/*TODO: add the last touch filed of the course*/)
+                Spacer(modifier = Modifier.padding(10.dp))
             }
-            Spacer(modifier = Modifier.padding(10.dp))
 
             // Error states for validation
             var titleError by remember { mutableStateOf(false) }
@@ -175,6 +179,7 @@ fun AddEditCourseScreen(
                     branch = selectedBranch; branchError = false
                 },
                 branchError = branchError,
+                volunteerViewModel = volunteerViewModel,
             )
 
             // CoursesOfMonth
