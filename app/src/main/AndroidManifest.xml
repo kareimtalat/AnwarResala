@@ -30,7 +30,7 @@
         tools:ignore="MissingClass">
 
         <activity
-            android:name="com.kareimt.anwarresala.ui.theme.screens.MainActivity"
+            android:name="com.kareimt.anwarresala.presentation.screens.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>

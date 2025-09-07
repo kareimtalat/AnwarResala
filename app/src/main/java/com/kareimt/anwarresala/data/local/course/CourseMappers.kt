@@ -1,8 +1,5 @@
 package com.kareimt.anwarresala.data.local.course
 
-import com.kareimt.anwarresala.data.Course
-import com.kareimt.anwarresala.data.CourseType
-
 fun CourseEntity.toCourse(): Course = Course(
     id = id,
     branch = branch,
