@@ -18,6 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -26,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +64,8 @@ fun ApprovalScreen(
     var showActionDialog by remember { mutableStateOf(false) }
     var actionType by remember { mutableStateOf("") } // "approve", "reject", or "delete"
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val rotation = remember { Animatable(0f) }
     var shouldAnimate by remember { mutableStateOf(false) }
     LaunchedEffect(shouldAnimate) {
@@ -76,6 +81,7 @@ fun ApprovalScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
         topBar = {
             TopAppBar(
                 navigationIcon = {

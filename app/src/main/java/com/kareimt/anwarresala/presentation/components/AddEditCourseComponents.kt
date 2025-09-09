@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kareimt.anwarresala.R
@@ -66,6 +67,7 @@ import com.kareimt.anwarresala.data.local.course.Course
 import com.kareimt.anwarresala.utils.ImageUtils
 import com.kareimt.anwarresala.presentation.viewmodels.CoursesViewModel
 import com.kareimt.anwarresala.presentation.viewmodels.VolunteerViewModel
+import java.text.DateFormatSymbols
 import java.time.Month
 import java.util.Calendar
 import java.util.Locale
@@ -88,6 +90,21 @@ fun SelectingTimeDateField(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (nextLecture.isNotEmpty()) {
+                Button(
+                    onClick = onDelete,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    modifier = Modifier.weight(0.3f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Clear Next Lecture"
+                    )
+                }
+            }
+
             InputField(
                 value = nextLecture,
                 onValueChange = onValueChange,
@@ -108,22 +125,6 @@ fun SelectingTimeDateField(
                     color = MaterialTheme.colorScheme.primary
                 ),
             )
-
-            if (nextLecture.isNotEmpty()) {
-                Button(
-                    onClick = onDelete,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    ),
-                    modifier = Modifier.weight(0.3f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Clear Next Lecture"
-                    )
-                }
-            }
-
         }
 
         if (showDatePicker) {
@@ -142,12 +143,12 @@ fun SelectingTimeDateField(
                         showDatePicker = false
                         onValueChange (tempDate)
                     }) {
-                        Text("OK")
+                        Text(stringResource(R.string.ok))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDatePicker = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             ) {
@@ -159,7 +160,7 @@ fun SelectingTimeDateField(
             val timePickerState = rememberTimePickerState()
             AlertDialog(
                 onDismissRequest = { showTimePicker = false },
-                title = { Text("Select Time") },
+                title = { Text(stringResource(R.string.select_time)) },
                 text = {
                     TimePicker(
                         state = timePickerState
@@ -172,7 +173,7 @@ fun SelectingTimeDateField(
                             set(Calendar.MINUTE, timePickerState.minute)
                         }
                         val time = String.format(
-                            Locale.getDefault(),
+                            Locale.US,
                             "%02d:%02d",
                             calendar.get(Calendar.HOUR_OF_DAY),
                             calendar.get(Calendar.MINUTE)
@@ -180,12 +181,12 @@ fun SelectingTimeDateField(
                         onValueChange ("$tempDate $time")
                         showTimePicker = false
                     }) {
-                        Text("OK")
+                        Text(stringResource(R.string.confirm))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showTimePicker = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -257,7 +258,7 @@ fun SelectingImageField(
         Button(
             onClick = { imagePicker.launch("image/*") }
         ) {
-            Text("Select Image")
+            Text(stringResource(R.string.select_image))
         }
 
         // Delete button
@@ -274,7 +275,7 @@ fun SelectingImageField(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete Image")
+                Text(stringResource(R.string.delete_image))
             }
         }
     }
@@ -304,14 +305,16 @@ fun CoursesOfMonthField(
                 horizontalArrangement = Arrangement.Start,
             ) {
                 Text(
-                    text = "* Required Field",
+                    text = stringResource(R.string.required_field),
                     color = Color.Red,
                     modifier = Modifier.padding( start = 40.dp )
                 )
             }
+
             Text(
                 text = buildAnnotatedString {
-                    append("Selected Months: ")
+                    append(stringResource(R.string.course_of_months))
+                    append(" ")
                     selectedMonths.forEachIndexed { index, month ->
                         withStyle(style = SpanStyle(color = Color(0xFFB0E0E6))) { // Light Sky Blue
                             append("${Month.valueOf(month.split(" ")[0].uppercase())} ${month.split(" ")[1]}")
@@ -319,15 +322,19 @@ fun CoursesOfMonthField(
                         if (index != selectedMonths.lastIndex) append(", ")
                     }
                 },
-                modifier = Modifier.padding(bottom = 8.dp),
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+//                    .layoutDirection(LayoutDirection.Rtl)
+                ,
             )
+
             Button(onClick = { showMonthPickerDialog = true }) {
-                Text("Select Months")
+                Text(stringResource(R.string.select_months))
             }
         }
         if (coursesOfMonthError) {
             Text(
-                text = "Please select at least one month.",
+                text = stringResource(R.string.please_select_at_least_one_month),
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier
@@ -340,7 +347,7 @@ fun CoursesOfMonthField(
     if (showMonthPickerDialog) {
         AlertDialog(
             onDismissRequest = { showMonthPickerDialog = false },
-            title = { Text("Select Course Months") },
+            title = { Text(stringResource(R.string.select_course_months)) },
             text = {
                 Column {
                     // Year-Month navigation
@@ -374,6 +381,9 @@ fun CoursesOfMonthField(
                     ) {
                         items(12) { index ->
                             val month = Month.entries[index]
+//                            val arabicMonths = DateFormatSymbols(Locale("ar")).months
+//                            val monthNameArabic = arabicMonths[month.ordinal]
+//                            val monthYear = "$monthNameArabic ${currentDate.get(Calendar.YEAR)}"
                             val monthYear = "${month.name.lowercase().capitalize(Locale.ROOT)} ${currentDate.get(Calendar.YEAR)}"
                             val isSelected = selectedMonths.contains(monthYear)
 
@@ -407,12 +417,12 @@ fun CoursesOfMonthField(
                     showMonthPickerDialog = false
                 }
                 ) {
-                    Text("Confirm")
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showMonthPickerDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

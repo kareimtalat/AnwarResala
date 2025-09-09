@@ -119,7 +119,7 @@ fun AddEditCourseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (courseId == -1) "A   dd Course" else "Edit Course") },
+                title = { Text(if (courseId == -1) stringResource(R.string.add_course) else stringResource(R.string.edit_course)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -135,7 +135,7 @@ fun AddEditCourseScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
                 .padding(
-                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+//                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
                     bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                 ),
 //            verticalArrangement = Arrangement.spacedBy(9.dp),
@@ -147,7 +147,7 @@ fun AddEditCourseScreen(
                     text = "Course ID: ${course.id}",
                 )
                 Spacer(modifier = Modifier.padding(10.dp))
-                Text("Last touch: "/*TODO: add the last touch filed of the course*/)
+                Text("Last touch: ..."/*TODO: add the last touch filed of the course*/)
                 Spacer(modifier = Modifier.padding(10.dp))
             }
 
@@ -165,7 +165,7 @@ fun AddEditCourseScreen(
             InputField(
                 value = title,
                 onValueChange = { title = it; titleError = false },
-                label = "Title",
+                label = stringResource(R.string.the_title),
                 isError = titleError,
                 showRequired = true,
             )
@@ -183,7 +183,7 @@ fun AddEditCourseScreen(
                     volunteerViewModel = volunteerViewModel,
                 )
             } else {
-                branch = volunteerViewModel.currentVolunteer?.branch ?: ""
+                branch = volunteerViewModel.currentVolunteer?.branch /*the rest of line just to make the compiler satisfied*/ ?: ""
             }
 
             // CoursesOfMonth
@@ -198,14 +198,14 @@ fun AddEditCourseScreen(
             SelectingImageField(
                 imagePath = imagePath,
                 onImagePathChange = {imagePath = it },
-                "Course Image"
+                stringResource(R.string.course_image)
             )
 
             // Category
             InputField(
                 value = category,
                 onValueChange = { category = it; categoryError = false },
-                label = "Category",
+                label = stringResource(R.string.category),
                 isError = categoryError,
                 showRequired = true
                 )
@@ -219,7 +219,7 @@ fun AddEditCourseScreen(
             )
             val courseTypes = CourseType.entries.map { courseTypeDisplayMap[it] ?: it.name }
             ReusableDropdown(
-                label = "Course Type",
+                label = stringResource(R.string.course_type),
                 options = courseTypes,
                 value = type?.let { courseTypeDisplayMap[it]/* ?: it.toString()*/ } ?: "",
                 onOptionSelected = { selectedType ->
@@ -235,7 +235,7 @@ fun AddEditCourseScreen(
             InputField(
                 value = instructorName,
                 onValueChange = { instructorName = it; instructorNameError = false },
-                label = "Instructor Name",
+                label = stringResource(R.string.instructor_name),
                 isError = instructorNameError,
                 showRequired = true
             )
@@ -245,7 +245,7 @@ fun AddEditCourseScreen(
             InputField(
                 value = instructorBio,
                 onValueChange = { instructorBio = it; instructorBioError = false },
-                label = "Instructor Biography",
+                label = stringResource(R.string.instructor_bio),
                 isError = instructorBioError,
                 showRequired = true,
                 singleLine = false
@@ -257,7 +257,7 @@ fun AddEditCourseScreen(
             SelectingImageField(
                 imagePath = instructorImg,
                 onImagePathChange = { instructorImg = it },
-                "Instructor Image"
+                stringResource(R.string.instructor_image)
             )
 
             // Course Start Date
@@ -265,7 +265,7 @@ fun AddEditCourseScreen(
                 nextLecture = startDate,
                 onValueChange = { startDate = it },
                 onDelete = { startDate = "" },
-                label = "Course Start Date",
+                label = stringResource(R.string.course_start_date),
                 time = false,
             )
             Spacer(modifier = Modifier.padding(10.dp))
@@ -275,7 +275,7 @@ fun AddEditCourseScreen(
             InputField(
                 value = wGLink,
                 onValueChange = { wGLink = it },
-                label = "Course whatsapp Group Link"
+                label = stringResource(R.string.course_whatsapp_group_link),
             )
             Spacer(modifier = Modifier.padding(10.dp))
 
@@ -283,16 +283,16 @@ fun AddEditCourseScreen(
             InputField(
                 value = courseDetails,
                 onValueChange = { courseDetails = it },
-                label = "Course Details",
+                label = stringResource(R.string.course_details),
                 singleLine = false
             )
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Number of literatures
             InputField(
-                value = (totalLectures).toString(),
+                value = (totalLectures),
                 onValueChange = { totalLectures = it; totalLecturesError= false },  // Now it's String to String
-                label = "Total Lectures",
+                label = stringResource(R.string.total_lectures),
                 isError = totalLecturesError,
                 showRequired = true,
                 keyboardType = "Number"
@@ -303,7 +303,7 @@ fun AddEditCourseScreen(
             InputField(
                 value = (noOfLiteraturesFinished).toString(),
                 onValueChange = { noOfLiteraturesFinished = it },
-                label = "Number of literatures finished",
+                label = stringResource(R.string.lectures_finished),
                 keyboardType = "Number",
             )
             Spacer(modifier = Modifier.padding(10.dp))
@@ -313,7 +313,7 @@ fun AddEditCourseScreen(
                 nextLecture = nextLecture,
                 onValueChange = { nextLecture = it },
                 onDelete = { nextLecture = "" },
-                label = "Next Lecture Appointment",
+                label = stringResource(R.string.next_lecture),
                 time = true,
             )
 
@@ -321,7 +321,7 @@ fun AddEditCourseScreen(
             InputField(
                 value = organizerName,
                 onValueChange = { organizerName = it },  // Now it's String to String
-                label = "Organizer Name",
+                label = stringResource(R.string.organizer_name),
             )
             Spacer(modifier = Modifier.padding(10.dp))
 
@@ -329,7 +329,7 @@ fun AddEditCourseScreen(
             InputField(
                 value = organizerWhats,
                 onValueChange = { organizerWhats = it },
-                label = "Organizer Whatsapp",
+                label = stringResource(R.string.organizer_whatsapp),
                 keyboardType = "Phone",
                 placeholder = "+201012345678"
             )
@@ -345,7 +345,7 @@ fun AddEditCourseScreen(
             ) {
                 // Cancel Button
                 TextButton(onClick = onBackClick) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
 
                 // Save or Add Button
@@ -407,14 +407,10 @@ fun AddEditCourseScreen(
                         onBackClick()
                     },
                 ) {
-                    Text(if (courseId == -1) "Add" else "Save")
+                    Text(if (courseId == -1) stringResource(R.string.add) else stringResource(R.string.save))
                 }
                 // one } for the Row
             }
         }
     }
 }
-
-
-
-

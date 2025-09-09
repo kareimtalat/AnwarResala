@@ -13,6 +13,7 @@ import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class ApprovalViewModel (application: Application, private val localVolunteerDao: VolunteerDao): AndroidViewModel(application) {
     private val db = FirebaseFirestore.getInstance()
@@ -46,16 +47,18 @@ class ApprovalViewModel (application: Application, private val localVolunteerDao
             val currentUser = localVolunteerDao.getVolunteer()
             println("currentUser = ${currentUser.toString()}")
 
-            if (currentUser != null) {
-                currentUserResponsibility.value = currentUser.responsibility
-                println("currentUserResponsibility = ${currentUserResponsibility.value}")
-                currentUserBranch.value = currentUser.branch
-                println("currentUserBranch = ${currentUserBranch.value}")
-                currentUserCommittee.value = currentUser.committee
-                println("currentUserCommittee = ${currentUserCommittee.value}")
-                loadVolunteers()
-            } else {
-                errorMessage.value = "Logged-in user not found in local database"
+            withContext (Dispatchers.Main) {
+                if (currentUser != null) {
+                    currentUserResponsibility.value = currentUser.responsibility
+                    println("currentUserResponsibility = ${currentUserResponsibility.value}")
+                    currentUserBranch.value = currentUser.branch
+                    println("currentUserBranch = ${currentUserBranch.value}")
+                    currentUserCommittee.value = currentUser.committee
+                    println("currentUserCommittee = ${currentUserCommittee.value}")
+                    loadVolunteers()
+                } else {
+                    errorMessage.value = "Logged-in user not found in local database"
+                }
             }
         }
         isLoading.value = false
@@ -64,7 +67,9 @@ class ApprovalViewModel (application: Application, private val localVolunteerDao
     fun loadVolunteers() {
         viewModelScope.launch (Dispatchers.IO) {
             try {
-                errorMessage.value = null
+                withContext (Dispatchers.Main) {
+                    errorMessage.value = null
+                }
 
                 println("Current user responsibility: ${currentUserResponsibility.value}")
                 println("Comparing with activityOfficer: $activityOfficer")
@@ -112,13 +117,17 @@ class ApprovalViewModel (application: Application, private val localVolunteerDao
                     )
                 }
 
-                pendingVolunteers.value = allVolunteers.filter{!it.approved}
-                approvedVolunteers.value = allVolunteers.filter { it.approved }
+                withContext (Dispatchers.Main) {
+                    pendingVolunteers.value = allVolunteers.filter{!it.approved}
+                    approvedVolunteers.value = allVolunteers.filter { it.approved }
+                }
 
                 println("pendingVolunteers = ${pendingVolunteers.value}")
                 println("approvedVolunteers = ${approvedVolunteers.value}")
             } catch (e: Exception) {
-                errorMessage.value = "Failed to load volunteers: ${e.message}"
+                withContext (Dispatchers.Main) {
+                    errorMessage.value = "Failed to load volunteers: ${e.message}"
+                }
             }
         }
     }
@@ -129,7 +138,9 @@ class ApprovalViewModel (application: Application, private val localVolunteerDao
                 db.collection("volunteers").document(volunteerId).update("approved", true).await()
                 loadVolunteers()
             } catch (e: Exception) {
-                errorMessage.value = "Failed to approve volunteer: ${e.message}"
+                withContext (Dispatchers.Main) {
+                    errorMessage.value = "Failed to approve volunteer: ${e.message}"
+                }
             }
         }
     }
@@ -141,7 +152,9 @@ class ApprovalViewModel (application: Application, private val localVolunteerDao
                 db.collection("volunteers").document(volunteerId).delete().await()
                 loadVolunteers()
             } catch (e: Exception) {
-                errorMessage.value = "Failed to reject volunteer: ${e.message}"
+                withContext (Dispatchers.Main) {
+                    errorMessage.value = "Failed to reject volunteer: ${e.message}"
+                }
             }
         }
     }

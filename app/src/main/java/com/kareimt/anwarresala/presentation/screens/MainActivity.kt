@@ -313,7 +313,7 @@ fun MainScreen(context: Context, navController: NavController, volunteerViewMode
                     confirmText = stringResource(R.string.delete),
                     dismissText = stringResource(R.string.cancel),
                     onConfirm = {
-                        volunteerViewModel.deleteAccount()
+                        volunteerViewModel.deleteAccount(context)
                         showDelAccountDialog = false
                                 },
                     onDismiss = { showDelAccountDialog = false }
@@ -442,7 +442,8 @@ fun AnwarResalaNavigation(
                     course = courseEntity.toCourse(),
                     viewModel = coursesViewModel,
                     onNavigateToEdit = { navController.navigate(addEditCourse(courseId)) },
-                    onBack = { navController.navigateUp() }
+                    onBack = { navController.navigateUp() },
+                    volunteerViewModel = volunteerViewModel
                 )
             }
         }

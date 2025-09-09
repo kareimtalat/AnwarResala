@@ -2,7 +2,7 @@ package com.kareimt.anwarresala.presentation.viewmodels
 
 import com.kareimt.anwarresala.data.local.course.CourseEntity
 
-data class UiState(
+data class CoursesUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val searchQuery: String = "",

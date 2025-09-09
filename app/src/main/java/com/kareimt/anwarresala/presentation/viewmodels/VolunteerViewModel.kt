@@ -18,7 +18,10 @@ import com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 import com.kareimt.anwarresala.data.remote.repository.volunteer.VolunteerRepositoryInterface
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class VolunteerViewModel (
     private val repository: VolunteerRepositoryInterface,
@@ -44,7 +47,6 @@ class VolunteerViewModel (
     }
 
     // 2. State Variables: Hold the data for your form fields&dropdown option types.
-    // TODO: use isLoading and onError on the UI
     var isLoading by mutableStateOf(false)
         private set
     var onError by mutableStateOf("")
@@ -79,6 +81,9 @@ class VolunteerViewModel (
 
     var currentVolunteer by mutableStateOf<VolunteerEntity?>( null)
         private set
+
+    private val _eventChannel = Channel<UiEvent>()
+    val eventsFlow = _eventChannel.receiveAsFlow()
 
 
     // 3. Event Handling Functions: Respond to user input (e.g., typing in a text field, selecting from a dropdown).
@@ -127,7 +132,9 @@ class VolunteerViewModel (
 
                 result.fold(
                     onSuccess = { isFirebaseQuotaExceededResult ->
-                        isFirebaseQuotaExceeded = isFirebaseQuotaExceededResult
+                        withContext (Dispatchers.Main) {
+                            isFirebaseQuotaExceeded = isFirebaseQuotaExceededResult
+                        }
                         println("From setIsFirebaseQuotaExceeded fun: $isFirebaseQuotaExceeded")
                     },
                     onFailure = { error ->
@@ -141,17 +148,18 @@ class VolunteerViewModel (
     }
 
     fun getCurrentVolunteer() {
+        isLoading = true
         viewModelScope.launch (Dispatchers.IO) {
             try {
-                isLoading = true
                 currentVolunteer = localVolunteerDao.getVolunteer()
             } catch (e: Exception) {
-                onError =
-                    "Failed to fetch the current volunteer data from the local database: ${e.message}"
-            } finally {
-                isLoading = false
+                withContext (Dispatchers.Main) {
+                    onError =
+                        "Failed to fetch the current volunteer data from the local database: ${e.message}"
+                }
             }
         }
+        isLoading = false
     }
 
     fun emptyOnError(){
@@ -300,15 +308,15 @@ class VolunteerViewModel (
         onError: (String) -> Unit
     ){
         isLoading = true
+        val volunteer = VolunteerEntity(
+            name = name,
+            responsibility = responsibility,
+            branch = branch,
+            committee = committee,
+            email = email
+        )
         viewModelScope.launch (Dispatchers.IO) {
             try {
-            val volunteer = VolunteerEntity(
-                name = name,
-                responsibility = responsibility,
-                branch = branch,
-                committee = committee,
-                email = email
-            )
             println("Registering Volunteer: $volunteer")
 
             val result = repository.registerVolunteer(volunteer, password)
@@ -317,20 +325,29 @@ class VolunteerViewModel (
             result.fold(
                 onSuccess = { registeredVolunteer ->
                     println("Registration Result: $registeredVolunteer")
-                    resetForm()
+                    withContext (Dispatchers.Main) {
+                        resetForm()
+                    }
                     localVolunteerDao.replace(registeredVolunteer)
                     // Prevent auto-login
                     logout()
-                    onSuccess()
+
+                    withContext (Dispatchers.Main) {
+                        onSuccess()
+                    }
                 },
                 onFailure = {error ->
                     println("Registration failed: ${error.message}")
-                    onError(error.message ?: "Registration failed")
+                    withContext (Dispatchers.Main) {
+                        onError(error.message ?: "Registration failed")
+                    }
                 }
             )
             } catch (e: Exception) {
                 println("Unexpected error during registration: ${e.message}")
-                onError("An unexpected error occurred: ${e.message}")
+                withContext (Dispatchers.Main) {
+                    onError("An unexpected error occurred: ${e.message}")
+                }
             }
         }
         isLoading = false
@@ -343,7 +360,9 @@ class VolunteerViewModel (
         isLoading = true
         viewModelScope.launch (Dispatchers.IO) {
             if (email.isBlank() || password.isBlank()) {
-                onError("Email and password cannot be empty")
+                withContext (Dispatchers.Main) {
+                    onError("Email and password cannot be empty")
+                }
                 return@launch
             }
 
@@ -359,23 +378,35 @@ class VolunteerViewModel (
                             onSuccess = { registeredVolunteer ->
                                 // Handle successful login, e.g., navigate to the next screen
                                 localVolunteerDao.replace(registeredVolunteer)
-                                currentVolunteer = registeredVolunteer
-                                println("From login fun: ${currentVolunteer.toString()}")
-                                isLoggedIn = true
-                                onSuccess()
+                                withContext(Dispatchers.Main) {
+                                    currentVolunteer = registeredVolunteer
+                                    println("From login fun: ${currentVolunteer.toString()}")
+                                    isLoggedIn = true
+                                    onSuccess()
+                                }
                             },
                             onFailure = { error ->
                                 // Handle login failure, e.g., show an error message
-                                onError(error.message ?: "Login failed")
+                                withContext (Dispatchers.Main) {
+//                                    _eventChannel.send(UiEvent.ShowSnackbar(error.message ?: "Login failed"))
+                                    onError(error.message ?: "Login failed")
+                                }
                             }
                         )
                     } else {
-                        onError("Your account hadn't approved yet.")
+                        withContext (Dispatchers.Main) {
+//                            _eventChannel.send(UiEvent.ShowSnackbar("Your account hadn't approved yet."))
+                            onError("Your account hadn't approved yet.")
+                        }
                     }
                 } else {
-                    onError("Your account not found. Check e-mail typo or it might had been rejected or deleted.")
+                    withContext (Dispatchers.Main) {
+//                        _eventChannel.send(UiEvent.ShowSnackbar("Your account not found. Check e-mail typo or it might had been rejected or deleted."))
+                        onError("Your account not found. Check e-mail typo or it might had been rejected or deleted.")
+                    }
                 }
             } catch (e: Exception) {
+//                _eventChannel.send(UiEvent.ShowSnackbar("Your account not found. Check e-mail typo or it might had been rejected or deleted."))
                 onError("Exception: ${e.message}")
             }
         }
@@ -392,29 +423,69 @@ class VolunteerViewModel (
                     result.fold(
                         onSuccess = { currentVolunteerData ->
                             localVolunteerDao.replace(currentVolunteerData)
-                            currentVolunteer = currentVolunteerData
-                            println("From storeCurrentVolunteerLocally fun: ${currentVolunteer.toString()}")
+                            withContext(Dispatchers.Main) {
+                                currentVolunteer = currentVolunteerData
+                                println("From storeCurrentVolunteerLocally fun: ${currentVolunteer.toString()}")
+                            }
                         },
                         onFailure = { error ->
-                            onError = "Fetching Current Volunteer Data failed: ${error.message}"
+                            withContext(Dispatchers.Main) {
+                                onError = "Fetching Current Volunteer Data failed: ${error.message}"
+                            }
                         }
                     )
                 } catch (e: Exception) {
-                    onError="Exception: ${e.message}"
+                    withContext(Dispatchers.Main) {
+                        onError="Exception: ${e.message}"
+                    }
                 }
             }
         }
     }
 
     fun logout() {
-        repository.signOutVolunteer()
-        deleteCurrentVolunteerLocally()
-        isLoggedIn = false
+        viewModelScope.launch {
+            repository.signOutVolunteer()
+            deleteCurrentVolunteerLocally()
+            withContext(Dispatchers.Main) {
+                isLoggedIn = false
+            }
+        }
     }
 
-    fun deleteAccount() {
+    fun deleteAccount(context: Context) {
+        isLoading = true
+
+        // Get current user
+        val user = Firebase.auth.currentUser
+        val currentVolunteerId = currentVolunteer?.firebaseId
+
+        if (user != null && currentVolunteerId != null) {
+            // Delete from Firestore
+            repository.deleteVolunteer(currentVolunteerId) { success ->
+                if (success) {
+                    // Delete form Authentication
+                    user.delete().addOnCompleteListener { task ->
+                        isLoading = false
+                        if (task.isSuccessful) {
+                            // Delete locally and logout
+                            deleteCurrentVolunteerLocally()
+                            logout()
+                            onError= context.getString(R.string.account_deleted_successfully)
+                        } else {
+                            onError="${context.getString(R.string.failed_to_delete_account)} ${task.exception?.message}"
+                        }
+                    }
+                } else {
+                    isLoading = false
+                    onError = context.getString(R.string.failed_at_deleting_volunteer_data)
+                }
+            }
+        } else {
+            isLoading = false
+            onError = context.getString(R.string.there_is_no_registered_user_to_delete)
+        }
         deleteCurrentVolunteerLocally()
-        // TODO: Handel it's functionality
     }
 
     fun deleteCurrentVolunteerLocally(){
@@ -423,6 +494,7 @@ class VolunteerViewModel (
         }
     }
 
+    // Existing app when isFirestoreQuotaExceeded = true
     fun requestAppExit() {
         shouldExitApp = true
     }

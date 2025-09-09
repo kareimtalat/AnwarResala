@@ -22,8 +22,8 @@ import kotlinx.coroutines.withContext
 
 class CoursesViewModel(context:Context, private val repository: CourseRepositoryInterface) : ViewModel() {
     // Before connect firebase
-    private val _uiState = MutableStateFlow(UiState())
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(CoursesUiState())
+    val uiState: StateFlow<CoursesUiState> = _uiState.asStateFlow()
 
     // Update message
     fun updateMessage(message: String) {

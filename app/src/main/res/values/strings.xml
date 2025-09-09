@@ -25,6 +25,10 @@
     <string name="firebaseQuotaExceeded">عفواً التطبيق متوقف في الوقت الحالي. برجاء المحاولة لاحقاً</string>
     <string name="required_field">*الحقل مطلوب</string>
     <string name="fill_field_properly">برجاء ملئ الحقل بشكل صحيح</string>
+    <string name="account_deleted_successfully">تم حذف الحساب بنجاح</string>
+    <string name="failed_to_delete_account">فشل حذف الحساب</string>
+    <string name="failed_at_deleting_volunteer_data">فشل حذف بيانات المتطوع</string>
+    <string name="there_is_no_registered_user_to_delete">لا يوجد مستخدم مسجل لحذفه</string>
 
     // Registration strings
     <string name="volunteer_register">تسجيل المتطوع</string>
@@ -124,6 +128,30 @@
     <string name="remove_branch">حذف الفرع</string>
     <string name="remove_branch_confirmation">هل أنت متأكد من رغبتك بحذف فرع %s؟</string>
 
-
+    // Add edit course screen
+    <string name="edit_course">تعديل الكورس</string>
+    <string name="add_course">إضافة كورس</string>
+    <string name="course_of_months">الشهور المحددة: </string>
+    <string name="select_months">تحديد الشهور</string>
+    <string name="please_select_at_least_one_month">برجاء تحديد شهر واحد على الأقل</string>
+    <string name="select_course_months">تحديد شهور الكورس</string>
+    <string name="course_image">صورة الكورس</string>
+    <string name="select_image">تحديد صورة</string>
+    <string name="delete_image">حذف الصورة</string>
+    <string name="category">التصنيف</string>
+    <string name="course_type">نوع الكورس</string>
+    <string name="instructor_name">إسم المحاضر</string>
+    <string name="instructor_bio">نبذة عن المحاضر</string>
+    <string name="instructor_image">صورة المحاضر</string>
+    <string name="course_start_date">موعد بداية الكورس</string>
+    <string name="course_whatsapp_group_link">رابط جروب الكورس على الواتساب</string>
+    <string name="course_details">تفاصيل الكورس</string>
+    <string name="total_lectures">عدد محاضرات الكورس</string>
+    <string name="lectures_finished">عدد المحاضرات المنتهية</string>
+    <string name="next_lecture">موعد المحاضرة القادمة</string>
+    <string name="organizer_name">إسم المحاضر</string>
+    <string name="organizer_whatsapp">رقم واتساب المنظم</string>
+    <string name="save">حفظ</string>
+    <string name="select_time">حدد الوقت</string>
 
 </resources>

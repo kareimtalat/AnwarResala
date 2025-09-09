@@ -242,9 +242,9 @@ fun InputField(
             Text(
                 text = label,
                 textAlign = textAlign,
-                modifier = Modifier
+//                modifier = Modifier
 //                    .fillMaxWidth()
-                    .padding(start = 16.dp),
+//                    .padding(start = 16.dp),
             )
         },
         modifier = modifier.widthIn(max = 300.dp),

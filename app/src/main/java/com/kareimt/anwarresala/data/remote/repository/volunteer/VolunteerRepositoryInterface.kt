@@ -12,4 +12,5 @@ interface VolunteerRepositoryInterface {
 
 //    suspend fun fetchCurrentVolunteerData(): Result<VolunteerEntity>
 
+    fun deleteVolunteer(volunteerId: String, onResult: (Boolean) -> Unit)
 }

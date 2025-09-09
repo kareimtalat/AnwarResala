@@ -38,7 +38,7 @@ import com.kareimt.anwarresala.presentation.components.CourseCard
 import com.kareimt.anwarresala.presentation.components.SearchRow
 import com.kareimt.anwarresala.presentation.screens.Routes
 import com.kareimt.anwarresala.presentation.viewmodels.CoursesViewModel
-import com.kareimt.anwarresala.presentation.viewmodels.UiState
+import com.kareimt.anwarresala.presentation.viewmodels.CoursesUiState
 import com.kareimt.anwarresala.presentation.viewmodels.VolunteerViewModel
 
 @Composable
@@ -89,13 +89,13 @@ fun CoursesScreen(
                     onSearchQueryChange = { onSearchQueryChange(it) },
                     screenType,
                     navController = navController,
-                    branch = branch
+                    branch = branch,
+                    volunteerViewModel = volunteerViewModel
                 )
-
             }
         }
 
-        if ( volunteerViewModel.isLoggedIn && volunteerViewModel.currentVolunteer?.approved ?: false) {
+        if ( volunteerViewModel.isLoggedIn && volunteerViewModel.currentVolunteer?.approved ?: false ) {
             AddCourseFloatingButton(
                 modifier = Modifier
                     .padding(16.dp, 16.dp, 16.dp, 50.dp)
@@ -118,7 +118,8 @@ fun CoursesScreen2(
     onSearchQueryChange: (String) -> Unit,
     screenType: ScreenType,
     navController: NavController,
-    branch: String
+    branch: String,
+    volunteerViewModel: VolunteerViewModel
 ){
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)  {
         Column(
@@ -171,7 +172,8 @@ fun CoursesScreen2(
                 searchQuery = searchQuery,
                 navController = navController,
                 screenType = screenType,
-                branch = branch
+                branch = branch,
+                volunteerViewModel = volunteerViewModel
             )
         }
     }
@@ -184,11 +186,12 @@ fun CoursesScreen3(
     searchQuery: String,
     navController: NavController,
     screenType: ScreenType,
-    branch: String
+    branch: String,
+    volunteerViewModel: VolunteerViewModel
 ) {
     // Which courses will appear
     val courses: List<CourseEntity> = (if (searchQuery!="") {
-        val uiState by courseViewModel.uiState.collectAsState(initial = UiState())
+        val uiState by courseViewModel.uiState.collectAsState(initial = CoursesUiState())
         uiState.courses
     }else{
         val coursesInGeneral by courseViewModel.courses.collectAsState()
@@ -235,6 +238,7 @@ fun CoursesScreen3(
                     },
                     viewModel = courseViewModel,
                     onEditClick = { navController.navigate(Routes.addEditCourse(course.id)) },
+                    volunteerViewModel = volunteerViewModel
                 )
             }
         }

@@ -4,9 +4,11 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -62,9 +64,9 @@ fun RegistrationScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(
-                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
-                            bottom = WindowInsets.navigationBars.asPaddingValues()
-                                .calculateBottomPadding() + 5.dp
+//                            top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+//                            bottom = WindowInsets.navigationBars.asPaddingValues()
+//                                .calculateBottomPadding() + 5.dp
                         )
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -72,8 +74,15 @@ fun RegistrationScreen(
                 ) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(
+                                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+                                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                            ),
                     ) {
+                        Spacer(modifier = Modifier.height(15.dp))
                         //Activity label
                         Text(
                             text = stringResource(R.string.volunteer_register),
@@ -165,6 +174,7 @@ fun RegistrationScreen(
                             isError = viewModel.isRePasswordError,
                             labelToStart = "true",
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         //Register Button
                         Button(onClick = {
@@ -189,6 +199,7 @@ fun RegistrationScreen(
                         }
 
                         ) { Text(context.getString(R.string.register)) }
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
 

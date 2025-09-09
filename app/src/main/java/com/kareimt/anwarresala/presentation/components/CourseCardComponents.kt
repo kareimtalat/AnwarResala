@@ -45,14 +45,16 @@ import com.kareimt.anwarresala.data.local.course.CourseType
 import com.kareimt.anwarresala.data.local.course.toEntity
 import com.kareimt.anwarresala.utils.ImageUtils.getImageUri
 import com.kareimt.anwarresala.presentation.viewmodels.CoursesViewModel
+import com.kareimt.anwarresala.presentation.viewmodels.VolunteerViewModel
 
-// ****** The card of the course
+// ******* The card of the course
 @Composable
 fun CourseCard(
     course: Course,
     onItemClick: (Course) -> Unit,
     onEditClick: () -> Unit,
-    viewModel: CoursesViewModel
+    viewModel: CoursesViewModel,
+    volunteerViewModel: VolunteerViewModel
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -120,9 +122,9 @@ fun CourseCard(
             }
 
 
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 // Course type
                 val typeText = when (course.type) {
                     CourseType.ONLINE -> stringResource(R.string.online)
@@ -138,7 +140,7 @@ fun CourseCard(
 
                 // The branch
                 Text(
-                    text ="الفرع: ${course.branch}",
+                    text = "الفرع: ${course.branch}",
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(end = 4.dp),
@@ -154,33 +156,40 @@ fun CourseCard(
             Spacer(Modifier.height(4.dp))
 
             // إظهار العناصر الاختيارية فقط إذا كانت موجودة
-            if (course.progress <1f) {
-                if (course.nextLecture !="") {
-                    DetailRowForNextLit(icon = Icons.Default.Schedule, text = "المحاضرة القادمة: ${course.nextLecture}")
+            if (course.progress < 1f) {
+                if (course.nextLecture != "") {
+                    DetailRowForNextLit(
+                        icon = Icons.Default.Schedule,
+                        text = "المحاضرة القادمة: ${course.nextLecture}"
+                    )
                 }
             }
 
             // Action buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(37.dp, Alignment.CenterHorizontally),
-            ) {
-                // Edit Button
-                IconButton(onClick = { onEditClick() }) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                // Delete Button
-                IconButton(onClick = {showDeleteDialog=true}) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.error
-                    )
+            if ( volunteerViewModel.isLoggedIn &&
+                volunteerViewModel.currentVolunteer?.approved ?: false &&
+                (course.branch == volunteerViewModel.currentVolunteer?.branch || volunteerViewModel.currentVolunteer?.responsibility == stringResource(R.string.activity_officer) ) ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(37.dp, Alignment.CenterHorizontally),
+                ) {
+                    // Edit Button
+                    IconButton(onClick = { onEditClick() }) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    // Delete Button
+                    IconButton(onClick = { showDeleteDialog = true }) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }

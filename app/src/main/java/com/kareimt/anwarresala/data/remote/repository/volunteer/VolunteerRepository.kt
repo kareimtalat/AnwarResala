@@ -145,4 +145,11 @@ class VolunteerRepository : VolunteerRepositoryInterface {
             Result.failure(e)
         }
 
+    override fun deleteVolunteer(volunteerId: String, onResult: (Boolean)-> Unit) {
+        db.collection("volunteers").document(volunteerId)
+            .delete()
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
 }
