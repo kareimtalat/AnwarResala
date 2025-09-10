@@ -59,7 +59,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kareimt.anwarresala.R
@@ -67,7 +66,6 @@ import com.kareimt.anwarresala.data.local.course.Course
 import com.kareimt.anwarresala.utils.ImageUtils
 import com.kareimt.anwarresala.presentation.viewmodels.CoursesViewModel
 import com.kareimt.anwarresala.presentation.viewmodels.VolunteerViewModel
-import java.text.DateFormatSymbols
 import java.time.Month
 import java.util.Calendar
 import java.util.Locale
@@ -75,11 +73,11 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectingTimeDateField(
-    nextLecture: String,
+    nextLecture: String?,
     onValueChange: (String) -> Unit,
     onDelete: () -> Unit,
     label: String,
-    time : Boolean
+    time: Boolean
 ){
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
@@ -90,7 +88,7 @@ fun SelectingTimeDateField(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (nextLecture.isNotEmpty()) {
+            if (nextLecture?.isNotEmpty() ?: false) {
                 Button(
                     onClick = onDelete,
                     colors = ButtonDefaults.buttonColors(
@@ -198,14 +196,14 @@ fun SelectingTimeDateField(
 // Course Image Field
 @Composable
 fun SelectingImageField(
-    imagePath: String,
+    imagePath: String?,
     onImagePathChange: (String) -> Unit,
     fieldName: String
 ) {
     val context = LocalContext.current
     var imageUri by remember {
         mutableStateOf<Uri?>(
-            if (imagePath.isNotEmpty()) {
+            if (imagePath?.isNotEmpty() ?: false) {
                 ImageUtils.getImageUri(context, imagePath)
             } else null
         )
@@ -243,7 +241,7 @@ fun SelectingImageField(
         Spacer(modifier = Modifier.height(4.dp))
 
         // Image preview
-        if (imageUri != null || imagePath.isNotEmpty()) {
+        if (imageUri != null || imagePath?.isNotEmpty() ?: false) {
             AsyncImage(
                 model = imageUri ?: ImageUtils.getImageUri(LocalContext.current, imagePath),
                 contentDescription = "Selected image",
@@ -262,7 +260,7 @@ fun SelectingImageField(
         }
 
         // Delete button
-        if (imageUri != null || imagePath.isNotEmpty()) {
+        if (imageUri != null || imagePath?.isNotEmpty() ?: false) {
             Button(
                 onClick = {
                     if (imagePath != "@drawable/anwar_resala_logo") {

@@ -16,7 +16,7 @@ object Routes{
     const val APPROVAL = "approval_screen"
 
     // Helper functions for routes with parameters
-    fun courseDetails(courseId: Int) = "course_details/$courseId"
-    fun addEditCourse(courseId: Int) = "add_edit_course/$courseId"
+    fun courseDetails(courseId: String) = "course_details/$courseId"
+    fun addEditCourse(courseId: String) = "add_edit_course/$courseId"
     fun coursesScreen(screenType: ScreenType, branch: String="") = "courses_screen/${screenType.name}/$branch"
 }

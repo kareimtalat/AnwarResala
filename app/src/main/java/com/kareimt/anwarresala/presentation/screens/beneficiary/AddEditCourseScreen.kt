@@ -1,8 +1,11 @@
 package com.kareimt.anwarresala.presentation.screens.beneficiary
 
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,12 +15,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -57,20 +62,23 @@ import com.kareimt.anwarresala.presentation.viewmodels.VolunteerViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun AddEditCourseScreen(
-    courseId: Int,
+    courseId: String,
     onBackClick: () -> Unit,
     viewModel: CoursesViewModel,
-    volunteerViewModel : VolunteerViewModel
+    volunteerViewModel : VolunteerViewModel,
+    context: Context,
 ) {
-    var course: Course? = null
+    var course: Course?
     LaunchedEffect(courseId) {
-        if (courseId != -1) {
+        if (courseId != "-1") {
             viewModel.getCourseById(courseId)
         }
     }
     val selectedCourse by viewModel.selectedCourse.collectAsState()
     course = selectedCourse?.toCourse()
-    if (courseId == -1) { course = null }
+    if (courseId == "-1") {
+        course = null
+    }
 
     var category by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -78,20 +86,20 @@ fun AddEditCourseScreen(
     var coursesOfMonth by remember { mutableStateOf(emptyList<String>()) }
     var type by remember { mutableStateOf<CourseType?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var imagePath by remember { mutableStateOf("") }
+    var imagePath: String? by remember { mutableStateOf("") }
     var instructorName by remember { mutableStateOf("") }
     var instructorBio by remember { mutableStateOf("") }
-    var instructorImg by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
-    var wGLink by remember { mutableStateOf("") }
-    var courseDetails by remember { mutableStateOf("") }
+    var instructorImg: String? by remember { mutableStateOf("") }
+    var startDate: String? by remember { mutableStateOf("") }
+    var wGLink: String? by remember { mutableStateOf("") }
+    var courseDetails: String? by remember { mutableStateOf("") }
     var totalLectures by remember { mutableStateOf("") }
     var noOfLiteraturesFinished by remember { mutableStateOf("") }
-    var nextLecture by remember { mutableStateOf("") }
-    var organizerName by remember { mutableStateOf("") }
-    var organizerWhats by remember { mutableStateOf("") }
+    var nextLecture: String? by remember { mutableStateOf("") }
+    var organizerName: String? by remember { mutableStateOf("") }
+    var organizerWhats: String? by remember { mutableStateOf("") }
 
-    if (courseId!=-1) {
+    if (courseId != "-1") {
         LaunchedEffect(selectedCourse) {
             selectedCourse?.let { courseEntity ->
                 val course = courseEntity.toCourse()
@@ -110,16 +118,33 @@ fun AddEditCourseScreen(
                 totalLectures = course.totalLectures.toString()
                 noOfLiteraturesFinished = course.noOfLiteraturesFinished.toString()
                 nextLecture = course.nextLecture
-                organizerName = course.organizer.name
-                organizerWhats = course.organizer.whatsapp
+                organizerName = course.organizer?.name
+                organizerWhats = course.organizer?.whatsapp
             }
+        }
+    }
+
+    val isLoading = viewModel.uiState.collectAsState().value.isLoading
+    val error = viewModel.uiState.collectAsState().value.error
+
+    // Show error message if any
+    LaunchedEffect(error) {
+        error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.emptyOnError()
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (courseId == -1) stringResource(R.string.add_course) else stringResource(R.string.edit_course)) },
+                title = {
+                    Text(
+                        if (courseId == "-1") stringResource(R.string.add_course) else stringResource(
+                            R.string.edit_course
+                        )
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -127,18 +152,34 @@ fun AddEditCourseScreen(
                 }
             )
         }
-    ) { padding ->
-        Column(
+    )
+    { padding ->
+        Box(modifier = Modifier.fillMaxSize()){
+            if (volunteerViewModel.isLoading) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .wrapContentSize()
+                        .padding(40.dp)
+                        .wrapContentSize()
+                        .background(Color(0x99DED7D7)),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            Column(
             modifier = Modifier
+                .align(Alignment.Center)
                 .padding(padding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
                 .padding(
-//                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
                     bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
                 ),
-//            verticalArrangement = Arrangement.spacedBy(9.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // ID
@@ -147,7 +188,9 @@ fun AddEditCourseScreen(
                     text = "Course ID: ${course.id}",
                 )
                 Spacer(modifier = Modifier.padding(10.dp))
-                Text("Last touch: ..."/*TODO: add the last touch filed of the course*/)
+                if (courseId != "-1") {
+                    Text(stringResource(R.string.last_Touch, course.lastTouch))
+                }
                 Spacer(modifier = Modifier.padding(10.dp))
             }
 
@@ -172,7 +215,7 @@ fun AddEditCourseScreen(
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Branch
-            if (volunteerViewModel.currentVolunteer?.responsibility == stringResource(R.string.activity_officer))  {
+            if (volunteerViewModel.currentVolunteer?.responsibility == stringResource(R.string.activity_officer)) {
                 BranchField(
                     viewModel = viewModel,
                     branch = branch,
@@ -183,7 +226,9 @@ fun AddEditCourseScreen(
                     volunteerViewModel = volunteerViewModel,
                 )
             } else {
-                branch = volunteerViewModel.currentVolunteer?.branch /*the rest of line just to make the compiler satisfied*/ ?: ""
+                branch =
+                    volunteerViewModel.currentVolunteer?.branch /*the rest of line just to make the compiler satisfied*/
+                        ?: ""
             }
 
             // CoursesOfMonth
@@ -197,7 +242,7 @@ fun AddEditCourseScreen(
             // Course Image
             SelectingImageField(
                 imagePath = imagePath,
-                onImagePathChange = {imagePath = it },
+                onImagePathChange = { imagePath = it },
                 stringResource(R.string.course_image)
             )
 
@@ -208,7 +253,7 @@ fun AddEditCourseScreen(
                 label = stringResource(R.string.category),
                 isError = categoryError,
                 showRequired = true
-                )
+            )
             Spacer(modifier = Modifier.padding(10.dp))
 
             // Course Type
@@ -291,7 +336,9 @@ fun AddEditCourseScreen(
             // Number of literatures
             InputField(
                 value = (totalLectures),
-                onValueChange = { totalLectures = it; totalLecturesError= false },  // Now it's String to String
+                onValueChange = {
+                    totalLectures = it; totalLecturesError = false
+                },  // Now it's String to String
                 label = stringResource(R.string.total_lectures),
                 isError = totalLecturesError,
                 showRequired = true,
@@ -360,21 +407,27 @@ fun AddEditCourseScreen(
                         typeError = type.toString().isBlank()
                         instructorNameError = instructorName.isBlank()
                         instructorBioError = instructorBio.isBlank()
-                        totalLecturesError = totalLectures.isBlank() || totalLectures.toIntOrNull() == null
+                        totalLecturesError =
+                            totalLectures.isBlank() || totalLectures.toIntOrNull() == null
                         if (titleError || branchError || categoryError || typeError ||
-                            instructorNameError || instructorBioError || totalLecturesError || coursesOfMonthError) {
+                            instructorNameError || instructorBioError || totalLecturesError || coursesOfMonthError
+                        ) {
                             // Show error messages
-                            Toast.makeText(context,"Please fill all required fields correctly.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Please fill all required fields correctly.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             return@Button
                         }
                         val newCourse = Course(
-                            id = course?.id ?: 0,
+                            id = course?.id ?: "pending",
                             branch = branch,
-                            coursesOfMonth = coursesOfMonth.map { it.toString() },
+                            coursesOfMonth = coursesOfMonth.map { it },
                             imagePath = when {
                                 selectedImageUri != null -> selectedImageUri.toString()
-                                imagePath.isNotEmpty() -> imagePath // Keep existing image path
-                                else -> "drawable/anwar_resala_logo"
+                                imagePath?.isNotEmpty() ?: false -> imagePath // Keep existing image path
+                                else -> null
                             },
                             category = category,
                             title = title,
@@ -384,8 +437,8 @@ fun AddEditCourseScreen(
                                 bio = instructorBio,
                                 imagePath = when {
                                     selectedImageUri != null -> selectedImageUri.toString()
-                                    instructorImg.isNotEmpty() -> instructorImg // Keep existing instructor image
-                                    else -> "drawable/anwar_resala_logo"
+                                    instructorImg?.isNotEmpty() ?: false -> instructorImg // Keep existing instructor image
+                                    else -> null
                                 },
                             ),
                             startDate = startDate,
@@ -398,6 +451,8 @@ fun AddEditCourseScreen(
                                 name = organizerName,
                                 whatsapp = organizerWhats
                             ),
+                            lastTouch = "${context.getString(R.string.name)}: ${volunteerViewModel.currentVolunteer?.name}, ${context.getString(R.string.responsibility)}: ${volunteerViewModel.currentVolunteer?.responsibility}, " +
+                                    "${context.getString(R.string.branch)}: ${volunteerViewModel.currentVolunteer?.branch}, ${context.getString(R.string.committee)}: ${volunteerViewModel.currentVolunteer?.committee}",
                         )
                         if (course == null) {
                             viewModel.addCourse(newCourse.toEntity())
@@ -407,10 +462,11 @@ fun AddEditCourseScreen(
                         onBackClick()
                     },
                 ) {
-                    Text(if (courseId == -1) stringResource(R.string.add) else stringResource(R.string.save))
+                    Text(if (courseId == "-1") stringResource(R.string.add) else stringResource(R.string.save))
                 }
                 // one } for the Row
             }
         }
     }
+}
 }

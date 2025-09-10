@@ -195,7 +195,7 @@ fun CourseCard(
         }
     }
 
-    // fun for show the Delete Confirmation Dialog
+    // Showing the Delete Confirmation Dialog
     if (showDeleteDialog) {
         ConfirmationDialog(
             title = stringResource(R.string.delete_course),
@@ -205,16 +205,19 @@ fun CourseCard(
                 // Only delete course image if it's not the default logo
                 if (course.imagePath != "@drawable/anwar_resala_logo") {
                     context.deleteFile(course.imagePath)
+                    // TODO: Do like this but for firebase
                 }
 
                 // Only delete instructor image if it is not the default logo
                 if (course.instructor.imagePath != "@drawable/anwar_resala_logo") {
                     context.deleteFile(course.instructor.imagePath)
+                    // TODO: Do like this but for firebase
                 }
 
                 // Delete course data from database
                 viewModel.deleteCourse(course.toEntity())
-                showDeleteDialog = false            }
+                showDeleteDialog = false
+            }
         )
     }
 }

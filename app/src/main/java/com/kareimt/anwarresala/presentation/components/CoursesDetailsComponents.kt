@@ -117,12 +117,12 @@ fun DetailsSection(course: Course) {
         }
         DetailRow(text = "نوع الكورس", text2 = type)
         // Some long description
-        if (course.courseDetails.isNotEmpty()) { DetailRow(text = "وصف الكورس", text2 = course.courseDetails) }
+        if (course.courseDetails?.isNotEmpty() ?: false) { DetailRow(text = "وصف الكورس", text2 = course.courseDetails) }
         DetailRow(text = "الفرع", text2 =course.branch)
-        if (course.startDate.isNotEmpty()) { DetailRow(text = "تاريخ البداية", text2 = course.startDate) }
+        if (course.startDate?.isNotEmpty() ?: false) { DetailRow(text = "تاريخ البداية", text2 = course.startDate) }
         DetailRow(text = "عدد محاضرات الكورس", text2 = course.totalLectures.toString())
         DetailRow(text = "عدد المحاضرات المنتهية", text2 = course.noOfLiteraturesFinished.toString())
-        if (course.wGLink.isNotEmpty()) { WGSection(course.wGLink) }
+        if (course.wGLink?.isNotEmpty() ?: false) { WGSection(course.wGLink) }
     }
 }
 
@@ -197,7 +197,7 @@ fun OrganizerSection(organizer: Course.Organizer) {
         )
 
         val icon= Icons.Default.Person
-        val text= organizer.name
+        val text= organizer.name ?: ""
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -226,7 +226,7 @@ fun OrganizerSection(organizer: Course.Organizer) {
         val context= LocalContext.current
 
         // Organizer whats No.
-        if (organizer.whatsapp!="") {
+        if (organizer.whatsapp?.isNotEmpty() ?: false) {
             Row(
                 modifier = Modifier
                     //.padding(top = 3.dp)

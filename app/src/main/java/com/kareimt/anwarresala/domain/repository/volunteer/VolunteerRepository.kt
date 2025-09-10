@@ -1,11 +1,11 @@
-package com.kareimt.anwarresala.data.remote.repository.volunteer
+package com.kareimt.anwarresala.domain.repository.volunteer
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
+import com.kareimt.anwarresala.domain.repository.volunteer.VolunteerRepositoryInterface
 import kotlinx.coroutines.tasks.await
-import kotlin.Result
 
 class VolunteerRepository : VolunteerRepositoryInterface {
     private val auth = Firebase.auth

@@ -1,16 +1,19 @@
 package com.kareimt.anwarresala.presentation.screens.volunteer
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,10 +76,11 @@ fun LoginScreen(
             }
         }
         if (viewModel.onError.isNotEmpty()) {
-            Text(
-                text = viewModel.onError,
-                color = Color.Red,
-            )
+            Toast.makeText(context, viewModel.onError, Toast.LENGTH_LONG).show()
+//            Text(
+//                text = viewModel.onError,
+//                color = Color.Red,
+//            )
             LaunchedEffect(viewModel.onError) {
                 delay(6000)
                 viewModel.emptyOnError()
@@ -85,6 +89,9 @@ fun LoginScreen(
         viewModel.getCurrentVolunteer()
         val currentVolunteer = viewModel.currentVolunteer
 
+        Box (
+            modifier = Modifier.fillMaxWidth()
+        ) {
         Column(
             modifier = Modifier.fillMaxSize()
                 .padding(
@@ -98,7 +105,8 @@ fun LoginScreen(
             Column(/*The second column is for Spaced by*/
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            )
+            {
                 //Screen label
                 Text(
                     text = stringResource(R.string.login),
@@ -177,6 +185,23 @@ fun LoginScreen(
                     clickableText = context.getString(R.string.register)
                 )
             }
+
+        }
+
+        if (viewModel.isLoading) {
+            Column (
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .wrapContentSize()
+                    .padding(20.dp)
+//                        .fillMaxSize()
+                    .background(Color(0x99DED7D7)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator()
+            }
+        }
 
         }
     }

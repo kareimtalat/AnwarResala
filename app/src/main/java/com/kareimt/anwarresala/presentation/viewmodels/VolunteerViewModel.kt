@@ -16,7 +16,8 @@ import com.google.firebase.auth.auth
 import com.kareimt.anwarresala.R
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerDao
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
-import com.kareimt.anwarresala.data.remote.repository.volunteer.VolunteerRepositoryInterface
+import com.kareimt.anwarresala.domain.repository.volunteer.VolunteerRepositoryInterface
+import com.kareimt.anwarresala.utils.NetworkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -454,38 +455,57 @@ class VolunteerViewModel (
     }
 
     fun deleteAccount(context: Context) {
+        if (!NetworkUtils.isNetworkAvailable(context)) {
+            onError = context.getString(R.string.should_connect_internet_to_delete_account)
+            return
+        }
         isLoading = true
 
         // Get current user
         val user = Firebase.auth.currentUser
         val currentVolunteerId = currentVolunteer?.firebaseId
 
-        if (user != null && currentVolunteerId != null) {
+        if (user != null /*&& currentVolunteerId != null*/) {
+            println("About to delete the data form the volunteers collection")
             // Delete from Firestore
-            repository.deleteVolunteer(currentVolunteerId) { success ->
-                if (success) {
+//            repository.deleteVolunteer(currentVolunteerId) { success ->
+//                if (success) {
+                    println("Succuss on deleting the data form the volunteers collection")
+                    println("And about to delete it from Auth")
                     // Delete form Authentication
                     user.delete().addOnCompleteListener { task ->
                         isLoading = false
                         if (task.isSuccessful) {
+                            println("Success on delete it from Auth. And about to delete it locally and sign out")
                             // Delete locally and logout
                             deleteCurrentVolunteerLocally()
                             logout()
-                            onError= context.getString(R.string.account_deleted_successfully)
+                            viewModelScope.launch {
+                                _eventChannel.send(UiEvent.ShowSnackbar(context.getString(R.string.account_deleted_successfully)))
+                            }
+//                            onError= context.getString(R.string.account_deleted_successfully)
                         } else {
-                            onError="${context.getString(R.string.failed_to_delete_account)} ${task.exception?.message}"
+                            viewModelScope.launch {
+                                _eventChannel.send(UiEvent.ShowSnackbar("${context.getString(R.string.failed_to_delete_account)} ${task.exception?.message}"))
+                            }
+//                            onError="${context.getString(R.string.failed_to_delete_account)} ${task.exception?.message}"
+                            println("${context.getString(R.string.failed_to_delete_account)} ${task.exception?.message}")
                         }
                     }
-                } else {
-                    isLoading = false
-                    onError = context.getString(R.string.failed_at_deleting_volunteer_data)
-                }
-            }
+//                } else {
+//                    isLoading = false
+//            viewModelScope.launch {
+//                _eventChannel.send(UiEvent.ShowSnackbar(context.getString(R.string.failed_at_deleting_volunteer_data)))
+//            }
+//                    onError = context.getString(R.string.failed_at_deleting_volunteer_data)
+//                    println( context.getString(R.string.failed_at_deleting_volunteer_data))
+//                }
+//            }
         } else {
             isLoading = false
             onError = context.getString(R.string.there_is_no_registered_user_to_delete)
+            println( context.getString(R.string.there_is_no_registered_user_to_delete))
         }
-        deleteCurrentVolunteerLocally()
     }
 
     fun deleteCurrentVolunteerLocally(){

@@ -7,33 +7,34 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Course(
-    val id: Int,
+    val id: String,
     val branch: String,
     val coursesOfMonth: List<String>,
-    val imagePath: String,
+    val imagePath: String? /*= "drawable/anwar_resala_logo"*/,
     val category: String,
     val title: String,
     val type: CourseType, // enum سيتم تعريفه
     val instructor: Instructor,
-    val startDate: String,
-    val wGLink: String, // Optional
-    val courseDetails: String, // Optional
+    val startDate: String?,
+    val wGLink: String?, // Optional
+    val courseDetails: String?, // Optional
     val totalLectures: Int,
     val noOfLiteraturesFinished: Int,
-    val nextLecture: String, // Optional
-    val organizer: Organizer, // Optional
-    val progress: Float=(noOfLiteraturesFinished.toFloat()/totalLectures), // نسبة التقدم في الكورس
+    val nextLecture: String?, // Optional
+    val organizer: Organizer?, // Optional
+    val lastTouch: String,
+    val progress: Float = (noOfLiteraturesFinished.toFloat()/totalLectures), // نسبة التقدم في الكورس
 ): Parcelable  {
     @Parcelize
     data class Instructor(
         val name: String,
         val bio: String,
-        val imagePath: String,
+        val imagePath: String? /*= "drawable/anwar_resala_logo"*/,
     ): Parcelable
     @Parcelize
     data class Organizer(
-        val name: String,
-        val whatsapp: String
+        val name: String?,
+        val whatsapp: String?,
     ) : Parcelable
 }
 

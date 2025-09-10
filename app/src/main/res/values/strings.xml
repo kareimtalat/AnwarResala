@@ -29,6 +29,8 @@
     <string name="failed_to_delete_account">فشل حذف الحساب</string>
     <string name="failed_at_deleting_volunteer_data">فشل حذف بيانات المتطوع</string>
     <string name="there_is_no_registered_user_to_delete">لا يوجد مستخدم مسجل لحذفه</string>
+    <string name="trying_to_connect_internet">جاري محاولة الإتصال بالإنترنت…</string>
+    <string name="should_connect_internet_to_delete_account">يجب الإتصال بالإنترنت لحذف الحساب</string>
 
     // Registration strings
     <string name="volunteer_register">تسجيل المتطوع</string>
@@ -149,9 +151,11 @@
     <string name="total_lectures">عدد محاضرات الكورس</string>
     <string name="lectures_finished">عدد المحاضرات المنتهية</string>
     <string name="next_lecture">موعد المحاضرة القادمة</string>
-    <string name="organizer_name">إسم المحاضر</string>
+    <string name="organizer_name">إسم المنظم</string>
     <string name="organizer_whatsapp">رقم واتساب المنظم</string>
     <string name="save">حفظ</string>
     <string name="select_time">حدد الوقت</string>
+    <string name="last_Touch">أخر تعديل بواسطة: %s</string>
+    <string name="name">الاسم</string>
 
 </resources>

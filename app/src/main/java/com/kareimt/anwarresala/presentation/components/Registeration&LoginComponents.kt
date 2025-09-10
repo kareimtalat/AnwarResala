@@ -170,7 +170,7 @@ fun ThePrompt(onClickFun: () -> Unit, preText:String, clickableText: String) {
 @Composable
 fun InputField(
     modifier: Modifier = Modifier,
-    value: String,
+    value: String?,
     onValueChange: (String) -> Unit,
     label: String,
     rtl: Boolean = true,
@@ -179,7 +179,7 @@ fun InputField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isError: Boolean = false,
     showRequired: Boolean = false,
-    singleLine : Boolean = true,
+    singleLine: Boolean = true,
     textRPadding: Int = 40,
     enabled: Boolean = true,
     textStyle: TextStyle = LocalTextStyle.current,
@@ -235,7 +235,7 @@ fun InputField(
     }
 
     OutlinedTextField(
-        value = value,
+        value = value ?: "",
         onValueChange = onValueChange,
         enabled = enabled,
         label = {

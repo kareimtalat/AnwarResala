@@ -4,14 +4,14 @@ fun CourseEntity.toCourse(): Course = Course(
     id = id,
     branch = branch,
     coursesOfMonth = coursesOfMonth,
-    imagePath = imagePath,
+    imagePath = imagePath ?: "drawable/anwar_resala_logo",
     category = category,
     title = title,
     type = CourseType.valueOf(type),
     instructor = Course.Instructor(
         name = instructorName,
         bio = instructorBio,
-        imagePath = instructorImagePath
+        imagePath = instructorImagePath ?: "drawable/anwar_resala_logo",
     ),
     startDate = startDate,
     wGLink = wGLink,
@@ -20,10 +20,11 @@ fun CourseEntity.toCourse(): Course = Course(
     noOfLiteraturesFinished = noOfLiteraturesFinished,
     nextLecture = nextLecture,
     organizer = Course.Organizer(
-            name = organizerName,
-            whatsapp = organizerWhatsapp
+        name = organizerName,
+        whatsapp = organizerWhatsapp
     ),
-    progress = progress
+    progress = progress,
+    lastTouch = lastTouch
 )
 
 fun Course.toEntity(): CourseEntity = CourseEntity(
@@ -43,7 +44,8 @@ fun Course.toEntity(): CourseEntity = CourseEntity(
     totalLectures = totalLectures,
     noOfLiteraturesFinished = noOfLiteraturesFinished,
     nextLecture = nextLecture,
-    organizerName = organizer.name,
-    organizerWhatsapp = organizer.whatsapp,
-    progress = progress
+    organizerName = organizer?.name,
+    organizerWhatsapp = organizer?.whatsapp,
+    progress = progress,
+    lastTouch = lastTouch,
 )

@@ -1,9 +1,9 @@
-package com.kareimt.anwarresala.data.remote.repository.volunteer
+package com.kareimt.anwarresala.domain.repository.volunteer
 
 import com.kareimt.anwarresala.data.local.volunteer.VolunteerEntity
 
 interface VolunteerRepositoryInterface {
-    suspend fun registerVolunteer(volunteer: VolunteerEntity,password: String) : Result<VolunteerEntity>
+    suspend fun registerVolunteer(volunteer: VolunteerEntity, password: String) : Result<VolunteerEntity>
     suspend fun loginVolunteer(email: String, password: String): Result<VolunteerEntity>
     fun signOutVolunteer()
     suspend fun checkApproval(email: String): Result<Boolean>

@@ -73,7 +73,7 @@ fun CourseDetailsScreen(
             item {
                 // صورة الكورس
                 val context = LocalContext.current
-                val imageUri = remember(course.imagePath) {
+                val imageUri = remember(course.imagePath ?: "drawable/anwar_resala_logo") {
                     getImageUri(context, course.imagePath)
                 }
                 AsyncImage(
@@ -137,12 +137,14 @@ fun CourseDetailsScreen(
                                 // Only delete course image if it's not the default logo
                                 if (course.imagePath != "@drawable/anwar_resala_logo") {
                                     context.deleteFile(course.imagePath)
+                                    // TODO: Do like this but for firebase
                                 }
 
                                 // Only delete instructor image if it exists and is not the default logo
                                 course.instructor.imagePath.let { instructorImage ->
                                     if (instructorImage != "@drawable/anwar_resala_logo") {
                                         context.deleteFile(instructorImage)
+                                        // TODO: Do like this but for firebase
                                     }
                                 }
 
@@ -169,8 +171,8 @@ fun CourseDetailsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Organizer details
-                    if (course.organizer.name!=""){
-                        OrganizerSection(course.organizer)
+                    if (course.organizer?.name!=""){
+                        OrganizerSection(course.organizer ?: Course.Organizer("",""))
                     }
                 }
             }
